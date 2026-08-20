@@ -10,3 +10,6 @@ tools/manifest.json
 tools/*-preview.png
 tools/sheet_*.png
 tools/zoom*.png
+
+# Artefactos de compilación
+tsconfig.tsbuildinfo
