@@ -73,8 +73,8 @@ export default function Header() {
             aria-label="GOOD GAME, ir al inicio"
             className="mr-1 shrink-0 rounded-lg py-1"
           >
-            <Logo size="sm" className="lg:hidden" />
-            <Logo size="md" className="hidden lg:inline-flex" />
+            <Logo height={30} className="lg:hidden" />
+            <Logo height={38} className="max-lg:hidden" />
           </Link>
 
           {/* Navegación de escritorio */}
@@ -186,7 +186,7 @@ export default function Header() {
             className="absolute inset-y-0 right-0 flex w-[min(340px,88vw)] animate-slide-left flex-col border-l border-white/10 bg-ink-800 shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-3.5">
-              <Logo size="sm" />
+              <Logo height={30} />
               <button
                 type="button"
                 onClick={() => setMenuOpen(false)}

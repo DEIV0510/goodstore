@@ -35,9 +35,8 @@ export default function Home() {
     <>
       <Hero />
       <Benefits />
-      <Categories />
 
-      {/* Destacados en rejilla: el bloque de producto más visible del home */}
+      {/* Productos primero: es el bloque más visible del home, antes que nada más */}
       <section className="gg-container py-10 sm:py-12" aria-labelledby="destacados-title">
         <SectionHeading
           id="destacados-title"
@@ -55,6 +54,7 @@ export default function Home() {
         </ul>
       </section>
 
+      <Categories />
       <UsedBanner />
 
       <section className="gg-container py-10 sm:py-12" aria-labelledby="playstation-title">

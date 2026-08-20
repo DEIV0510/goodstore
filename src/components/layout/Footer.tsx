@@ -32,7 +32,7 @@ export default function Footer() {
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           {/* Marca */}
           <div className="lg:col-span-4">
-            <Logo size="lg" />
+            <Logo height={52} />
             <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/60">
               Videojuegos, consolas y accesorios para gamers. Encuentra tu próximo título
               para PlayStation y Nintendo Switch.

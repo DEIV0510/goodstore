@@ -23,6 +23,8 @@ Abre <http://localhost:5254>.
 | `npm run typecheck` | Revisa los tipos de TypeScript |
 | `npm run images` | Regenera `public/games/*.webp`, `src/data/products.ts` y `sitemap.xml` |
 | `npm run qa` | Control de calidad automatizado en navegador real (ver §9) |
+| `npm run brand` | Regenera logotipos e íconos desde `_source/logos/` |
+| `npm run boot` | Reinyecta la pantalla de carga en `index.html` |
 
 ---
 
@@ -93,7 +95,8 @@ good-game/
 ## 4. De dónde salen las imágenes
 
 El negocio entregó **6 fotografías** con los juegos organizados en cuadrícula
-(una de ellas duplicada) y un PDF con el brief. No había logo ni fotos individuales.
+(una de ellas duplicada), el logotipo oficial y un PDF con el brief. No había
+fotos individuales de cada juego.
 
 El proceso fue:
 
@@ -115,7 +118,7 @@ Para volver a generarlas: `node tools/crop4.mjs && npm run images`.
 
 | Elemento | Estado |
 | --- | --- |
-| Pantalla de carga con logo, barra y línea de escaneo | ✅ ~1,1 s y desaparece |
+| Pantalla de carga con el logotipo oficial, barra de bloques y barrido CRT | ✅ ~1,1 s y desaparece |
 | Header fijo con navegación de 7 secciones | ✅ |
 | Menú móvil (hamburguesa, cierra con Escape) | ✅ |
 | Buscador global (nombre, plataforma, género, sin tildes) | ✅ atajo `/` |
@@ -344,9 +347,21 @@ Al tener el dominio definitivo, actualizar:
 | `alert-500` | `#FF1717` | Agotado, descuentos, favoritos (uso moderado) |
 
 Tipografías: **Archivo** (títulos, ancho extendido) e **Inter** (texto).
-Logo: monograma **GG** creado para el proyecto — el brief indicaba que el negocio
-aún no tenía logo. Está en `src/components/brand/Logo.tsx` (SVG, escala sin perder
-calidad) y en `public/favicon.svg`.
+
+**Logotipo oficial del negocio.** Los originales están en `_source/logos/` (AI, PDF
+y PNG con transparencia en versión color, blanca y negra). `npm run brand`
+genera desde ahí todo lo que usa la web, en `public/brand/`:
+
+| Archivo | Uso |
+| --- | --- |
+| `logo-blanco.png` | Header, footer y menú móvil (fondo oscuro) |
+| `logo-color.png` | Pantalla de carga e imagen para compartir |
+| `logo-negro.png` | Reserva para fondos claros (facturas, impresos) |
+| `mando-blanco.png` | El mando aislado, para estados vacíos y la 404 |
+| `icono-512.png`, `apple-touch-icon.png`, `favicon.svg` | Íconos de app y pestaña |
+
+Si el negocio actualiza el logotipo, basta con reemplazar los PNG de
+`_source/logos/` y ejecutar `npm run brand && npm run boot`.
 
 ---
 

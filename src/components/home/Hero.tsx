@@ -1,7 +1,7 @@
 import { ArrowRight, MessageCircle, Truck, Gamepad2, RefreshCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ProductImage from '@/components/ui/ProductImage'
-import { MESSAGES, site, waLink } from '@/data/site'
+import { MESSAGES, waLink } from '@/data/site'
 import { products } from '@/data/products'
 
 /** Portadas reales usadas en la composición del hero. */
@@ -16,13 +16,24 @@ const HERO_SLUGS = [
 const bySlug = new Map(products.map((p) => [p.slug, p]))
 const covers = HERO_SLUGS.map((s) => bySlug.get(s)).filter(Boolean) as typeof products
 
-/** Transformaciones del abanico de portadas (escritorio). */
+/** Abanico de portadas en escritorio. */
 const FAN = [
   { rotate: -14, x: -196, y: 34, z: 1, scale: 0.84 },
   { rotate: -7, x: -100, y: 8, z: 2, scale: 0.92 },
   { rotate: 0, x: 0, y: -12, z: 3, scale: 1 },
   { rotate: 7, x: 100, y: 8, z: 2, scale: 0.92 },
   { rotate: 14, x: 196, y: 34, z: 1, scale: 0.84 },
+]
+
+/** Estantería compacta en móvil: es lo primero que se ve al abrir la web. */
+// Los anchos suman 92 % + separaciones: dejan margen para que la rotación
+// no saque las esquinas fuera del contenedor.
+const SHELF = [
+  { rotate: -9, y: 16, z: 1, w: 'w-[16%]' },
+  { rotate: -4, y: 6, z: 2, w: 'w-[19%]' },
+  { rotate: 0, y: 0, z: 3, w: 'w-[22%]' },
+  { rotate: 4, y: 6, z: 2, w: 'w-[19%]' },
+  { rotate: 9, y: 16, z: 1, w: 'w-[16%]' },
 ]
 
 export default function Hero() {
@@ -37,62 +48,11 @@ export default function Hero() {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-ink-900" />
       </div>
 
-      <div className="gg-container relative z-10 pb-16 pt-10 sm:pt-14 lg:pb-24 lg:pt-20">
-        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr),minmax(0,1.02fr)] lg:gap-8">
-          {/* ── Copy ────────────────────────────────────────────────────── */}
-          <div className="animate-fade-up text-center lg:text-left">
-            <p className="eyebrow justify-center lg:justify-start">
-              <span className="h-1.5 w-1.5 rounded-full bg-gold-500" aria-hidden="true" />
-              {site.name} · {site.tagline}
-            </p>
-
-            <h1
-              id="hero-title"
-              className="mt-4 text-balance font-display text-[2.5rem] font-black leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-[4.1rem]"
-              style={{ fontStretch: '112%' }}
-            >
-              Tu próximo juego <span className="text-gold-500">empieza aquí.</span>
-            </h1>
-
-            <p className="mx-auto mt-5 max-w-lg text-pretty text-base leading-relaxed text-white/70 sm:text-lg lg:mx-0">
-              Videojuegos, consolas y accesorios para llevar tu experiencia gaming al
-              siguiente nivel.
-            </p>
-
-            <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center lg:justify-start">
-              <Link to="/catalogo" className="btn-primary h-13 px-7 text-sm sm:text-[15px]">
-                Ver catálogo
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-              <a
-                href={waLink(MESSAGES.catalog)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-secondary h-13 px-7 text-sm sm:text-[15px]"
-              >
-                <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                Comprar por WhatsApp
-              </a>
-            </div>
-
-            <ul className="mx-auto mt-9 flex max-w-lg flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs font-semibold text-white/55 lg:mx-0 lg:justify-start">
-              <li className="flex items-center gap-2">
-                <Truck className="h-4 w-4 text-gold-500" aria-hidden="true" />
-                Envíos a toda Colombia
-              </li>
-              <li className="flex items-center gap-2">
-                <Gamepad2 className="h-4 w-4 text-gold-500" aria-hidden="true" />
-                PS4 · PS5 · Switch
-              </li>
-              <li className="flex items-center gap-2">
-                <RefreshCw className="h-4 w-4 text-gold-500" aria-hidden="true" />
-                Nuevos y usados
-              </li>
-            </ul>
-          </div>
-
-          {/* ── Composición de portadas ─────────────────────────────────── */}
-          <div className="relative">
+      <div className="gg-container relative z-10 pb-12 pt-5 sm:pt-10 lg:pb-24 lg:pt-20">
+        <div className="grid items-center gap-7 lg:grid-cols-[minmax(0,1fr),minmax(0,1.02fr)] lg:gap-8">
+          {/* ── Portadas ────────────────────────────────────────────────────
+              En móvil van PRIMERO: lo primero que se ve son los juegos.     */}
+          <div className="relative order-1 lg:order-2">
             {/* Escritorio: abanico con profundidad */}
             <div
               className="relative mx-auto hidden h-[420px] w-full max-w-[620px] items-center justify-center lg:flex"
@@ -135,27 +95,88 @@ export default function Hero() {
               })}
             </div>
 
-            {/* Móvil y tablet: trío compacto */}
-            <div className="flex items-end justify-center gap-3 lg:hidden">
-              {covers.slice(1, 4).map((p, i) => (
-                <Link
-                  key={p.slug}
-                  to={`/producto/${p.slug}`}
-                  className={`block overflow-hidden rounded-xl border border-white/12 bg-ink-800 shadow-[0_18px_36px_-16px_rgba(0,0,0,.9)] transition-transform duration-300 active:scale-95 ${
-                    i === 1 ? 'w-[38%] max-w-[190px]' : 'w-[29%] max-w-[150px] opacity-90'
-                  }`}
-                  style={{ transform: i === 1 ? 'none' : `rotate(${i === 0 ? -6 : 6}deg)` }}
-                  aria-label={`Ver ${p.name}`}
-                >
-                  <ProductImage
-                    src={p.images[0]}
-                    alt={`Portada de ${p.name}`}
-                    className="aspect-[3/4] w-full"
-                    priority={i === 1}
-                  />
-                </Link>
-              ))}
+            {/* Móvil y tablet: estantería con 5 portadas reales */}
+            <div className="lg:hidden">
+              <div className="flex items-end justify-center gap-[1.5%]">
+                {covers.map((p, i) => {
+                  const s = SHELF[i]
+                  return (
+                    <Link
+                      key={p.slug}
+                      to={`/producto/${p.slug}`}
+                      className={`block overflow-hidden rounded-lg border border-white/12 bg-ink-800 shadow-[0_16px_32px_-14px_rgba(0,0,0,.9)] transition-transform duration-300 active:scale-95 ${s.w}`}
+                      style={{
+                        transform: `translateY(${s.y}px) rotate(${s.rotate}deg)`,
+                        zIndex: s.z,
+                      }}
+                      aria-label={`Ver ${p.name}`}
+                    >
+                      <ProductImage
+                        src={p.images[0]}
+                        alt={`Portada de ${p.name}`}
+                        className="aspect-[3/4] w-full"
+                        priority={i === 2}
+                      />
+                    </Link>
+                  )
+                })}
+              </div>
+
+              <Link
+                to="/catalogo"
+                className="mx-auto mt-7 flex w-fit items-center gap-2 rounded-full border border-gold-500/35 bg-gold-500/10 px-3.5 py-2 text-2xs font-bold text-gold-500 transition-colors active:bg-gold-500/20"
+              >
+                {products.length} juegos disponibles
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </Link>
             </div>
+          </div>
+
+          {/* ── Texto y llamados a la acción ───────────────────────────────── */}
+          <div className="order-2 animate-fade-up text-center lg:order-1 lg:text-left">
+            <h1
+              id="hero-title"
+              className="text-balance font-display text-[2.1rem] font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-[4.1rem]"
+              style={{ fontStretch: '112%' }}
+            >
+              Tu próximo juego <span className="text-gold-500">empieza aquí.</span>
+            </h1>
+
+            <p className="mx-auto mt-3.5 max-w-lg text-pretty text-[15px] leading-relaxed text-white/70 sm:text-lg lg:mx-0 lg:mt-5">
+              Videojuegos, consolas y accesorios para llevar tu experiencia gaming al
+              siguiente nivel.
+            </p>
+
+            <div className="mt-6 flex flex-col items-stretch gap-2.5 sm:flex-row sm:items-center sm:justify-center lg:mt-8 lg:justify-start">
+              <Link to="/catalogo" className="btn-primary h-13 px-7 text-sm sm:text-[15px]">
+                Ver catálogo
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+              <a
+                href={waLink(MESSAGES.catalog)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary h-13 px-7 text-sm sm:text-[15px]"
+              >
+                <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                Comprar por WhatsApp
+              </a>
+            </div>
+
+            <ul className="mx-auto mt-6 flex max-w-lg flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-semibold text-white/55 lg:mx-0 lg:mt-9 lg:justify-start">
+              <li className="flex items-center gap-2">
+                <Truck className="h-4 w-4 text-gold-500" aria-hidden="true" />
+                Envíos a toda Colombia
+              </li>
+              <li className="flex items-center gap-2">
+                <Gamepad2 className="h-4 w-4 text-gold-500" aria-hidden="true" />
+                PS4 · PS5 · Switch
+              </li>
+              <li className="flex items-center gap-2">
+                <RefreshCw className="h-4 w-4 text-gold-500" aria-hidden="true" />
+                Nuevos y usados
+              </li>
+            </ul>
           </div>
         </div>
       </div>

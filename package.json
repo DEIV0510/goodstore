@@ -10,7 +10,10 @@
     "preview": "vite preview --port 5254",
     "images": "node tools/build-assets.mjs",
     "qa": "node tools/qa.mjs",
-    "crops": "node tools/crop4.mjs"
+    "crops": "node tools/crop4.mjs",
+    "brand": "node tools/brand.mjs",
+    "boot": "node tools/boot.mjs",
+    "og": "node tools/og.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.469.0",
