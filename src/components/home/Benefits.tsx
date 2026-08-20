@@ -19,10 +19,12 @@ export default function Benefits() {
                 <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
               </span>
               <span className="min-w-0">
-                <span className="block truncate font-display text-[13px] font-extrabold leading-tight text-white">
+                <span className="block text-balance font-display text-[13px] font-extrabold leading-tight text-white">
                   {title}
                 </span>
-                <span className="block truncate text-2xs text-white/50">{text}</span>
+                <span className="mt-0.5 block text-pretty text-2xs leading-snug text-white/50">
+                  {text}
+                </span>
               </span>
             </li>
           ))}
