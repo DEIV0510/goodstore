@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#070C42" />
+
+    <title>GOOD GAME | Videojuegos, Consolas y Accesorios</title>
+    <meta
+      name="description"
+      content="Compra videojuegos, consolas y accesorios en GOOD GAME. Encuentra títulos para PlayStation y Nintendo Switch, juegos usados y más. Envíos a Medellín y toda Colombia."
+    />
+    <meta name="author" content="GOOD GAME" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://goodgame.com.co/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GOOD GAME" />
+    <meta property="og:locale" content="es_CO" />
+    <meta property="og:title" content="GOOD GAME | Videojuegos, Consolas y Accesorios" />
+    <meta
+      property="og:description"
+      content="Videojuegos para PlayStation 4, PlayStation 5 y Nintendo Switch. Nuevos y usados. Envíos a Medellín y toda Colombia."
+    />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="https://goodgame.com.co/" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Inter:wght@400;500;600;700&display=swap"
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "name": "GOOD GAME",
+        "alternateName": "GOOD GAME — Game Store",
+        "description": "Tienda de videojuegos, consolas y accesorios para PlayStation y Nintendo Switch.",
+        "url": "https://goodgame.com.co/",
+        "telephone": "+573508271637",
+        "areaServed": "Colombia",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Itagüí",
+          "addressRegion": "Antioquia",
+          "addressCountry": "CO"
+        }
+      }
+    </script>
+
+    <style>
+      /* ── Pantalla de carga: vive fuera de React para aparecer al instante ── */
+      html { background: #070C42; }
+      #gg-boot {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 26px;
+        background: radial-gradient(120% 90% at 50% 30%, #0c1287 0%, #070a78 38%, #080E4C 72%, #070C42 100%);
+        font-family: Archivo, 'Segoe UI', system-ui, sans-serif;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+      }
+      #gg-boot[data-hide='true'] { opacity: 0; visibility: hidden; pointer-events: none; }
+      #gg-boot::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+        background-size: 46px 46px;
+        mask-image: radial-gradient(70% 55% at 50% 45%, #000 20%, transparent 78%);
+        -webkit-mask-image: radial-gradient(70% 55% at 50% 45%, #000 20%, transparent 78%);
+      }
+      /* línea de escaneo sutil */
+      #gg-boot::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 130px;
+        background: linear-gradient(180deg, transparent, rgba(255, 240, 0, 0.07), transparent);
+        animation: gg-scan 2.4s linear infinite;
+      }
+      @keyframes gg-scan { 0% { top: -15%; } 100% { top: 105%; } }
+      .gg-boot__mark { position: relative; animation: gg-pop 0.75s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      @keyframes gg-pop {
+        from { opacity: 0; transform: translateY(14px) scale(0.94); }
+        to { opacity: 1; transform: none; }
+      }
+      .gg-boot__word {
+        position: relative;
+        font-size: clamp(2.1rem, 9vw, 3.6rem);
+        font-weight: 900;
+        font-stretch: 115%;
+        letter-spacing: -0.02em;
+        line-height: 1;
+        color: #fff;
+        text-align: center;
+      }
+      .gg-boot__word em { font-style: normal; color: #fff000; }
+      .gg-boot__sub {
+        position: relative;
+        margin-top: 12px;
+        text-align: center;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.52em;
+        text-indent: 0.52em;
+        color: rgba(255, 255, 255, 0.62);
+      }
+      .gg-boot__bar {
+        position: relative;
+        width: min(230px, 58vw);
+        height: 3px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        overflow: hidden;
+      }
+      .gg-boot__bar i {
+        position: absolute;
+        inset: 0;
+        display: block;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #fff000, #fff54d);
+        transform-origin: left;
+        animation: gg-fill 1.15s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+      @keyframes gg-fill {
+        0% { transform: scaleX(0.02); }
+        55% { transform: scaleX(0.7); }
+        100% { transform: scaleX(1); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #gg-boot::after, .gg-boot__mark, .gg-boot__bar i { animation: none; }
+        .gg-boot__bar i { transform: scaleX(1); }
+      }
+    </style>
+  </head>
+  <body class="bg-ink-900">
+    <!-- Pantalla de carga -->
+    <div id="gg-boot" role="status" aria-live="polite" aria-label="Cargando GOOD GAME">
+      <div class="gg-boot__mark">
+        <svg width="88" height="88" viewBox="0 0 96 96" aria-hidden="true" fill="none">
+          <defs>
+            <linearGradient id="bootBadge" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#161EB4" />
+              <stop offset="0.5" stop-color="#070A78" />
+              <stop offset="1" stop-color="#050745" />
+            </linearGradient>
+          </defs>
+          <rect x="1.75" y="1.75" width="92.5" height="92.5" rx="25" fill="url(#bootBadge)" stroke="#FFF000" stroke-width="3.5" />
+          <g transform="translate(0,-2)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M42.05 37.11 A 13.5 13.5 0 1 0 44.5 45 L 31.68 45" stroke="#FFFFFF" stroke-width="7" />
+            <path d="M74.05 37.11 A 13.5 13.5 0 1 0 76.5 45 L 63.68 45" stroke="#050745" stroke-width="12" />
+            <path d="M74.05 37.11 A 13.5 13.5 0 1 0 76.5 45 L 63.68 45" stroke="#FFF000" stroke-width="7" />
+          </g>
+          <rect x="34" y="74" width="28" height="4.5" rx="2.25" fill="#FF1717" />
+        </svg>
+      </div>
+      <div>
+        <div class="gg-boot__word">GOOD <em>GAME</em></div>
+        <div class="gg-boot__sub">GAME STORE</div>
+      </div>
+      <div class="gg-boot__bar"><i></i></div>
+    </div>
+
+    <noscript>
+      <div style="padding: 40px; color: #fff; font-family: system-ui">
+        <h1>GOOD GAME — Game Store</h1>
+        <p>Necesitas activar JavaScript para ver la tienda. También puedes escribirnos por WhatsApp al 350 827 1637.</p>
+      </div>
+    </noscript>
+
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

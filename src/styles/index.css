@@ -1,0 +1,178 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --gg-header: 68px;
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --gg-header: 76px;
+    }
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--gg-header) + 16px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    @apply bg-ink-900 font-sans text-[15px] leading-relaxed text-white/80 antialiased;
+    /* Nunca permitir scroll horizontal accidental */
+    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-extrabold tracking-tight text-white;
+    font-stretch: 108%;
+  }
+
+  /* Foco visible y coherente en toda la tienda (accesibilidad).
+     Se limita a elementos interactivos: si se aplica a contenedores como <main>
+     el anillo dibuja una línea amarilla a lo ancho de la página. */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible,
+  [tabindex='0']:focus-visible {
+    @apply outline-none ring-2 ring-gold-500 ring-offset-2 ring-offset-ink-900;
+    border-radius: 6px;
+  }
+
+  ::selection {
+    @apply bg-gold-500 text-ink-900;
+  }
+
+  /* Scrollbar discreta y en marca */
+  @supports selector(::-webkit-scrollbar) {
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #070c42;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #141ba4;
+      border-radius: 999px;
+      border: 2px solid #070c42;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #2029c4;
+    }
+  }
+}
+
+@layer components {
+  .gg-container {
+    @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ── Botones ─────────────────────────────────────────────────────────── */
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold
+           transition-all duration-200 ease-smooth
+           disabled:pointer-events-none disabled:opacity-45;
+  }
+  .btn-primary {
+    @apply btn bg-gold-500 text-ink-900 shadow-gold hover:bg-gold-400 active:scale-[.97];
+  }
+  .btn-secondary {
+    @apply btn border border-white/15 bg-white/[.06] text-white hover:border-gold-500/50 hover:bg-white/[.11] active:scale-[.97];
+  }
+  .btn-wa {
+    @apply btn bg-[#25D366] text-[#04241a] hover:bg-[#31e575] active:scale-[.97];
+  }
+  .btn-ghost {
+    @apply btn text-white/70 hover:bg-white/[.07] hover:text-white;
+  }
+
+  /* ── Superficies ─────────────────────────────────────────────────────── */
+  .surface {
+    @apply rounded-card border border-white/10 bg-ink-700/70 shadow-card backdrop-blur-[2px];
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-2xs font-bold uppercase tracking-wider;
+  }
+
+  /* Malla técnica de fondo */
+  .bg-tech {
+    background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 46px 46px;
+  }
+
+  /* Título de sección */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-2xs font-bold uppercase tracking-[.28em] text-gold-500;
+  }
+
+  /* Skeleton */
+  .skeleton {
+    @apply relative overflow-hidden bg-white/[.06];
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.09),
+      transparent
+    );
+  }
+
+  /* Oculta la barra de scroll en carruseles horizontales */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  /* Respeta el notch / barra de gestos en móviles */
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  .mb-safe {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+}
