@@ -1,3 +1,7 @@
+import { fileURLToPath } from 'node:url'
+import { dirname } from 'node:path'
+// Permite ejecutar el script desde cualquier carpeta (p. ej. )
+process.chdir(dirname(fileURLToPath(import.meta.url)))
 import sharp from './sharp.mjs';
 import fs from 'node:fs';
 const fit=JSON.parse(fs.readFileSync('fit.json','utf8'));

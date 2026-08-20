@@ -1,4 +1,8 @@
 // Genera public/og-image.png (1200×630) para compartir en redes y WhatsApp.
+import { fileURLToPath } from 'node:url'
+import { dirname } from 'node:path'
+// Permite ejecutar el script desde cualquier carpeta (p. ej. )
+process.chdir(dirname(fileURLToPath(import.meta.url)))
 import sharp from './sharp.mjs'
 
 const W = 1200

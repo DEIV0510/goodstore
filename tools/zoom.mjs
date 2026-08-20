@@ -1,3 +1,7 @@
+import { fileURLToPath } from 'node:url'
+import { dirname } from 'node:path'
+// Permite ejecutar el script desde cualquier carpeta (p. ej. )
+process.chdir(dirname(fileURLToPath(import.meta.url)))
 import sharp from './sharp.mjs';
 const ids=process.argv.slice(2);
 const CW=390,CH=560,PAD=10,COLS=4;
