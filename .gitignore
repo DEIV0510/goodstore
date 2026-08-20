@@ -2,14 +2,11 @@ node_modules
 dist
 .DS_Store
 *.local
+
+# Salidas intermedias del recorte de portadas (se regeneran)
 tools/crops
-tools/sheet_*.png
-tools/ov_*.png
-tools/mask_*.png
-tools/zoom*.png
-tools/profiles.txt
 tools/qa-shots
-tools/og-preview.png
-tools/logo-preview.png
-tools/*.json
-!tools/gridcfg.json
+tools/manifest.json
+tools/*-preview.png
+tools/sheet_*.png
+tools/zoom*.png
