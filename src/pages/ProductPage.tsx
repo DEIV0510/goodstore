@@ -17,7 +17,7 @@ import ProductCard from '@/components/catalog/ProductCard'
 import ProductImage from '@/components/ui/ProductImage'
 import { ConditionBadge, PlatformBadge, RegionBadge, StockBadge, isAvailable } from '@/components/ui/Badges'
 import { products } from '@/data/products'
-import { genreLabel, platformLabel, regionLabel } from '@/data/taxonomy'
+import { conditionLabel, genreLabel, platformLabel, regionLabel } from '@/data/taxonomy'
 import { site } from '@/data/site'
 import { cop } from '@/lib/format'
 import { productMessage } from '@/lib/whatsapp'
@@ -348,7 +348,7 @@ export default function ProductPage() {
               <div>
                 <dt className="text-2xs uppercase tracking-wider text-white/40">Estado</dt>
                 <dd className="mt-0.5 font-semibold text-white/85">
-                  {product.condition === 'consultar' ? 'A confirmar' : product.condition}
+                  {conditionLabel(product.condition)}
                 </dd>
               </div>
               <div>
