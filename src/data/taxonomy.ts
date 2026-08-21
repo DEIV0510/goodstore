@@ -1,9 +1,11 @@
-import type { Condition, Genre, Platform } from '@/types'
+import type { Condition, Genre, Platform, Region } from '@/types'
 
 export const PLATFORMS: { id: Platform; label: string; short: string }[] = [
   { id: 'ps5', label: 'PlayStation 5', short: 'PS5' },
   { id: 'ps4', label: 'PlayStation 4', short: 'PS4' },
   { id: 'switch', label: 'Nintendo Switch', short: 'Switch' },
+  { id: 'switch2', label: 'Nintendo Switch 2', short: 'Switch 2' },
+  { id: 'xbox', label: 'Xbox', short: 'Xbox' },
 ]
 
 export const platformLabel = (p: Platform) =>
@@ -23,7 +25,8 @@ export const GENRES: { id: Genre; label: string }[] = [
   { id: 'lucha', label: 'Lucha' },
 ]
 
-export const genreLabel = (g: Genre) => GENRES.find((x) => x.id === g)?.label ?? g
+export const genreLabel = (g: Genre | null) =>
+  g ? (GENRES.find((x) => x.id === g)?.label ?? g) : 'Videojuego'
 
 export const CONDITIONS: { id: Condition; label: string }[] = [
   { id: 'nuevo', label: 'Nuevo' },
@@ -33,6 +36,16 @@ export const CONDITIONS: { id: Condition; label: string }[] = [
 
 export const conditionLabel = (c: Condition) =>
   CONDITIONS.find((x) => x.id === c)?.label ?? c
+
+export const REGIONS: { id: Region; label: string }[] = [
+  { id: 'america', label: 'América' },
+  { id: 'europa', label: 'Europa' },
+  { id: 'japon', label: 'Japón' },
+  { id: 'asia', label: 'Asia' },
+]
+
+export const regionLabel = (r: Region | null) =>
+  r ? (REGIONS.find((x) => x.id === r)?.label ?? r) : 'Por confirmar'
 
 export const PRICE_RANGES: { id: string; label: string; min: number; max: number }[] = [
   { id: 'r1', label: 'Menos de $50.000', min: 0, max: 49999 },

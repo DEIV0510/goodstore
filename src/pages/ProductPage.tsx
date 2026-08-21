@@ -15,9 +15,9 @@ import { useMemo, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import ProductCard from '@/components/catalog/ProductCard'
 import ProductImage from '@/components/ui/ProductImage'
-import { ConditionBadge, PlatformBadge, StockBadge, isAvailable } from '@/components/ui/Badges'
+import { ConditionBadge, PlatformBadge, RegionBadge, StockBadge, isAvailable } from '@/components/ui/Badges'
 import { products } from '@/data/products'
-import { genreLabel, platformLabel } from '@/data/taxonomy'
+import { genreLabel, platformLabel, regionLabel } from '@/data/taxonomy'
 import { site } from '@/data/site'
 import { cop } from '@/lib/format'
 import { productMessage } from '@/lib/whatsapp'
@@ -47,7 +47,7 @@ export default function ProductPage() {
       ? `${product.name} — ${platformLabel(product.platform)} | GOOD GAME`
       : 'Producto no encontrado | GOOD GAME',
     description: product
-      ? `${product.description} Disponible en GOOD GAME con envíos a Medellín y toda Colombia.`
+      ? `${product.description || `${product.name} para ${platformLabel(product.platform)}, ${product.condition}.`} Disponible en GOOD GAME con envíos a Medellín y toda Colombia.`
       : 'Este producto no está disponible en GOOD GAME.',
     path: `/producto/${slug ?? ''}`,
     image: product?.images[0],
@@ -56,8 +56,10 @@ export default function ProductPage() {
           '@context': 'https://schema.org',
           '@type': 'Product',
           name: product.name,
-          description: product.description,
-          image: `${site.url}${product.images[0]}`,
+          description:
+            product.description ||
+            `${product.name} para ${platformLabel(product.platform)} en estado ${product.condition}.`,
+          ...(product.images[0] ? { image: `${site.url}${product.images[0]}` } : {}),
           category: platformLabel(product.platform),
           brand: { '@type': 'Brand', name: platformLabel(product.platform) },
           offers: {
@@ -133,8 +135,9 @@ export default function ProductPage() {
                 <ProductImage
                   src={product.images[activeImage]}
                   alt={`Portada de ${product.name} para ${platformLabel(product.platform)}`}
-                  className="aspect-[3/4] w-full drop-shadow-[0_24px_44px_rgba(0,0,0,.75)]"
+                  className="aspect-[3/4] w-full overflow-hidden rounded-lg drop-shadow-[0_24px_44px_rgba(0,0,0,.75)]"
                   priority
+                  fallback={{ name: product.name, platform: product.platform }}
                 />
               </div>
               {!available && (
@@ -169,8 +172,9 @@ export default function ProductPage() {
             )}
 
             <p className="mt-3 text-2xs leading-relaxed text-white/35">
-              Fotografía tomada de nuestro propio inventario. El estado exacto de la copia se
-              confirma por WhatsApp antes de la entrega.
+              {product.images.length > 0
+                ? 'Fotografía tomada de nuestro propio inventario. El estado exacto de la copia se confirma por WhatsApp antes de la entrega.'
+                : 'Todavía no tenemos fotografía de esta copia. Escríbenos y te enviamos fotos reales antes de que decidas.'}
             </p>
           </div>
 
@@ -179,6 +183,7 @@ export default function ProductPage() {
             <div className="flex flex-wrap items-center gap-2">
               <PlatformBadge platform={product.platform} />
               <ConditionBadge condition={product.condition} />
+              <RegionBadge region={product.region} />
               {product.featured && (
                 <span className="chip border-gold-500/50 bg-gold-500 text-ink-900">Destacado</span>
               )}
@@ -204,9 +209,16 @@ export default function ProductPage() {
               </Link>
             </div>
 
-            <p className="mt-5 text-pretty text-[15px] leading-relaxed text-white/70">
-              {product.description}
-            </p>
+            {product.description ? (
+              <p className="mt-5 text-pretty text-[15px] leading-relaxed text-white/70">
+                {product.description}
+              </p>
+            ) : (
+              <p className="mt-5 text-pretty text-[15px] leading-relaxed text-white/50">
+                Todavía no tenemos una descripción de este título. Escríbenos y te contamos
+                de qué se trata y en qué estado está la copia.
+              </p>
+            )}
 
             {product.note && (
               <p className="mt-4 flex gap-2.5 rounded-lg border border-gold-500/25 bg-gold-500/[.07] px-3.5 py-3 text-[13px] leading-relaxed text-gold-300">
@@ -328,6 +340,10 @@ export default function ProductPage() {
               <div>
                 <dt className="text-2xs uppercase tracking-wider text-white/40">Formato</dt>
                 <dd className="mt-0.5 font-semibold text-white/85">Físico</dd>
+              </div>
+              <div>
+                <dt className="text-2xs uppercase tracking-wider text-white/40">Región</dt>
+                <dd className="mt-0.5 font-semibold text-white/85">{regionLabel(product.region)}</dd>
               </div>
               <div>
                 <dt className="text-2xs uppercase tracking-wider text-white/40">Estado</dt>

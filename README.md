@@ -1,8 +1,9 @@
 # GOOD GAME — Game Store
 
 Tienda web de videojuegos, consolas y accesorios para **GOOD GAME** (Itagüí, Antioquia).
-Catálogo de **118 videojuegos físicos** para PlayStation 5, PlayStation 4 y Nintendo Switch,
-con carrito, filtros, buscador y cierre de compra por WhatsApp.
+Catálogo de **318 productos físicos** (445 unidades) para PlayStation 5, PlayStation 4,
+Nintendo Switch, Switch 2 y accesorios, con precios y existencias reales, carrito,
+filtros, buscador y cierre de compra por WhatsApp.
 
 ---
 
@@ -21,7 +22,7 @@ Abre <http://localhost:5254>.
 | `npm run build` | Compila a `dist/` listo para publicar |
 | `npm run preview` | Sirve `dist/` para revisar el build |
 | `npm run typecheck` | Revisa los tipos de TypeScript |
-| `npm run images` | Regenera `public/games/*.webp`, `src/data/products.ts` y `sitemap.xml` |
+| `npm run catalogo` | Regenera el catálogo desde el inventario: `products.ts`, imágenes y `sitemap.xml` |
 | `npm run qa` | Control de calidad automatizado en navegador real (ver §9) |
 | `npm run brand` | Regenera logotipos e íconos desde `_source/logos/` |
 | `npm run boot` | Reinyecta la pantalla de carga en `index.html` |
@@ -124,8 +125,8 @@ Para volver a generarlas: `node tools/crop4.mjs && npm run images`.
 | Buscador global (nombre, plataforma, género, sin tildes) | ✅ atajo `/` |
 | Hero con portadas reales en abanico | ✅ |
 | Beneficios, categorías, confianza, FAQ | ✅ |
-| Catálogo con 118 productos | ✅ |
-| Filtros por plataforma, estado, disponibilidad, género y precio | ✅ con contadores reales |
+| Catálogo con 318 productos y 445 unidades | ✅ |
+| Filtros por plataforma, estado, disponibilidad, género, región y precio | ✅ con contadores reales |
 | Orden: destacados, recientes, precio ↑↓, nombre | ✅ |
 | Filtros reflejados en la URL (compartibles) | ✅ |
 | Página individual por producto (`/producto/slug`) | ✅ con datos estructurados |
@@ -143,33 +144,57 @@ Para volver a generarlas: `node tools/crop4.mjs && npm run images`.
 
 ---
 
-## 6. Qué quedó preparado para completar
+## 6. De dónde salen los datos del catálogo
 
-El negocio **no entregó** estos datos, así que la tienda funciona sin ellos y los
-muestra de forma honesta en lugar de inventarlos:
+El negocio entregó su inventario en Excel (`_source/inventario.xlsx`) con las
+columnas **Articulo · Plataforma · Pv estimado · Estado · Region · Cantidad**.
+De ahí sale todo: 324 filas → **318 productos** y **445 unidades**.
+
+Reglas aplicadas al leerlo (en `tools/inventory.mjs`):
+
+- Las filas idénticas (mismo título, plataforma, estado, región y precio) se
+  agrupan en un solo producto. La cantidad es `max(suma escrita, nº de filas)`,
+  porque el negocio a veces escribe "3" en la primera fila y deja las
+  repeticiones en blanco, y otras veces escribe "1" en cada una.
+- Un mismo título puede quedar como **dos productos** si hay copia nueva y copia
+  usada a distinto precio: son dos ofertas distintas, cada una con su stock.
+- Los paréntesis del Excel ("Sin mapa", "Códigos vigentes", "No incluye
+  llavero") se convierten en un aviso visible en la ficha del producto.
+- Los nombres se normalizan a formato título y se corrigen erratas evidentes de
+  títulos que existen de verdad ("Assasin's" → "Assassin's", "Elden ring
+  nightrein" → "Elden Ring Nightreign"). Las 22 correcciones están listadas en
+  `ERRATAS`, dentro de `tools/build-catalog.mjs`.
+
+### Fotografías
+
+De los 318 productos, **124 tienen fotografía real** recortada de las fotos del
+negocio. El resto muestra una **portada de marca generada** con su título y el
+color de su plataforma: nunca se usa la carátula de otro juego ni una imagen de
+banco.
+
+El mapa fotografía → producto está **revisado a mano** en `tools/fotos.mjs`,
+porque el emparejamiento automático por nombre fallaba: le asignaba la portada de
+*God Eater 3* a *God of war 3*, y la de *The Last of Us Remastered* a
+*The Last of Us 2*. Ese archivo también documenta los 16 recortes que quedaron
+sin usar y por qué.
+
+> **Para mejorar la tienda:** por cada foto nueva que envíe el negocio, se
+> recorta, se añade una línea en `tools/fotos.mjs` y se ejecuta `npm run catalogo`.
+
+### Géneros y descripciones
+
+Los 289 títulos únicos se clasificaron por género y recibieron una descripción
+corta y factual. Los dos accesorios (control de Xbox y memoria microSD) no llevan
+género, que es lo correcto. La clasificación vive en `tools/_clasificacion.json`.
+
+### Lo que sigue sin definirse
 
 | Dato | Cómo se muestra hoy | Dónde se completa |
 | --- | --- | --- |
-| **Precios** | "Consultar precio" + botón de WhatsApp | `price` en `products.ts` |
-| **Nuevo / usado por título** | "Estado a confirmar" | `condition` en `products.ts` |
-| **Stock** | Todo disponible (nada marcado agotado) | `stock` en `products.ts` |
-| **Consolas** | Bloque "Próximamente nuevos equipos" con CTA a WhatsApp | añadir productos con `category: 'consolas'` |
-| **Accesorios** | Igual que consolas | `category: 'accesorios'` |
+| **Consolas** | La categoría existe, pero el inventario no trae consolas | añadir productos con `category: 'consolas'` |
 | **Redes sociales** | Nota de "próximamente"; no hay enlaces falsos | `site.socials` en `site.ts` |
 | **Dirección exacta** | Solo "Itagüí, Antioquia" (petición del cliente) | `site.ts` |
-| **Dominio** | `goodgame.com.co` como marcador | `site.url` + `SITE_URL` en `build-assets.mjs` |
-
-Los filtros de **precio** y **estado** ya funcionan: hoy muestran `0` porque no hay
-datos, y se activan solos en cuanto se llenen los campos.
-
-### Títulos retirados
-
-Seis juegos aparecen marcados con una **X roja** en las fotografías. No se publican.
-Están listados en `retirados`, al final de `src/data/products.ts`:
-Resident Evil 3, God of War (2018), Horizon Zero Dawn, Kena: Bridge of Spirits,
-Mega Man X Legacy Collection 1+2 y Need for Speed Payback.
-
-> Para reactivar uno hay que **reemplazar su fotografía**: la original tiene la X encima.
+| **Dominio** | `goodgame.com.co` como marcador | `site.url` + `SITE_URL` en `build-catalog.mjs` |
 
 ---
 

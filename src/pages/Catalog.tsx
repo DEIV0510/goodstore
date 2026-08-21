@@ -12,6 +12,7 @@ import {
   conditionLabel,
   genreLabel,
   platformLabel,
+  regionLabel,
 } from '@/data/taxonomy'
 import { MESSAGES, waLink } from '@/data/site'
 import {
@@ -32,6 +33,7 @@ const PAGE_SIZE = 24
 const searchIndex = buildSearchIndex(products, {
   platform: platformLabel,
   genre: genreLabel,
+  region: regionLabel,
 })
 const order = new Map(products.map((p, i) => [p.slug, i]))
 
@@ -48,6 +50,7 @@ function activeChips(f: FilterState) {
     chips.push({ key: 'availability', id, label: id === 'agotado' ? 'Agotado' : 'Disponible' })
   )
   f.genres.forEach((id) => chips.push({ key: 'genres', id, label: genreLabel(id) }))
+  f.regions.forEach((id) => chips.push({ key: 'regions', id, label: `Región: ${regionLabel(id)}` }))
   f.priceRanges.forEach((id) =>
     chips.push({
       key: 'priceRanges',
@@ -106,7 +109,17 @@ export default function Catalog() {
 
   const reset = useCallback(() => {
     setQueryDraft('')
-    update({ ...filters, platforms: [], conditions: [], genres: [], priceRanges: [], availability: [], categories: [], query: '' })
+    update({
+      ...filters,
+      platforms: [],
+      conditions: [],
+      genres: [],
+      regions: [],
+      priceRanges: [],
+      availability: [],
+      categories: [],
+      query: '',
+    })
   }, [filters, update])
 
   const results = useMemo(() => {
@@ -163,7 +176,7 @@ export default function Catalog() {
             Catálogo de videojuegos
           </h1>
           <p className="mt-2.5 max-w-2xl text-pretty text-sm text-white/65 sm:text-base">
-{products.length} títulos físicos para PS5, PS4 y Nintendo Switch.
+{products.length} productos físicos para PS5, PS4, Nintendo Switch y Switch 2, con precio y unidades reales.
           </p>
 
           <form onSubmit={onSearchSubmit} className="mt-6 flex max-w-xl gap-2" role="search">

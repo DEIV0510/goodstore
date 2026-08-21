@@ -1,11 +1,12 @@
 import { PRICE_RANGES } from '@/data/taxonomy'
 import { normalize } from './format'
-import type { Category, Condition, Genre, Platform, Product, SortKey } from '@/types'
+import type { Category, Condition, Genre, Platform, Product, Region, SortKey } from '@/types'
 
 export interface FilterState {
   platforms: Platform[]
   conditions: Condition[]
   genres: Genre[]
+  regions: Region[]
   priceRanges: string[]
   availability: ('disponible' | 'agotado')[]
   categories: Category[]
@@ -17,6 +18,7 @@ export const EMPTY_FILTERS: FilterState = {
   platforms: [],
   conditions: [],
   genres: [],
+  regions: [],
   priceRanges: [],
   availability: [],
   categories: [],
@@ -34,6 +36,7 @@ export function fromSearchParams(params: URLSearchParams): FilterState {
     platforms: list(params, 'plataforma') as Platform[],
     conditions: list(params, 'estado') as Condition[],
     genres: list(params, 'genero') as Genre[],
+    regions: list(params, 'region') as Region[],
     priceRanges: list(params, 'precio'),
     availability: list(params, 'disponibilidad') as ('disponible' | 'agotado')[],
     categories: list(params, 'categoria') as Category[],
@@ -49,6 +52,7 @@ export function toSearchParams(f: FilterState): URLSearchParams {
   if (f.platforms.length) p.set('plataforma', f.platforms.join(','))
   if (f.conditions.length) p.set('estado', f.conditions.join(','))
   if (f.genres.length) p.set('genero', f.genres.join(','))
+  if (f.regions.length) p.set('region', f.regions.join(','))
   if (f.priceRanges.length) p.set('precio', f.priceRanges.join(','))
   if (f.availability.length) p.set('disponibilidad', f.availability.join(','))
   if (f.categories.length) p.set('categoria', f.categories.join(','))
@@ -61,6 +65,7 @@ export const countActive = (f: FilterState) =>
   f.platforms.length +
   f.conditions.length +
   f.genres.length +
+  f.regions.length +
   f.priceRanges.length +
   f.availability.length +
   f.categories.length +
@@ -84,7 +89,14 @@ const matchesQuery = (p: Product, query: string, searchIndex: Map<string, string
   return term.split(/\s+/).filter(Boolean).every((w) => hay.includes(w))
 }
 
-type Facet = 'platforms' | 'conditions' | 'genres' | 'priceRanges' | 'availability' | 'categories'
+type Facet =
+  | 'platforms'
+  | 'conditions'
+  | 'genres'
+  | 'regions'
+  | 'priceRanges'
+  | 'availability'
+  | 'categories'
 
 /**
  * Aplica todos los filtros salvo el indicado en `except`.
@@ -103,7 +115,10 @@ export function applyFilters(
       return false
     if (except !== 'conditions' && f.conditions.length && !f.conditions.includes(p.condition))
       return false
-    if (except !== 'genres' && f.genres.length && !f.genres.includes(p.genre)) return false
+    if (except !== 'genres' && f.genres.length && (p.genre === null || !f.genres.includes(p.genre)))
+      return false
+    if (except !== 'regions' && f.regions.length && (p.region === null || !f.regions.includes(p.region)))
+      return false
     if (except !== 'categories' && f.categories.length && !f.categories.includes(p.category))
       return false
     if (except !== 'priceRanges' && f.priceRanges.length && !inPriceRange(p.price, f.priceRanges))
@@ -152,15 +167,26 @@ export function sortProducts(items: Product[], sort: SortKey, order: Map<string,
 /** Índice de búsqueda precalculado (nombre + plataforma + género + tags). */
 export function buildSearchIndex(
   items: Product[],
-  labels: { platform: (p: Platform) => string; genre: (g: Genre) => string }
+  labels: {
+    platform: (p: Platform) => string
+    genre: (g: Genre | null) => string
+    region: (r: Region | null) => string
+  }
 ) {
   return new Map(
     items.map((p) => [
       p.slug,
       normalize(
-        `${p.name} ${labels.platform(p.platform)} ${p.platform} ${labels.genre(p.genre)} ${p.tags.join(
-          ' '
-        )} ${p.description}`
+        [
+          p.name,
+          labels.platform(p.platform),
+          p.platform,
+          labels.genre(p.genre),
+          labels.region(p.region),
+          p.condition,
+          p.tags.join(' '),
+          p.description,
+        ].join(' ')
       ),
     ])
   )

@@ -4,9 +4,9 @@ import ProductImage from '@/components/ui/ProductImage'
 
 const COVERS = [
   '/games/the-last-of-us-remastered-ps4.webp',
-  '/games/god-of-war-iii-remastered-ps4.webp',
-  '/games/resident-evil-4-portada-clasica-ps4.webp',
-  '/games/rayman-legends-ps4.webp',
+  '/games/god-of-war-3-ps4.webp',
+  '/games/resident-evil-4-version-clasica-ps4.webp',
+  '/games/rayman-ps4.webp',
 ]
 
 export default function UsedBanner() {

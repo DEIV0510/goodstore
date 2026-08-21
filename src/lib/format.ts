@@ -6,7 +6,8 @@ export const cop = (value: number) =>
     maximumFractionDigits: 0,
   })
     .format(value)
-    .replace(/\s/g, ' ')
+    // es-CO intercala un espacio duro tras el símbolo: "$ 85.000" → "$85.000"
+    .replace(/\s/g, '')
 
 /** Texto del precio de un producto, contemplando el caso "sin precio". */
 export const priceLabel = (price: number | null) =>

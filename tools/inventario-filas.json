@@ -1,0 +1,2595 @@
+{
+ "1": {
+  "A": "Articulo",
+  "B": "Plataforma",
+  "C": "Pv estimado",
+  "D": "Estado",
+  "E": "Region",
+  "F": "Cantidad"
+ },
+ "2": {
+  "A": "Assasin's creed origins",
+  "B": "PS4",
+  "C": "45000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "3": {
+  "A": "Assasin's creed the ezio collection",
+  "B": "PS4",
+  "C": "55000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "4": {
+  "A": "ATTACK ON TITAN 1",
+  "B": "PS4",
+  "C": "90000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "5": {
+  "A": "Axiom Verge 2",
+  "B": "PS4",
+  "C": "130000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "6": {
+  "A": "Batman Arkham Collection",
+  "B": "PS4",
+  "C": "90000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "7": {
+  "A": "Bioshock collection",
+  "B": "PS4",
+  "C": "85000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "8": {
+  "A": "Blasphemous deluxe edition",
+  "B": "PS4",
+  "C": "280000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "9": {
+  "A": "Bloodborne",
+  "B": "PS4",
+  "C": "60000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "10": {
+  "A": "Bloodborne goty",
+  "B": "PS4",
+  "C": "115000",
+  "D": "nuevo",
+  "E": "Europa",
+  "F": "1"
+ },
+ "11": {
+  "A": "Call of duty modern warfare",
+  "B": "PS4",
+  "C": "65000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "12": {
+  "A": "Callisto protocol",
+  "B": "PS4",
+  "C": "60000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "13": {
+  "A": "Crash bandicoot 4",
+  "B": "PS4",
+  "C": "90000",
+  "D": "Usado",
+  "E": "America",
+  "F": "2"
+ },
+ "14": {
+  "A": "Crash ctr",
+  "B": "PS4",
+  "C": "90000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "15": {
+  "A": "Crash Team Racing",
+  "B": "PS4",
+  "C": "120000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "16": {
+  "A": "Crash trilogy",
+  "B": "PS4",
+  "C": "70000",
+  "D": "Usado",
+  "E": "Europa",
+  "F": "1"
+ },
+ "17": {
+  "A": "Crash trilogy",
+  "B": "PS4",
+  "C": "70000",
+  "D": "usado",
+  "E": "America",
+  "F": "1"
+ },
+ "18": {
+  "A": "Cuphead",
+  "B": "PS4",
+  "C": "110000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "19": {
+  "A": "Dark souls 2",
+  "B": "PS4",
+  "C": "60000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "20": {
+  "A": "Dark Souls Trilogy",
+  "B": "PS4",
+  "C": "170000",
+  "D": "nuevo",
+  "E": "Europa",
+  "F": "1"
+ },
+ "21": {
+  "A": "Darksiders III",
+  "B": "PS4",
+  "C": "80000",
+  "D": "nuevo",
+  "E": "Europa",
+  "F": "1"
+ },
+ "22": {
+  "A": "Dead cells goty (No incluye llavero)",
+  "B": "PS4",
+  "C": "50000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "23": {
+  "A": "Destroy all humans",
+  "B": "PS4",
+  "C": "60000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "24": {
+  "A": "Deus ex",
+  "B": "PS4",
+  "C": "25000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "25": {
+  "A": "Devil may cry collection",
+  "B": "PS4",
+  "C": "90000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "26": {
+  "A": "Disco elisium",
+  "B": "PS4",
+  "C": "120000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "27": {
+  "A": "Doom 2016",
+  "B": "PS4",
+  "C": "60000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "28": {
+  "A": "Dragon ball z kakarot",
+  "B": "PS4",
+  "C": "85000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "29": {
+  "A": "Dragon ball z kakarot",
+  "B": "PS4",
+  "C": "65000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "30": {
+  "A": "Fate Extella",
+  "B": "PS4",
+  "C": "40000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "31": {
+  "A": "Forager",
+  "B": "PS4",
+  "C": "50000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "32": {
+  "A": "Ghost of tsushima",
+  "B": "PS4",
+  "C": "85000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "33": {
+  "A": "Ghost of tsushima director's cut",
+  "B": "PS4",
+  "C": "100000",
+  "D": "Usado",
+  "E": "America",
+  "F": "2"
+ },
+ "34": {
+  "A": "God of war 3",
+  "B": "PS4",
+  "C": "68000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "35": {
+  "A": "God of war 3",
+  "B": "PS4",
+  "C": "55000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "36": {
+  "A": "GTA Trilogy",
+  "B": "PS4",
+  "C": "110000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "37": {
+  "A": "GTA V",
+  "B": "PS4",
+  "C": "85000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "3"
+ },
+ "38": {
+  "A": "Hollow knight",
+  "B": "PS4",
+  "C": "125000",
+  "D": "nuevo",
+  "E": "Europa",
+  "F": "2"
+ },
+ "39": {
+  "A": "Immortals fenyx rising",
+  "B": "PS4",
+  "C": "45000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "40": {
+  "A": "It takes two",
+  "B": "PS4",
+  "C": "130000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "41": {
+  "A": "Lego batman 3",
+  "B": "PS4",
+  "C": "45000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "42": {
+  "A": "MINECRAFT DUNGEONS",
+  "B": "PS4",
+  "C": "60000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "43": {
+  "A": "Monster hunter",
+  "B": "PS4",
+  "C": "40000",
+  "D": "Usado",
+  "E": "America",
+  "F": "2"
+ },
+ "44": {
+  "A": "Nier automata",
+  "B": "PS4",
+  "C": "70000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "45": {
+  "A": "Nioh",
+  "B": "PS4",
+  "C": "43000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "46": {
+  "A": "Nioh",
+  "B": "PS4",
+  "C": "50000",
+  "D": "usado",
+  "E": "America",
+  "F": "2"
+ },
+ "47": {
+  "A": "Persona 5 - (PlayStation Hits)",
+  "B": "PS4",
+  "C": "45000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "48": {
+  "A": "Ratchet and clank",
+  "B": "PS4",
+  "C": "40000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "49": {
+  "A": "Rayman",
+  "B": "PS4",
+  "C": "50000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "50": {
+  "A": "Red dead redemption 2 (Sin mapa)",
+  "B": "PS4",
+  "C": "80000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "51": {
+  "A": "Resident evil 2",
+  "B": "PS4",
+  "C": "85000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "52": {
+  "A": "Resident Evil 4 Remake (Promocion)",
+  "B": "PS4",
+  "C": "85000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "9"
+ },
+ "53": {
+  "A": "Resident evil 4 version clasica",
+  "B": "PS4",
+  "C": "85000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "54": {
+  "A": "Resident Evil Origins Collection",
+  "B": "PS4",
+  "C": "85000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "3"
+ },
+ "55": {
+  "A": "Resident Evil Revelations",
+  "B": "PS4",
+  "C": "85000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "3"
+ },
+ "56": {
+  "A": "Resident Evil Revelations 2",
+  "B": "PS4",
+  "C": "85000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "57": {
+  "A": "Sekiro",
+  "B": "PS4",
+  "C": "170000",
+  "D": "usado",
+  "E": "America",
+  "F": "2"
+ },
+ "58": {
+  "A": "Spiderman GOTY (Codigos vigentes)",
+  "B": "PS4",
+  "C": "75000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "59": {
+  "A": "Spiderman GOTY (Codigos vigentes)",
+  "B": "PS4",
+  "C": "100000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "60": {
+  "A": "Spiderman Miles Morales",
+  "B": "PS4",
+  "C": "110000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "61": {
+  "A": "Spiderman Miles morales",
+  "B": "PS4",
+  "C": "80000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "62": {
+  "A": "Spiderman version standard",
+  "B": "PS4",
+  "C": "60000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "63": {
+  "A": "Spyro",
+  "B": "PS4",
+  "C": "60000",
+  "D": "Usado",
+  "E": "America",
+  "F": "2"
+ },
+ "64": {
+  "A": "Star wars jedi fallen order",
+  "B": "PS4",
+  "C": "60000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "65": {
+  "A": "Star Wars: Squadrons (Liquidacion)",
+  "B": "PS4",
+  "C": "30000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "66": {
+  "A": "Tales of berseria",
+  "B": "PS4",
+  "C": "60000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "67": {
+  "A": "Tekken 7",
+  "B": "PS4",
+  "C": "55000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "68": {
+  "A": "The hunter call of the wild",
+  "B": "PS4",
+  "C": "80000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "69": {
+  "A": "The king of fighters XIV Steelbook con juego",
+  "B": "PS4",
+  "C": "100000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "70": {
+  "A": "the last of us 2",
+  "B": "PS4",
+  "C": "100000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "4"
+ },
+ "71": {
+  "A": "the last of us remastered",
+  "B": "PS4",
+  "C": "68000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "72": {
+  "A": "The Walking Dead: The Telltale Definitive Series",
+  "B": "PS4",
+  "C": "60000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "73": {
+  "A": "Titanfall 2",
+  "B": "PS4",
+  "C": "40000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "74": {
+  "A": "Watch dogs legion",
+  "B": "PS4",
+  "C": "40000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "75": {
+  "A": "Expedition 33",
+  "B": "PS5",
+  "C": "175000",
+  "D": "nuevo",
+  "E": "Europa",
+  "F": "3"
+ },
+ "76": {
+  "A": "Assassin's Creed Black Flag Resynced",
+  "B": "PS5",
+  "C": "180000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "77": {
+  "A": "Alan Wake 2 Deluxe Edition",
+  "B": "PS5",
+  "C": "140000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "78": {
+  "A": "Ariana and the Elder Codex",
+  "B": "PS5",
+  "C": "130000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "79": {
+  "A": "ARMORED CORE",
+  "B": "PS5",
+  "C": "85000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "80": {
+  "A": "Baldur's gate 3",
+  "B": "PS5",
+  "C": "240000",
+  "D": "nuevo",
+  "E": "Japon",
+  "F": "3"
+ },
+ "81": {
+  "A": "Beast of reincarnation standard",
+  "B": "PS5",
+  "C": "210000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "82": {
+  "A": "Black Myth Wukong",
+  "B": "PS5",
+  "C": "200000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "3"
+ },
+ "83": {
+  "A": "Call of Duty Black ops 7",
+  "B": "PS5",
+  "C": "150000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "84": {
+  "A": "Control blanco",
+  "B": "PS5",
+  "C": "250000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "85": {
+  "A": "Control Marathon",
+  "B": "PS5",
+  "C": "340000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "86": {
+  "A": "Control ultimate edition",
+  "B": "PS5",
+  "C": "130000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "87": {
+  "A": "Crimson desert",
+  "B": "PS5",
+  "C": "230000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "88": {
+  "A": "Crimson desert",
+  "B": "PS5",
+  "C": "185000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "89": {
+  "A": "Crimson desert",
+  "B": "PS5",
+  "C": "185000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "90": {
+  "A": "Crimson Desert Deluxe Edition",
+  "B": "PS5",
+  "C": "400000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "91": {
+  "A": "Cronos The New Dawn",
+  "B": "PS5",
+  "C": "125000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "3"
+ },
+ "92": {
+  "A": "Cyberpunk 2077: Ultimate Edition (Promocion)",
+  "B": "PS5",
+  "C": "170000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "5"
+ },
+ "93": {
+  "A": "Dead cells return to castlevania",
+  "B": "PS5",
+  "C": "70000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "94": {
+  "A": "Dead island 2",
+  "B": "PS5",
+  "C": "85000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "95": {
+  "A": "Dead rising remastered",
+  "B": "PS5",
+  "C": "75000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "96": {
+  "A": "Death stranding 2",
+  "B": "PS5",
+  "C": "180000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "97": {
+  "A": "DEATH STRANDING 2",
+  "B": "PS5",
+  "C": "130000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "98": {
+  "A": "Demon's souls",
+  "B": "PS5",
+  "C": "130000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "99": {
+  "A": "Demon's Souls",
+  "B": "PS5",
+  "C": "115000",
+  "D": "Usado",
+  "E": "America",
+  "F": "3"
+ },
+ "100": {
+  "A": "Demon's souls",
+  "B": "PS5",
+  "C": "115000",
+  "D": "Usado",
+  "E": "America"
+ },
+ "101": {
+  "A": "Demon's souls",
+  "B": "PS5",
+  "C": "115000",
+  "D": "Usado",
+  "E": "America"
+ },
+ "102": {
+  "A": "Devil May Cry 5 Special Edition",
+  "B": "PS5",
+  "C": "80000",
+  "D": "Usado",
+  "E": "America",
+  "F": "2"
+ },
+ "103": {
+  "A": "DOOM: The Dark Ages",
+  "B": "PS5",
+  "C": "180000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "104": {
+  "A": "Dragon ball z kakarot",
+  "B": "PS5",
+  "C": "70000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "105": {
+  "A": "Dragon quest VII",
+  "B": "PS5",
+  "C": "180000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "106": {
+  "A": "Elden Ring",
+  "B": "PS5",
+  "C": "125000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "107": {
+  "A": "Elden Ring",
+  "B": "PS5",
+  "C": "110000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "108": {
+  "A": "Elden ring nightrein",
+  "B": "PS5",
+  "C": "100000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "109": {
+  "A": "Expedition 33 Edicion especial",
+  "B": "PS5",
+  "C": "450000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "110": {
+  "A": "FC 25",
+  "B": "PS5",
+  "C": "55000",
+  "D": "Usado",
+  "E": "America",
+  "F": "2"
+ },
+ "111": {
+  "A": "Final fantasy rebirth",
+  "B": "PS5",
+  "C": "120000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "5"
+ },
+ "112": {
+  "A": "Final fantasy remake",
+  "B": "PS5",
+  "C": "100000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "113": {
+  "A": "FINAL FANTASY VII REMAKE INTERGRADE",
+  "B": "PS5",
+  "C": "120000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "114": {
+  "A": "Gears of war",
+  "B": "PS5",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "115": {
+  "A": "Ghost of Tsushima Director's Cut",
+  "B": "PS5",
+  "C": "155000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "116": {
+  "A": "Ghost Of Yotei",
+  "B": "PS5",
+  "C": "210000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "117": {
+  "A": "God fall",
+  "B": "PS5",
+  "C": "40000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "118": {
+  "A": "God of War Ragnarök",
+  "B": "PS5",
+  "C": "130000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "4"
+ },
+ "119": {
+  "A": "Gran turismo 7",
+  "B": "PS5",
+  "C": "100000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "120": {
+  "A": "GTA V",
+  "B": "PS5",
+  "C": "100000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "5"
+ },
+ "121": {
+  "A": "Guardianes de la galaxia",
+  "B": "PS5",
+  "C": "90000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "122": {
+  "A": "Halo: Campaign Evolved",
+  "B": "PS5",
+  "C": "190000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "123": {
+  "A": "Hell is us",
+  "B": "PS5",
+  "C": "130000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "124": {
+  "A": "Hell is us deluxe edition",
+  "B": "PS5",
+  "C": "185000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "125": {
+  "A": "Hell is us deluxe edition",
+  "B": "PS5",
+  "C": "200000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "126": {
+  "A": "HITMAN: World of Assassination",
+  "B": "PS5",
+  "C": "120000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "127": {
+  "A": "Hogwarts Legacy",
+  "B": "PS5",
+  "C": "110000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "128": {
+  "A": "Hogwarts legacy",
+  "B": "PS5",
+  "C": "85000",
+  "D": "usado",
+  "E": "America",
+  "F": "3"
+ },
+ "129": {
+  "A": "Hogwarts legacy",
+  "B": "PS5",
+  "C": "85000",
+  "D": "Usado",
+  "E": "America"
+ },
+ "130": {
+  "A": "Hogwarts Legacy",
+  "B": "PS5",
+  "C": "85000",
+  "D": "usado",
+  "E": "America"
+ },
+ "131": {
+  "A": "Horizon forbidden west",
+  "B": "PS5",
+  "C": "130000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "132": {
+  "A": "Horizon Zero Dawn Remastered",
+  "B": "PS5",
+  "C": "130000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "133": {
+  "A": "Kena",
+  "B": "PS5",
+  "C": "120000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "134": {
+  "A": "Lego 2k drive",
+  "B": "PS5",
+  "C": "45000",
+  "D": "usado",
+  "E": "America",
+  "F": "1"
+ },
+ "135": {
+  "A": "LEGO Batman",
+  "B": "PS5",
+  "C": "240000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "136": {
+  "A": "Like a Dragon: Infinite Wealth (Liquidacion)",
+  "B": "PS5",
+  "C": "80000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "137": {
+  "A": "Megaman star force legacy collection  (Liquidacion)",
+  "B": "PS5",
+  "C": "145000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "138": {
+  "A": "Metal gear solid collection Vol 1",
+  "B": "PS5",
+  "C": "100000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "139": {
+  "A": "Metaphor: ReFantazio Launch Edition",
+  "B": "PS5",
+  "C": "130000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "140": {
+  "A": "Metro exodus complete edition (Vouchers posiblemente usados)",
+  "B": "PS5",
+  "C": "75000",
+  "D": "Usado",
+  "E": "Europa",
+  "F": "1"
+ },
+ "141": {
+  "A": "Midnight suns",
+  "B": "PS5",
+  "C": "50000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "142": {
+  "A": "Mortal kombat 1",
+  "B": "PS5",
+  "C": "110000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "143": {
+  "A": "Mortal kombat 1",
+  "B": "PS5",
+  "C": "110000",
+  "D": "Usado",
+  "E": "Europa",
+  "F": "1"
+ },
+ "144": {
+  "A": "Mortal Kombat 11 Ultimate",
+  "B": "PS5",
+  "C": "90000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "145": {
+  "A": "Mouse P.I for hire",
+  "B": "PS5",
+  "C": "130000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "3"
+ },
+ "146": {
+  "A": "NBA 2K25",
+  "B": "PS5",
+  "C": "45000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "147": {
+  "A": "Nine sols",
+  "B": "PS5",
+  "C": "196000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "148": {
+  "A": "Ninja gaiden ragebound",
+  "B": "PS5",
+  "C": "100000",
+  "D": "usado",
+  "E": "America",
+  "F": "1"
+ },
+ "149": {
+  "A": "Nioh 3",
+  "B": "PS5",
+  "C": "200000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "150": {
+  "A": "Nioh collection",
+  "B": "PS5",
+  "C": "120000",
+  "D": "usado",
+  "E": "America",
+  "F": "1"
+ },
+ "151": {
+  "A": "Persona 5 royal",
+  "B": "PS5",
+  "C": "120000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "152": {
+  "A": "Pragmata",
+  "B": "PS5",
+  "C": "220000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "3"
+ },
+ "153": {
+  "A": "Resident evil 2",
+  "B": "PS5",
+  "C": "80000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "154": {
+  "A": "Resident Evil 3",
+  "B": "PS5",
+  "C": "75000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "155": {
+  "A": "Resident evil 3",
+  "B": "PS5",
+  "C": "70000",
+  "D": "usado",
+  "E": "America"
+ },
+ "156": {
+  "A": "RESIDENT EVIL 4",
+  "B": "PS5",
+  "C": "75000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "157": {
+  "A": "Resident Evil 4",
+  "B": "PS5",
+  "C": "85000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "5"
+ },
+ "158": {
+  "A": "Resident Evil 7 biohazard Gold Edition",
+  "B": "PS5",
+  "C": "80000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "159": {
+  "A": "RESIDENT EVIL 9",
+  "B": "PS5",
+  "C": "190000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "160": {
+  "A": "Resident Evil Réquiem",
+  "B": "PS5",
+  "C": "230000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "161": {
+  "A": "Resident evil village gold edition",
+  "B": "PS5",
+  "C": "115000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "162": {
+  "A": "Resident evil village standard",
+  "B": "PS5",
+  "C": "75000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "163": {
+  "A": "Saros",
+  "B": "PS5",
+  "C": "230000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "164": {
+  "A": "Silent Hill 2",
+  "B": "PS5",
+  "C": "120000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "3"
+ },
+ "165": {
+  "A": "Silent hill 2",
+  "B": "PS5",
+  "C": "120000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "166": {
+  "A": "Silent Hill f",
+  "B": "PS5",
+  "C": "140000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "167": {
+  "A": "Sonic Racing: CrossWorlds",
+  "B": "PS5",
+  "C": "130000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "168": {
+  "A": "Sonic X Shadow Generations",
+  "B": "PS5",
+  "C": "85000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "169": {
+  "A": "Soul hackers 2",
+  "B": "PS5",
+  "C": "50000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "170": {
+  "A": "Space Marine",
+  "B": "PS5",
+  "C": "110000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "171": {
+  "A": "Space Marine 2",
+  "B": "PS5",
+  "C": "130000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "3"
+ },
+ "172": {
+  "A": "Spider-Man 2 (Promocion)",
+  "B": "PS5",
+  "C": "145000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "9"
+ },
+ "173": {
+  "A": "Spiderman Miles Morales",
+  "B": "PS5",
+  "C": "85000",
+  "D": "Usado",
+  "E": "America",
+  "F": "3"
+ },
+ "174": {
+  "A": "Split fiction",
+  "B": "PS5",
+  "C": "185000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "175": {
+  "A": "Starfield (Liquidacion)",
+  "B": "PS5",
+  "C": "155000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "5"
+ },
+ "176": {
+  "A": "Stellar blade",
+  "B": "PS5",
+  "C": "160000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "177": {
+  "A": "Stray",
+  "B": "PS5",
+  "C": "85000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "178": {
+  "A": "Tekken 8",
+  "B": "PS5",
+  "C": "120000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "179": {
+  "A": "Terminator 2D: No Fate",
+  "B": "PS5",
+  "C": "210000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "180": {
+  "A": "The last of us part 1",
+  "B": "PS5",
+  "C": "130000",
+  "D": "usado",
+  "E": "America",
+  "F": "1"
+ },
+ "181": {
+  "A": "The Last of Us Part 1",
+  "B": "PS5",
+  "C": "145000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "182": {
+  "A": "The last of us part 2",
+  "B": "PS5",
+  "C": "130000",
+  "D": "usado",
+  "E": "America",
+  "F": "1"
+ },
+ "183": {
+  "A": "The Last of Us Part 2",
+  "B": "PS5",
+  "C": "145000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "184": {
+  "A": "The witcher 3 complete edition USA",
+  "B": "PS5",
+  "C": "150000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "185": {
+  "A": "Uncharted Collection",
+  "B": "PS5",
+  "C": "120000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "186": {
+  "A": "woo long",
+  "B": "PS5",
+  "C": "120000",
+  "D": "Usado",
+  "E": "Europa",
+  "F": "1"
+ },
+ "187": {
+  "A": "Wuchang",
+  "B": "PS5",
+  "C": "145000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "188": {
+  "A": "Yooka-Replaylee",
+  "B": "PS5",
+  "C": "130000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "189": {
+  "A": "1971 Collector's edition",
+  "B": "Switch 1",
+  "C": "120000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "190": {
+  "A": "9 years of shadows",
+  "B": "Switch 1",
+  "C": "180000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "191": {
+  "A": "Animal Crossign: New Horizons",
+  "B": "Switch 1",
+  "C": "170000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "192": {
+  "A": "Animal Crossing New Horizons",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "193": {
+  "A": "Assasin's creed 3",
+  "B": "Switch 1",
+  "C": "70000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "194": {
+  "A": "Blasphemous",
+  "B": "Switch 1",
+  "C": "200000",
+  "D": "Usado",
+  "E": "Europa",
+  "F": "1"
+ },
+ "195": {
+  "A": "Blasphemous 2",
+  "B": "Switch 1",
+  "C": "110000",
+  "D": "Usado",
+  "E": "America",
+  "F": "2"
+ },
+ "196": {
+  "A": "Blasphemous Deluxe Edition",
+  "B": "Switch 1",
+  "C": "280000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "197": {
+  "A": "Blasphemous II",
+  "B": "Switch 1",
+  "C": "90000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "198": {
+  "A": "Bloodstained Ritual of the Night",
+  "B": "Switch 1",
+  "C": "85000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "199": {
+  "A": "Bloodstained Ritual of the Night 2",
+  "B": "Switch 1",
+  "C": "120000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "200": {
+  "A": "Carrion",
+  "B": "Switch 1",
+  "C": "120000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "201": {
+  "A": "Castlevania Advance Collection",
+  "B": "Switch 1",
+  "C": "150000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "202": {
+  "A": "Castlevania advance collection",
+  "B": "Switch 1",
+  "C": "150000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "203": {
+  "A": "Castlevania dominus",
+  "B": "Switch 1",
+  "C": "150000",
+  "D": "usado",
+  "E": "America",
+  "F": "1"
+ },
+ "204": {
+  "A": "Castlevania Dominus Collection",
+  "B": "Switch 1",
+  "C": "150000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "205": {
+  "A": "Chronicles of the Wolf",
+  "B": "Switch 1",
+  "C": "130000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "206": {
+  "A": "Contra Rogue Corps",
+  "B": "Switch 1",
+  "C": "100000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "207": {
+  "A": "Crash Bandicoot 4 It's About Time",
+  "B": "Switch 1",
+  "C": "90000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "208": {
+  "A": "Crash Bandicoot N. Sane Trilogy",
+  "B": "Switch 1",
+  "C": "90000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "209": {
+  "A": "Crash Ctr",
+  "B": "Switch 1",
+  "C": "110000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "210": {
+  "A": "Cuphead",
+  "B": "Switch 1",
+  "C": "120000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "211": {
+  "A": "Dark souls remastered",
+  "B": "Switch 1",
+  "C": "150000",
+  "D": "nuevo",
+  "E": "Europa",
+  "F": "1"
+ },
+ "212": {
+  "A": "Dead Cells Return to Castlevania",
+  "B": "Switch 1",
+  "C": "90000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "213": {
+  "A": "Detective pikachu JP",
+  "B": "Switch 1",
+  "C": "100000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "214": {
+  "A": "Diablo 3",
+  "B": "Switch 1",
+  "C": "100000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "215": {
+  "A": "Donkey kong tropical freeze",
+  "B": "Switch 1",
+  "C": "145000",
+  "D": "usado",
+  "E": "America",
+  "F": "1"
+ },
+ "216": {
+  "A": "Donkey Kong Tropical Freeze",
+  "B": "Switch 1",
+  "C": "175000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "217": {
+  "A": "Doom",
+  "B": "Switch 1",
+  "C": "120000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "218": {
+  "A": "Doom classic collection",
+  "B": "Switch 1",
+  "C": "150000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "219": {
+  "A": "Dragon ball z kakarot",
+  "B": "Switch 1",
+  "C": "120000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "220": {
+  "A": "Dragon Quest Builders",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "221": {
+  "A": "Dragon Quest I & II HD-2D Remake",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "222": {
+  "A": "Dragon Quest III HD-2D Remake",
+  "B": "Switch 1",
+  "C": "120000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "223": {
+  "A": "Dragon Quest III HD-2D Remake",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "224": {
+  "A": "Dragon Quest VII Reimagined",
+  "B": "Switch 1",
+  "C": "180000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "225": {
+  "A": "Dragon Quest XI S Americano",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "226": {
+  "A": "Dragon Quest XI S Americano",
+  "B": "Switch 1",
+  "C": "160000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "227": {
+  "A": "Ender Lilies",
+  "B": "Switch 1",
+  "C": "180000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "228": {
+  "A": "Ender Magnolia Bloom in the Mist",
+  "B": "Switch 1",
+  "C": "120000",
+  "D": "Usado",
+  "E": "Asia"
+ },
+ "229": {
+  "A": "Ender Magnolia Bloom in the Mist Americano",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "230": {
+  "A": "Ever foward",
+  "B": "Switch 1",
+  "C": "80000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "231": {
+  "A": "F.I.S.T. Forged in Shadow Torch",
+  "B": "Switch 1",
+  "C": "145000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "232": {
+  "A": "Highland Song",
+  "B": "Switch 1",
+  "C": "200000",
+  "D": "Nuevo",
+  "E": "Europa",
+  "F": "1"
+ },
+ "233": {
+  "A": "Hollow knight",
+  "B": "Switch 1",
+  "C": "145000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "234": {
+  "A": "It Takes Two",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "235": {
+  "A": "Jujutsu Kaisen",
+  "B": "Switch 1",
+  "C": "90000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "236": {
+  "A": "Kirby and the Forgotten Land",
+  "B": "Switch 1",
+  "C": "170000",
+  "D": "nuevo",
+  "E": "Europa",
+  "F": "1"
+ },
+ "237": {
+  "A": "Kirby star alliance",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "238": {
+  "A": "Last faith",
+  "B": "Switch 1",
+  "C": "115000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "239": {
+  "A": "Little nightmares III",
+  "B": "Switch 1",
+  "C": "125000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "240": {
+  "A": "Luigi's Mansion 3",
+  "B": "Switch 1",
+  "C": "170000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "241": {
+  "A": "Luigi's Mansion 3",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "242": {
+  "A": "Mail Mole",
+  "B": "Switch 1",
+  "C": "75000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "243": {
+  "A": "Mario Kart 8 Deluxe",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "Europa",
+  "F": "2"
+ },
+ "244": {
+  "A": "Mario Kart 8 Deluxe",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "2"
+ },
+ "245": {
+  "A": "Mario party jamboree",
+  "B": "Switch 1",
+  "C": "150000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "246": {
+  "A": "Mario party superstars",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "2"
+ },
+ "247": {
+  "A": "Metal gear solid collection",
+  "B": "Switch 1",
+  "C": "130000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "248": {
+  "A": "MicroSD Kingston Canvas Select Plus 256GB",
+  "B": "Switch 1",
+  "C": "150000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "249": {
+  "A": "Mio Memories in Orbit",
+  "B": "Switch 1",
+  "C": "125000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "250": {
+  "A": "Moonlighter",
+  "B": "Switch 1",
+  "C": "85000",
+  "D": "Usado",
+  "E": "Europa",
+  "F": "1"
+ },
+ "251": {
+  "A": "Moonscar",
+  "B": "Switch 1",
+  "C": "230000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "252": {
+  "A": "Neptunia Sisters VS Sisters",
+  "B": "Switch 1",
+  "C": "120000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "253": {
+  "A": "New super mario bros U deluxe",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "254": {
+  "A": "Ninja Gaiden Ragebound",
+  "B": "Switch 1",
+  "C": "90000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "255": {
+  "A": "Ori and the Blind Forest Definitive Edition",
+  "B": "Switch 1",
+  "C": "86000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "256": {
+  "A": "Ori and the Will of the Wisps",
+  "B": "Switch 1",
+  "C": "86000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "257": {
+  "A": "Ori collection",
+  "B": "Switch 1",
+  "C": "130000",
+  "D": "usado",
+  "E": "America",
+  "F": "1"
+ },
+ "258": {
+  "A": "Overcooked and Overcooked 2",
+  "B": "Switch 1",
+  "C": "120000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "259": {
+  "A": "Owlboy",
+  "B": "Switch 1",
+  "C": "70000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "260": {
+  "A": "Persona 5 strikers",
+  "B": "Switch 1",
+  "C": "80000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "261": {
+  "A": "Pokémon Legends Arceus",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "262": {
+  "A": "Pokémon Legends Z-A",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "263": {
+  "A": "Pokémon Scarlet",
+  "B": "Switch 1",
+  "C": "175000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "264": {
+  "A": "Pokémon Scarlet",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "265": {
+  "A": "Pokémon Shield",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "266": {
+  "A": "Pokémon Shield Eu",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "Europa",
+  "F": "1"
+ },
+ "267": {
+  "A": "Pokémon Shining Pearl",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "268": {
+  "A": "Pokémon Shining Pearl + brillant diamont",
+  "B": "Switch 1",
+  "C": "270000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "269": {
+  "A": "Pokémon Snap",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "270": {
+  "A": "Pokémon Violet",
+  "B": "Switch 1",
+  "C": "170000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "271": {
+  "A": "Prince of Persia The Lost Crown",
+  "B": "Switch 1",
+  "C": "90000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "272": {
+  "A": "Red Dead Redemption",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "273": {
+  "A": "Resident evil 4",
+  "B": "Switch 1",
+  "C": "60000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "274": {
+  "A": "Rhythm Heaven Groove",
+  "B": "Switch 1",
+  "C": "165000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "275": {
+  "A": "Rogue Legacy",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "276": {
+  "A": "Samurai Jack Battle Through Time",
+  "B": "Switch 1",
+  "C": "550000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "277": {
+  "A": "Sea of Stars",
+  "B": "Switch 1",
+  "C": "130000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "278": {
+  "A": "Shadow Labyrinth",
+  "B": "Switch 1",
+  "C": "75000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "279": {
+  "A": "Sifu Switch",
+  "B": "Switch 1",
+  "C": "85000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "280": {
+  "A": "Skyrim",
+  "B": "Switch 1",
+  "C": "120000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "281": {
+  "A": "Steredenn Binary Stars",
+  "B": "Switch 1",
+  "C": "300000",
+  "D": "Nuevo",
+  "E": "Europa",
+  "F": "1"
+ },
+ "282": {
+  "A": "Streths of rage 4",
+  "B": "Switch 1",
+  "C": "90000",
+  "D": "usado",
+  "E": "America",
+  "F": "1"
+ },
+ "283": {
+  "A": "Super Mario 3D All-Stars",
+  "B": "Switch 1",
+  "C": "300000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "284": {
+  "A": "Super Mario 3D All-Stars Nuevo",
+  "B": "Switch 1",
+  "C": "400000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "285": {
+  "A": "Super Mario 3D World + Bowser's Fury",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "286": {
+  "A": "Super mario bros Deluxe",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "287": {
+  "A": "Super Mario Bros. Wonder",
+  "B": "Switch 1",
+  "C": "175000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "288": {
+  "A": "Super Mario Galaxy + Galaxy 2",
+  "B": "Switch 1",
+  "C": "170000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "289": {
+  "A": "Super Mario Galaxy 1+2",
+  "B": "Switch 1",
+  "C": "200000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "290": {
+  "A": "Super Mario Maker 2",
+  "B": "Switch 1",
+  "C": "135000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "291": {
+  "A": "Super Mario Odyssey",
+  "B": "Switch 1",
+  "C": "175000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "292": {
+  "A": "Super Mario Odyssey",
+  "B": "Switch 1",
+  "C": "135000",
+  "D": "Usado",
+  "E": "America",
+  "F": "4"
+ },
+ "293": {
+  "A": "Super Mario party",
+  "B": "Switch 1",
+  "C": "135000",
+  "D": "Usado",
+  "E": "America",
+  "F": "2"
+ },
+ "294": {
+  "A": "Super Mario RPG",
+  "B": "Switch 1",
+  "C": "115000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "295": {
+  "A": "Super Mario RPG",
+  "B": "Switch 1",
+  "C": "130000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "296": {
+  "A": "Super Mario Wonder",
+  "B": "Switch 1",
+  "C": "145000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "297": {
+  "A": "Super Smash Bros Ultimate",
+  "B": "Switch 1",
+  "C": "135000",
+  "D": "Usado",
+  "E": "America",
+  "F": "5"
+ },
+ "298": {
+  "A": "The Elder Scrolls V Skyrim",
+  "B": "Switch 1",
+  "C": "110000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "299": {
+  "A": "The Last Faith",
+  "B": "Switch 1",
+  "C": "130000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "300": {
+  "A": "The Legend of Zelda Breath of the Wild",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "301": {
+  "A": "The Legend of Zelda Link's Awakening",
+  "B": "Switch 1",
+  "C": "135000",
+  "D": "Usado",
+  "E": "Europa",
+  "F": "1"
+ },
+ "302": {
+  "A": "The messenger",
+  "B": "Switch 1",
+  "C": "60000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "303": {
+  "A": "The Messenger",
+  "B": "Switch 1",
+  "C": "80000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "304": {
+  "A": "The stanley parable Ultra deluxe",
+  "B": "Switch 1",
+  "C": "180000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "305": {
+  "A": "Xenoblade chronicles 3",
+  "B": "Switch 1",
+  "C": "150000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "306": {
+  "A": "Xenoblade Chronicles 3",
+  "B": "Switch 1",
+  "C": "175000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "307": {
+  "A": "Xenoblade Chronicles X Definitive Edition",
+  "B": "Switch 1",
+  "C": "175000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "308": {
+  "A": "Ys IX",
+  "B": "Switch 1",
+  "C": "170000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "309": {
+  "A": "Ys Origin",
+  "B": "Switch 1",
+  "C": "140000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "310": {
+  "A": "Zelda tears of the kingdom",
+  "B": "Switch 1",
+  "C": "185000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "311": {
+  "A": "Zelda: Breath of the Wild",
+  "B": "Switch 1",
+  "C": "175000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "312": {
+  "A": "Zelda: Breath of the Wild",
+  "B": "Switch 1",
+  "C": "175000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "313": {
+  "A": "Cronos The New Dawn",
+  "B": "Switch 2",
+  "C": "125000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "314": {
+  "A": "Mario Kart World",
+  "B": "Switch 2",
+  "C": "255000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "315": {
+  "A": "Mario Tennis",
+  "B": "Switch 2",
+  "C": "250000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "316": {
+  "A": "Metroid prime 4",
+  "B": "Switch 2",
+  "C": "230000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "317": {
+  "A": "Mouse P.I. for Hire",
+  "B": "Switch 2",
+  "C": "165000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "318": {
+  "A": "Pokémon Legends Z-A Switch 2 Edition",
+  "B": "Switch 2",
+  "C": "185000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "319": {
+  "A": "Pokemon pokopia",
+  "B": "Switch 2",
+  "C": "265000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "320": {
+  "A": "Pokemon ZA",
+  "B": "Switch 2",
+  "C": "220000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "2"
+ },
+ "321": {
+  "A": "Resident evil 9",
+  "B": "switch 2",
+  "C": "200000",
+  "D": "Nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "322": {
+  "A": "The Adventure of Elliot",
+  "B": "Switch 2",
+  "C": "215000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "323": {
+  "A": "Yoshi and the misterious book",
+  "B": "Switch 2",
+  "C": "200000",
+  "D": "Usado",
+  "E": "America",
+  "F": "1"
+ },
+ "324": {
+  "A": "Zelda: Tears of the Kingdom",
+  "B": "Switch 2",
+  "C": "255000",
+  "D": "nuevo",
+  "E": "America",
+  "F": "1"
+ },
+ "325": {
+  "A": "Control xbox negro",
+  "B": "Xbox",
+  "C": "200000",
+  "D": "nuevo",
+  "F": "1"
+ }
+}

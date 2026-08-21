@@ -21,8 +21,12 @@ export const faq: FaqItem[] = [
     a: 'Elige los productos que quieras, agrégalos al carrito y pulsa "Finalizar compra". Se abrirá WhatsApp con tu pedido listo para enviar. También puedes escribirnos directamente por cualquier producto.',
   },
   {
-    q: '¿Por qué algunos productos no muestran precio?',
-    a: 'Porque el precio depende del estado y la disponibilidad de cada copia. En esos casos verás "Consultar precio": pulsa el botón de WhatsApp y te confirmamos el valor al momento.',
+    q: '¿Los precios que aparecen son los finales?',
+    a: 'Los precios publicados son los de venta estimados de cada copia. Como trabajamos con juegos usados, el valor puede variar según el estado exacto; te lo confirmamos por WhatsApp antes de cerrar el pedido.',
+  },
+  {
+    q: '¿Qué significa la región del juego?',
+    a: 'La región indica de dónde viene la copia. La mayoría son de América, que es la que funciona sin problema en las consolas vendidas en Colombia. Si un juego es de Europa, Japón o Asia lo marcamos en la ficha, porque puede cambiar el idioma o la carátula.',
   },
   {
     q: '¿Dónde están ubicados?',

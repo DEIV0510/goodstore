@@ -1,6 +1,6 @@
 import { RotateCcw } from 'lucide-react'
 import FilterGroup, { type Option } from './FilterGroup'
-import { CONDITIONS, GENRES, PLATFORMS, PRICE_RANGES } from '@/data/taxonomy'
+import { CONDITIONS, GENRES, PLATFORMS, PRICE_RANGES, REGIONS } from '@/data/taxonomy'
 import { applyFilters, type FilterState } from '@/lib/filters'
 import type { Product } from '@/types'
 
@@ -41,6 +41,7 @@ export default function FilterPanel({
   const platformCounts = counts('platforms', (p, id) => p.platform === id, PLATFORMS.map((x) => x.id))
   const conditionCounts = counts('conditions', (p, id) => p.condition === id, CONDITIONS.map((x) => x.id))
   const genreCounts = counts('genres', (p, id) => p.genre === id, GENRES.map((x) => x.id))
+  const regionCounts = counts('regions', (p, id) => p.region === id, REGIONS.map((x) => x.id))
   const priceCounts = counts(
     'priceRanges',
     (p, id) => {
@@ -90,7 +91,6 @@ export default function FilterPanel({
         options={opts(CONDITIONS, conditionCounts)}
         selected={filters.conditions}
         onToggle={(id) => onToggle('conditions', id)}
-        emptyNote="Todavía no marcamos nuevo/usado por título. Pregúntanos por WhatsApp y te confirmamos el estado exacto."
       />
 
       <FilterGroup
@@ -108,12 +108,19 @@ export default function FilterPanel({
       />
 
       <FilterGroup
+        title="Región"
+        options={opts(REGIONS, regionCounts)}
+        selected={filters.regions}
+        onToggle={(id) => onToggle('regions', id)}
+        defaultOpen={false}
+      />
+
+      <FilterGroup
         title="Precio"
         options={opts(PRICE_RANGES, priceCounts)}
         selected={filters.priceRanges}
         onToggle={(id) => onToggle('priceRanges', id)}
         defaultOpen={false}
-        emptyNote="Los precios se confirman por WhatsApp, por eso este filtro aún no arroja resultados. Se activará solo cuando se publiquen los precios."
       />
     </div>
   )

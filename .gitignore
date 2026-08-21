@@ -13,3 +13,8 @@ tools/zoom*.png
 
 # Artefactos de compilación
 tsconfig.tsbuildinfo
+
+# Archivos de trabajo del catálogo
+tools/_lote*.json
+tools/_titulos.json
+tools/inventario-productos.json

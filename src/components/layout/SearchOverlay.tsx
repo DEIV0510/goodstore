@@ -179,7 +179,12 @@ export default function SearchOverlay({
                       }`}
                     >
                       <span className="block h-16 w-12 shrink-0 overflow-hidden rounded-md bg-ink-700">
-                        <ProductImage src={p.images[0]} alt="" className="h-full w-full" />
+                        <ProductImage
+                          src={p.images[0]}
+                          alt=""
+                          fallback={{ name: p.name, platform: p.platform, compact: true }}
+                          className="h-full w-full"
+                        />
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-bold text-white">

@@ -1,7 +1,7 @@
 import { Heart, MessageCircle, Plus, ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ProductImage from '@/components/ui/ProductImage'
-import { PlatformBadge, StockBadge, isAvailable } from '@/components/ui/Badges'
+import { ConditionBadge, PlatformBadge, RegionBadge, StockBadge, isAvailable } from '@/components/ui/Badges'
 import { genreLabel } from '@/data/taxonomy'
 import { cop } from '@/lib/format'
 import { productMessage } from '@/lib/whatsapp'
@@ -50,6 +50,7 @@ export default function ProductCard({
             alt={`Portada de ${product.name} para ${product.tags[0]}`}
             className="h-full w-full drop-shadow-[0_10px_20px_rgba(0,0,0,.55)] transition-transform duration-500 ease-out group-hover:scale-[1.045]"
             priority={priority}
+            fallback={{ name: product.name, platform: product.platform }}
             sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
           />
         </span>
@@ -101,6 +102,11 @@ export default function ProductCard({
 
       {/* ── Información ───────────────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col gap-2 p-3 pt-2.5">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <ConditionBadge condition={product.condition} />
+          <RegionBadge region={product.region} />
+        </div>
+
         <p className="text-2xs font-bold uppercase tracking-wider text-white/40">
           {genreLabel(product.genre)}
         </p>

@@ -17,8 +17,9 @@ export const NAV: NavItem[] = [
   },
   {
     label: 'Nintendo Switch',
-    to: '/catalogo?plataforma=switch',
-    match: (p, s) => p === '/catalogo' && has(s, 'plataforma', 'switch'),
+    to: '/catalogo?plataforma=switch,switch2',
+    match: (p, s) =>
+      p === '/catalogo' && (has(s, 'plataforma', 'switch') || has(s, 'plataforma', 'switch2')),
   },
   {
     label: 'Videojuegos',
@@ -26,14 +27,14 @@ export const NAV: NavItem[] = [
     match: (p, s) => p === '/catalogo' && !s,
   },
   {
-    label: 'Consolas',
-    to: '/catalogo?categoria=consolas',
-    match: (p, s) => p === '/catalogo' && has(s, 'categoria', 'consolas'),
+    label: 'Usados',
+    to: '/catalogo?estado=usado',
+    match: (p, s) => p === '/catalogo' && has(s, 'estado', 'usado'),
   },
   {
     label: 'Accesorios',
     to: '/catalogo?categoria=accesorios',
     match: (p, s) => p === '/catalogo' && has(s, 'categoria', 'accesorios'),
   },
-  { label: 'Usados', to: '/usados', match: (p) => p === '/usados' },
+  { label: 'Vender mi juego', to: '/usados', match: (p) => p === '/usados' },
 ]

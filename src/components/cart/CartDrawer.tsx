@@ -108,6 +108,7 @@ export default function CartDrawer() {
                 <ProductImage
                   src={product.images[0]}
                   alt={`Portada de ${product.name}`}
+                  fallback={{ name: product.name, platform: product.platform, compact: true }}
                   className="h-full w-full"
                 />
               </Link>
