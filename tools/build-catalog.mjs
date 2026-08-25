@@ -47,7 +47,10 @@ const ERRATAS = {
   'yoshi and the misterious book': 'Yoshi and the Mysterious Book',
   'animal crossign new horizons': 'Animal Crossing: New Horizons',
   'animal crossing new horizons': 'Animal Crossing: New Horizons',
-  'spiderman goty': "Marvel's Spider-Man GOTY",
+  'spiderman goty': "Marvel's Spider-Man Game of the Year Edition",
+  'dead cells goty': 'Dead Cells Game of the Year Edition',
+  'red dead redemption 2': 'Red Dead Redemption II',
+  'resident evil 4 version clasica': 'Resident Evil 4 (versión clásica)',
   'spiderman miles morales': "Marvel's Spider-Man: Miles Morales",
   'spiderman version standard': "Marvel's Spider-Man",
   'spider man 2': "Marvel's Spider-Man 2",
@@ -202,6 +205,18 @@ function separarNota(raw) {
   return { limpio, nota }
 }
 
+/**
+ * Nombre final del producto.
+ *
+ * IMPORTANTE: primero se separa el paréntesis y DESPUÉS se corrige el nombre.
+ * Al revés, "Spiderman GOTY (Codigos vigentes)" nunca coincidía con la errata
+ * 'spiderman goty' y se quedaba con el nombre abreviado del Excel.
+ */
+function nombreFinal(raw) {
+  const { limpio, nota } = separarNota(raw)
+  return { limpio: tituloBonito(limpio), nota }
+}
+
 const slugify = (s) =>
   s
     .normalize('NFD')
@@ -286,7 +301,7 @@ const archivoDeFuente = new Map()
 const plataformaDeFuente = new Map()
 for (const [p, f] of fuenteDeProducto) {
   const k = f.tipo + ':' + f.ref
-  const base = slugify(separarNota(tituloBonito(p.name)).limpio) + '-' + p.platform
+  const base = slugify(nombreFinal(p.name).limpio) + '-' + p.platform
   if (!archivoDeFuente.has(k) || base < archivoDeFuente.get(k)) archivoDeFuente.set(k, base)
   if (!plataformaDeFuente.has(k)) plataformaDeFuente.set(k, p.platform)
 }
@@ -324,7 +339,7 @@ const sinClasificar = []
 
 for (const p of inventario) {
   const claveInv = p.name.toLowerCase() + '|' + p.platform
-  const { limpio, nota } = separarNota(tituloBonito(p.name))
+  const { limpio, nota } = nombreFinal(p.name)
 
   // slug único: se añade el estado, y la región si aún choca
   let slug = slugify(limpio) + '-' + p.platform
