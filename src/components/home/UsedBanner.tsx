@@ -1,13 +1,14 @@
 import { ArrowRight, RefreshCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ProductImage from '@/components/ui/ProductImage'
+import { coversBySlug } from '@/data/covers'
 
-const COVERS = [
-  '/games/the-last-of-us-remastered-ps4.webp',
-  '/games/god-of-war-3-ps4.webp',
-  '/games/resident-evil-4-version-clasica-ps4.webp',
-  '/games/rayman-ps4.webp',
-]
+const COVERS = coversBySlug([
+  'the-last-of-us-remasterizado-ps4',
+  'god-of-war-iii-remastered-ps4',
+  'crash-bandicoot-n-sane-trilogy-ps4',
+  'rayman-legends-ps4',
+])
 
 export default function UsedBanner() {
   return (

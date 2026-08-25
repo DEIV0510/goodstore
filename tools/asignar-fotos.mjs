@@ -206,7 +206,8 @@ const FORZADAS = {
   'midnigthsuns.webp': 'midnight suns|ps5',
   'mouseps5.webp': 'mouse p.i for hire|ps5',
   'mouseseitch2.webp': 'mouse p.i. for hire|switch2',
-  'spacemarine.webp': 'space marine|ps5',
+  // La caja dice 'Space Marine II': corresponde al 2, no al primero
+  'spacemarine.webp': 'space marine 2|ps5',
   'starsfield.webp': 'starfield (liquidacion)|ps5',
   'stellarblade.webp': 'stellar blade|ps5',
   'splitfiction.webp': 'split fiction|ps5',
@@ -329,6 +330,7 @@ const ALIAS = {
   'resident evil réquiem|ps5': 'resident evil 9|ps5',
   'pokemon za|switch2': 'pokémon legends z-a switch 2 edition|switch2',
   'crash ctr|ps4': 'crash team racing|ps4',
+  'super mario bros deluxe|switch': 'new super mario bros u deluxe|switch',
   'final fantasy remake|ps5': 'final fantasy vii remake intergrade|ps5',
 }
 

@@ -125,7 +125,7 @@ ninguna imagen de banco: **todas las portadas son fotos reales del inventario.**
 | Buscador global (nombre, plataforma, género, sin tildes) | ✅ atajo `/` |
 | Hero con portadas reales en abanico | ✅ |
 | Beneficios, categorías, confianza, FAQ | ✅ |
-| Catálogo con 318 productos, 445 unidades y 302 fotos reales | ✅ |
+| Catálogo con 318 productos, 445 unidades y 303 fotos reales | ✅ |
 | Filtros por plataforma, estado, disponibilidad, género, región y precio | ✅ con contadores reales |
 | Orden: destacados, recientes, precio ↑↓, nombre | ✅ |
 | Filtros reflejados en la URL (compartibles) | ✅ |
@@ -160,14 +160,21 @@ Reglas aplicadas al leerlo (en `tools/inventory.mjs`):
   usada a distinto precio: son dos ofertas distintas, cada una con su stock.
 - Los paréntesis del Excel ("Sin mapa", "Códigos vigentes", "No incluye
   llavero") se convierten en un aviso visible en la ficha del producto.
-- Los nombres se normalizan a formato título y se corrigen erratas evidentes de
-  títulos que existen de verdad ("Assasin's" → "Assassin's", "Elden ring
-  nightrein" → "Elden Ring Nightreign"). Las 22 correcciones están listadas en
-  `ERRATAS`, dentro de `tools/build-catalog.mjs`.
+- Los nombres se normalizan a formato título y se corrigen las erratas
+  ("Assasin's" → "Assassin's", "Elden ring nightrein" → "Elden Ring Nightreign").
+- Donde el Excel abrevia, se usa el **título impreso en la carátula**, que se
+  obtuvo al leer las fotografías: "Sekiro" → *Sekiro: Shadows Die Twice*,
+  "Rayman" → *Rayman Legends*, "Monster hunter" → *Monster Hunter: World*. Es lo
+  que el cliente escribe en Google y en el buscador de la tienda.
+
+Son 93 correcciones de nombre en total, listadas en `ERRATAS` dentro de
+`tools/build-catalog.mjs`, cada una respaldada por su propia fotografía. Un caso
+vale la pena mencionarlo: el Excel dice *Bloodstained Ritual of the Night 2*, un
+juego que no existe; la caja es **Bloodstained: Curse of the Moon 2**.
 
 ### Fotografías
 
-De los 318 productos, **302 tienen fotografía real** del negocio. Los 16 restantes
+De los 318 productos, **303 tienen fotografía real** del negocio. Los 15 restantes
 muestran una **portada de marca generada** con su título y el color de su
 plataforma: nunca se usa la carátula de otro juego ni una imagen de banco.
 
@@ -185,7 +192,7 @@ Las fotos individuales están en `_source/fotos/` (269 archivos). El proceso:
    total, con carga diferida.
 
 El mapa fotografía → producto está en `tools/asignar-fotos.mjs` y se **verificó
-mirando las 261 portadas publicadas** en hojas de contacto
+mirando las 259 portadas publicadas** en hojas de contacto
 (`node tools/hoja-fotos.mjs`). Esa revisión encontró cinco errores que ningún
 emparejamiento automático habría detectado:
 
@@ -196,6 +203,8 @@ emparejamiento automático habría detectado:
 | `fantasyvii.png` | Final Fantasy VII Remake | **Final Fantasy VII Rebirth** |
 | `pokemonswitch.png` | Pokémon Legends Arceus | **Detective Pikachu (japonés)** |
 | `minecraftsotyymode.png` | Minecraft Dungeons | **Minecraft: Story Mode** (no se publica) |
+| `spacemarine.png` | Space Marine | **Space Marine II** — la caja lleva el II |
+| `pokemonswitch.png` | Pokémon Legends Arceus | **Detective Pikachu Returns**, que sí está en el inventario |
 
 Nueve fotografías más quedaron sin publicar porque el juego no está en el
 inventario (Donkey Kong Bananza, FIFA 21, MADiSON, Metal Slug Tactics) o porque

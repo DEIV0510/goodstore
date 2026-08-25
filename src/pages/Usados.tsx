@@ -2,6 +2,7 @@ import { ChevronRight, Home, MessageCircle, RefreshCw, Send } from 'lucide-react
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import ProductImage from '@/components/ui/ProductImage'
+import { coversBySlug } from '@/data/covers'
 import { PLATFORMS } from '@/data/taxonomy'
 import { MESSAGES, site, waLink } from '@/data/site'
 import { usedGameMessage } from '@/lib/whatsapp'
@@ -15,11 +16,11 @@ const ESTADOS = [
   'Sin caja / solo disco o cartucho',
 ]
 
-const COVERS = [
-  '/games/the-last-of-us-remastered-ps4.webp',
-  '/games/rayman-ps4.webp',
-  '/games/god-of-war-3-ps4.webp',
-]
+const COVERS = coversBySlug([
+  'the-last-of-us-remasterizado-ps4',
+  'rayman-legends-ps4',
+  'god-of-war-iii-remastered-ps4',
+])
 
 const PASOS = [
   {
