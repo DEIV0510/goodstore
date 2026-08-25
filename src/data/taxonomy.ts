@@ -1,4 +1,4 @@
-import type { Condition, Genre, Platform, Region } from '@/types'
+import type { Category, Condition, Genre, Platform, Product, Region } from '@/types'
 
 export const PLATFORMS: { id: Platform; label: string; short: string }[] = [
   { id: 'ps5', label: 'PlayStation 5', short: 'PS5' },
@@ -61,3 +61,16 @@ export const SORTS: { id: import('@/types').SortKey; label: string }[] = [
   { id: 'precio-desc', label: 'Precio: mayor a menor' },
   { id: 'nombre', label: 'Nombre (A–Z)' },
 ]
+
+const CATEGORY_LABEL: Record<Category, string> = {
+  videojuegos: 'Videojuego',
+  consolas: 'Consola',
+  accesorios: 'Accesorio',
+}
+
+/**
+ * Qué se muestra encima del nombre en la tarjeta: el género si es un
+ * videojuego, o el tipo de producto si es un accesorio o una consola.
+ */
+export const typeLabel = (p: Pick<Product, 'genre' | 'category'>) =>
+  p.category === 'videojuegos' ? genreLabel(p.genre) : CATEGORY_LABEL[p.category]

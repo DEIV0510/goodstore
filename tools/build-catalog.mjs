@@ -134,6 +134,9 @@ const ERRATAS = {
   'ys ix': 'Ys IX: Monstrum Nox',
   'zelda tears of the kingdom': 'The Legend of Zelda: Tears of the Kingdom',
   'zelda: tears of the kingdom': 'The Legend of Zelda: Tears of the Kingdom',
+  'microsd kingston canvas select plus 256gb':
+    'Memoria MicroSD Kingston Canvas Select Plus 256 GB',
+  'control xbox negro': 'Control Xbox inalámbrico negro',
 }
 
 /** Siglas y numerales romanos que van siempre en mayúscula. */

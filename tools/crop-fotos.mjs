@@ -24,6 +24,18 @@ const OUT = 'crops-fotos'
 export const RATIO = { ps5: 0.788, ps4: 0.794, switch: 0.617, switch2: 0.617, xbox: 0.79 }
 
 /**
+ * Recortes puestos a mano, en fracción de la fotografía original.
+ *
+ * Se usan cuando lo fotografiado NO es un estuche de videojuego y forzarle la
+ * proporción de uno lo dejaría cortado: por ejemplo el blíster de la memoria
+ * microSD, que es más ancho y aparece dos veces en la misma foto.
+ */
+export const RECORTE_MANUAL = {
+  // Dos blísteres uno al lado del otro: se toma el de la derecha, que está entero
+  'microsd256gb.webp': { left: 0.45, top: 0.05, w: 0.53, h: 0.9 },
+}
+
+/**
  * Devuelve la caja del estuche dentro de la fotografía.
  * Trabaja sobre una miniatura para ir rápido y escala el resultado.
  */
@@ -146,8 +158,22 @@ export function encuadrar(caja, ratio) {
 /** Recorta y exporta una fotografía. */
 export async function recortar(archivo, plataforma, destino) {
   const src = path.join(SRC, archivo)
-  const caja = await detectarCaja(src)
-  const region = encuadrar(caja, RATIO[plataforma] ?? 0.75)
+
+  let region
+  const manual = RECORTE_MANUAL[archivo]
+  if (manual) {
+    // Recorte puesto a mano: se respeta tal cual, sin forzar proporciones
+    const meta = await sharp(src).metadata()
+    region = {
+      left: Math.round(meta.width * manual.left),
+      top: Math.round(meta.height * manual.top),
+      width: Math.round(meta.width * manual.w),
+      height: Math.round(meta.height * manual.h),
+    }
+  } else {
+    region = encuadrar(await detectarCaja(src), RATIO[plataforma] ?? 0.75)
+  }
+
   await sharp(src)
     .extract(region)
     .resize({ width: 420, kernel: 'lanczos3' })

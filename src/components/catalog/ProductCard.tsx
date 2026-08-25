@@ -2,7 +2,7 @@ import { Heart, MessageCircle, Plus, ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ProductImage from '@/components/ui/ProductImage'
 import { ConditionBadge, PlatformBadge, RegionBadge, StockBadge, isAvailable } from '@/components/ui/Badges'
-import { genreLabel } from '@/data/taxonomy'
+import { typeLabel } from '@/data/taxonomy'
 import { cop } from '@/lib/format'
 import { productMessage } from '@/lib/whatsapp'
 import { useStore } from '@/store/StoreContext'
@@ -108,7 +108,7 @@ export default function ProductCard({
         </div>
 
         <p className="text-2xs font-bold uppercase tracking-wider text-white/40">
-          {genreLabel(product.genre)}
+          {typeLabel(product)}
         </p>
 
         <h3 className="text-pretty text-[13.5px] font-bold leading-snug text-white sm:text-sm">
