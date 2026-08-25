@@ -18,3 +18,10 @@ tsconfig.tsbuildinfo
 tools/_lote*.json
 tools/_titulos.json
 tools/inventario-productos.json
+
+tools/_hoja-*.png
+tools/_foto-lote*.json
+tools/_muestra-recorte.png
+tools/_propuesta-fotos.json
+tools/_asignacion-fotos.json
+tools/crops-fotos

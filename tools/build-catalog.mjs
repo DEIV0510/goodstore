@@ -7,6 +7,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { buildInventory, norm } from './inventory.mjs'
 import { FOTOS, ACCESORIOS } from './fotos.mjs'
+import { asignar, ALIAS } from './asignar-fotos.mjs'
+import { recortar } from './crop-fotos.mjs'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // build-catalog.mjs — Genera el catálogo de la tienda.
@@ -175,32 +177,68 @@ const porTitulo = new Map(clasif.map((c) => [norm(c.titulo) + '|' + c.plataforma
 // ─────────────────────────────────────────────────────────────────────────────
 const inventario = buildInventory()
 
-// 1. Resolver la fotografía de cada producto y el nombre del archivo
-const cropDeProducto = new Map()
+// ── 1. Resolver qué fotografía le toca a cada producto ──────────────────────
+//
+// Orden de preferencia:
+//   1. Fotografía individual nueva del negocio (la de mejor calidad)
+//   2. La de otro producto que es el MISMO juego escrito distinto en el Excel
+//   3. El recorte antiguo de las fotos en cuadrícula
+//   4. Ninguna → la web dibuja una portada de marca con el título
+//
+const { resultado: asignaciones } = asignar()
+const fotoNueva = new Map() // clave de inventario → archivo original
+for (const a of asignaciones) if (a.clave) fotoNueva.set(a.clave, a.archivo)
+for (const [destino, origen] of Object.entries(ALIAS)) {
+  if (!fotoNueva.has(destino) && fotoNueva.has(origen)) fotoNueva.set(destino, fotoNueva.get(origen))
+}
+
+const fuenteDeProducto = new Map() // producto → { tipo, ref }
 for (const p of inventario) {
   const clave = p.name.toLowerCase() + '|' + p.platform
-  const crop = FOTOS[clave]
-  if (crop) cropDeProducto.set(p, crop)
+  if (fotoNueva.has(clave)) {
+    fuenteDeProducto.set(p, { tipo: 'foto', ref: fotoNueva.get(clave) })
+  } else if (FOTOS[clave]) {
+    fuenteDeProducto.set(p, { tipo: 'recorte', ref: FOTOS[clave] })
+  } else if (ALIAS[clave] && FOTOS[ALIAS[clave]]) {
+    fuenteDeProducto.set(p, { tipo: 'recorte', ref: FOTOS[ALIAS[clave]] })
+  }
 }
 
-// Una misma foto puede servir a varios productos: el archivo se nombra con el
-// primer producto (sin distinguir estado) para no duplicar imágenes.
-const archivoDeCrop = new Map()
-for (const [p, crop] of cropDeProducto) {
+// Una misma imagen puede servir a varios productos (copia nueva y usada): el
+// archivo se nombra con el primer producto para no duplicarla en disco.
+const archivoDeFuente = new Map()
+const plataformaDeFuente = new Map()
+for (const [p, f] of fuenteDeProducto) {
+  const k = f.tipo + ':' + f.ref
   const base = slugify(separarNota(tituloBonito(p.name)).limpio) + '-' + p.platform
-  if (!archivoDeCrop.has(crop) || base < archivoDeCrop.get(crop)) archivoDeCrop.set(crop, base)
+  if (!archivoDeFuente.has(k) || base < archivoDeFuente.get(k)) archivoDeFuente.set(k, base)
+  if (!plataformaDeFuente.has(k)) plataformaDeFuente.set(k, p.platform)
 }
 
-// 2. Generar las imágenes
+// ── 2. Generar las imágenes ─────────────────────────────────────────────────
 fs.rmSync(OUT_IMG, { recursive: true, force: true })
 fs.mkdirSync(OUT_IMG, { recursive: true })
-const tamañoDeCrop = new Map()
-for (const [crop, base] of archivoDeCrop) {
-  const src = path.resolve('crops', `${crop}.png`)
-  if (!fs.existsSync(src)) throw new Error(`Falta el recorte ${src}`)
-  await sharp(src).webp({ quality: 82, effort: 6 }).toFile(path.join(OUT_IMG, `${base}.webp`))
-  const meta = await sharp(src).metadata()
-  tamañoDeCrop.set(crop, { w: meta.width, h: meta.height })
+const tamañoDeFuente = new Map()
+let nNuevas = 0
+let nRecortes = 0
+
+for (const [k, base] of archivoDeFuente) {
+  const [tipo, ref] = [k.slice(0, k.indexOf(':')), k.slice(k.indexOf(':') + 1)]
+  const destino = path.join(OUT_IMG, `${base}.webp`)
+
+  if (tipo === 'foto') {
+    // Fotografía individual: se recorta el estuche y se exporta
+    const region = await recortar(ref, plataformaDeFuente.get(k), destino)
+    tamañoDeFuente.set(k, { w: 420, h: Math.round((420 * region.height) / region.width) })
+    nNuevas++
+  } else {
+    const src = path.resolve('crops', `${ref}.png`)
+    if (!fs.existsSync(src)) throw new Error(`Falta el recorte ${src}`)
+    await sharp(src).webp({ quality: 82, effort: 6 }).toFile(destino)
+    const meta = await sharp(src).metadata()
+    tamañoDeFuente.set(k, { w: meta.width, h: meta.height })
+    nRecortes++
+  }
 }
 
 // 3. Construir los productos
@@ -224,8 +262,9 @@ for (const p of inventario) {
   const genero = c && c.genero !== 'desconocido' ? c.genero : null
   if (!genero) sinClasificar.push(`${p.name} [${p.platform}]`)
 
-  const crop = cropDeProducto.get(p)
-  const archivo = crop ? archivoDeCrop.get(crop) : null
+  const fuente = fuenteDeProducto.get(p)
+  const claveFuente = fuente ? fuente.tipo + ':' + fuente.ref : null
+  const archivo = claveFuente ? archivoDeFuente.get(claveFuente) : null
 
   productos.push({
     id: 'inv-' + p.rows[0],
@@ -240,7 +279,7 @@ for (const p of inventario) {
     oldPrice: null,
     stock: p.stock,
     images: archivo ? [`/games/${archivo}.webp`] : [],
-    imageSize: crop ? tamañoDeCrop.get(crop) : null,
+    imageSize: claveFuente ? tamañoDeFuente.get(claveFuente) : null,
     description: c?.descripcion || '',
     featured: DESTACADOS.has(claveInv),
     tags: [PLATFORM_LABEL[p.platform]],
@@ -336,7 +375,7 @@ const cuenta = (k) =>
     .join('  ')
 
 console.log(`✔ ${productos.length} productos → src/data/products.ts`)
-console.log(`✔ ${archivoDeCrop.size} imágenes WebP → public/games/`)
+console.log(`✔ ${archivoDeFuente.size} imágenes WebP → public/games/ (${nNuevas} fotos nuevas · ${nRecortes} recortes)`)
 console.log(`✔ sitemap con ${urls.length} URLs`)
 console.log('  plataforma →', cuenta('platform'))
 console.log('  estado     →', cuenta('condition'))

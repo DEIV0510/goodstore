@@ -25,6 +25,7 @@ Abre <http://localhost:5254>.
 | `npm run catalogo` | Regenera el catálogo desde el inventario: `products.ts`, imágenes y `sitemap.xml` |
 | `npm run qa` | Control de calidad automatizado en navegador real (ver §9) |
 | `npm run brand` | Regenera logotipos e íconos desde `_source/logos/` |
+| `node tools/hoja-fotos.mjs` | Hojas de contacto para revisar que cada portada es la correcta |
 | `npm run boot` | Reinyecta la pantalla de carga en `index.html` |
 
 ---
@@ -48,12 +49,12 @@ Sin dependencias de UI pesadas: todo el diseño es propio.
 ```
 good-game/
 ├── public/
-│   ├── games/             118 portadas WebP (recortadas de las fotos reales)
-│   ├── favicon.svg        Monograma GG
+│   ├── games/             261 portadas WebP de las fotos del negocio
+│   ├── brand/             Logotipo oficial en sus tres versiones + íconos
 │   ├── apple-touch-icon.png
 │   ├── og-image.png       Imagen para compartir (1200×630)
 │   ├── robots.txt
-│   └── sitemap.xml        Generado con `npm run images`
+│   └── sitemap.xml        Generado con `npm run catalogo`
 │
 ├── src/
 │   ├── components/
@@ -81,11 +82,12 @@ good-game/
 │
 ├── tools/                 Utilidades de desarrollo (no se publican)
 │   ├── _source/…          Fotografías originales del negocio
-│   ├── catalog.mjs        Mapeo recorte → producto
-│   ├── descriptions.mjs   Descripción de cada título
-│   ├── build-assets.mjs   Genera imágenes + products.ts + sitemap
-│   ├── crop4.mjs          Recorta cada portada de las fotos en cuadrícula
-│   ├── og.mjs / logo.mjs  Imagen para compartir y favicon
+│   ├── inventory.mjs      Lee y normaliza el inventario del Excel
+│   ├── asignar-fotos.mjs  Qué fotografía va con cada producto (revisado a mano)
+│   ├── crop-fotos.mjs     Aísla el estuche en cada fotografía
+│   ├── build-catalog.mjs  Genera products.ts + imágenes + sitemap
+│   ├── hoja-fotos.mjs     Hojas de contacto para revisar las portadas
+│   ├── brand.mjs / og.mjs Logotipos, íconos e imagen para compartir
 │   └── qa.mjs             Control de calidad automatizado
 │
 └── _source/               Copia de las fotos y el brief del cliente
@@ -93,25 +95,23 @@ good-game/
 
 ---
 
-## 4. De dónde salen las imágenes
+## 4. Qué entregó el negocio
 
-El negocio entregó **6 fotografías** con los juegos organizados en cuadrícula
-(una de ellas duplicada), el logotipo oficial y un PDF con el brief. No había
-fotos individuales de cada juego.
+| Entrega | Qué contenía | Dónde está |
+| --- | --- | --- |
+| Brief | PDF con la información del negocio | `_source/brief.pdf` |
+| Logotipo | AI, PDF y PNG con transparencia en color, blanco y negro | `_source/logos/` |
+| Inventario | Excel con 324 filas: artículo, plataforma, precio, estado, región y cantidad | `_source/inventario.xlsx` |
+| Fotografías | 269 fotos individuales de las carátulas | `_source/fotos/` |
+| Fotos iniciales | 6 fotos con los juegos en cuadrícula (una repetida) | `_source/juegos*.png` |
 
-El proceso fue:
-
-1. Se detectó la cuadrícula de cada foto midiendo los bordes de las cajas
-   (ajuste de paso uniforme sobre el perfil de bordes verticales/horizontales).
-2. Se recortó **cada caja por separado**, respetando la proporción real del
-   estuche (Switch 105×170 mm, PS4/PS5 135×170 mm) y recortando la tela de fondo.
-3. Se escaló ×2.8 con Lanczos + enfoque suave y se exportó a WebP (≈14 KB por
-   portada, 1.6 MB en total).
+Las primeras seis fotos, en cuadrícula, se usaron mientras no había fotos
+individuales: se detectó la rejilla y se recortó cada caja por separado. Hoy solo
+quedan dos de esos recortes en uso, para dos productos que las fotos nuevas no
+cubren. El detalle está en §6.
 
 No se retocó ninguna portada, no se cambió ningún logo de marca y no se usó
 ninguna imagen de banco: **todas las portadas son fotos reales del inventario.**
-
-Para volver a generarlas: `node tools/crop4.mjs && npm run images`.
 
 ---
 
@@ -125,7 +125,7 @@ Para volver a generarlas: `node tools/crop4.mjs && npm run images`.
 | Buscador global (nombre, plataforma, género, sin tildes) | ✅ atajo `/` |
 | Hero con portadas reales en abanico | ✅ |
 | Beneficios, categorías, confianza, FAQ | ✅ |
-| Catálogo con 318 productos y 445 unidades | ✅ |
+| Catálogo con 318 productos, 445 unidades y 302 fotos reales | ✅ |
 | Filtros por plataforma, estado, disponibilidad, género, región y precio | ✅ con contadores reales |
 | Orden: destacados, recientes, precio ↑↓, nombre | ✅ |
 | Filtros reflejados en la URL (compartibles) | ✅ |
@@ -167,19 +167,44 @@ Reglas aplicadas al leerlo (en `tools/inventory.mjs`):
 
 ### Fotografías
 
-De los 318 productos, **124 tienen fotografía real** recortada de las fotos del
-negocio. El resto muestra una **portada de marca generada** con su título y el
-color de su plataforma: nunca se usa la carátula de otro juego ni una imagen de
-banco.
+De los 318 productos, **302 tienen fotografía real** del negocio. Los 16 restantes
+muestran una **portada de marca generada** con su título y el color de su
+plataforma: nunca se usa la carátula de otro juego ni una imagen de banco.
 
-El mapa fotografía → producto está **revisado a mano** en `tools/fotos.mjs`,
-porque el emparejamiento automático por nombre fallaba: le asignaba la portada de
-*God Eater 3* a *God of war 3*, y la de *The Last of Us Remastered* a
-*The Last of Us 2*. Ese archivo también documenta los 16 recortes que quedaron
-sin usar y por qué.
+Las fotos individuales están en `_source/fotos/` (269 archivos). El proceso:
 
-> **Para mejorar la tienda:** por cada foto nueva que envíe el negocio, se
-> recorta, se añade una línea en `tools/fotos.mjs` y se ejecuta `npm run catalogo`.
+1. **Identificación.** Los nombres de archivo vienen abreviados y con erratas
+   (`howardslegacy`, `grimsondeset`, `thekingoftgthers`), así que no se usan para
+   emparejar. Se leyó el **título impreso en cada carátula** y la franja de
+   plataforma de la caja.
+2. **Recorte.** `tools/crop-fotos.mjs` aísla el estuche midiendo el **enfoque**:
+   la caja está nítida y el fondo (otros lomos, la estantería) desenfocado. Luego
+   ajusta el recorte a la proporción real del estuche, así todas las portadas
+   quedan con la misma forma.
+3. **Exportación.** 420 px de ancho, WebP al 80 % → ~35 KB por portada, 12 MB en
+   total, con carga diferida.
+
+El mapa fotografía → producto está en `tools/asignar-fotos.mjs` y se **verificó
+mirando las 261 portadas publicadas** en hojas de contacto
+(`node tools/hoja-fotos.mjs`). Esa revisión encontró cinco errores que ningún
+emparejamiento automático habría detectado:
+
+| Archivo | Lo que parecía | Lo que era |
+| --- | --- | --- |
+| `thelastofus2.png` | The Last of Us Part II | **Part I** (estaban intercambiadas) |
+| `thelastofus2remaster.png` | The Last of Us Part I | **Part II Remastered** |
+| `fantasyvii.png` | Final Fantasy VII Remake | **Final Fantasy VII Rebirth** |
+| `pokemonswitch.png` | Pokémon Legends Arceus | **Detective Pikachu (japonés)** |
+| `minecraftsotyymode.png` | Minecraft Dungeons | **Minecraft: Story Mode** (no se publica) |
+
+Nueve fotografías más quedaron sin publicar porque el juego no está en el
+inventario (Donkey Kong Bananza, FIFA 21, MADiSON, Metal Slug Tactics) o porque
+la caja es de una plataforma que el negocio no tiene listada. El motivo de cada
+una está escrito en `DESCARTADAS`, dentro de `tools/asignar-fotos.mjs`.
+
+> **Para añadir fotos nuevas:** se copian a `_source/fotos/`, se añade una línea
+> en `FORZADAS` (o se deja que el emparejamiento automático las resuelva) y se
+> ejecuta `npm run catalogo`.
 
 ### Géneros y descripciones
 
