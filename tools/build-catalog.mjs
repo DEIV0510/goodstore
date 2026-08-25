@@ -435,7 +435,7 @@ ${cuerpo}
 fs.writeFileSync(OUT_DATA, cabecera)
 
 // 5. Sitemap
-const SITE_URL = 'https://goodgame.com.co'
+const SITE_URL = 'https://goodgamecol.shop'
 const rutas = ['/', '/catalogo', '/usados', '/favoritos']
 const urls = [
   ...rutas.map((r) => ({ loc: r, priority: r === '/' ? '1.0' : '0.8', freq: 'weekly' })),

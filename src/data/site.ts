@@ -27,7 +27,7 @@ export const site = {
    */
   socials: [] as { name: string; url: string }[],
 
-  url: 'https://goodgame.com.co',
+  url: 'https://goodgamecol.shop',
 } as const
 
 export const waLink = (message: string) =>

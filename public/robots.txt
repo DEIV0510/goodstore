@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://goodgame.com.co/sitemap.xml
+Sitemap: https://goodgamecol.shop/sitemap.xml

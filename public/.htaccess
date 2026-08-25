@@ -43,5 +43,9 @@
   AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
 </IfModule>
 
-# 4. Página de error: la maneja la propia aplicación
+# 4. El despliegue se hace por Git y deja la carpeta .git dentro de public_html:
+#    se bloquea para que no se pueda descargar el código desde la web.
+RedirectMatch 404 /\.git
+
+# 5. Página de error: la maneja la propia aplicación
 ErrorDocument 404 /index.html

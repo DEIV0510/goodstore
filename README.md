@@ -228,7 +228,7 @@ género, que es lo correcto. La clasificación vive en `tools/_clasificacion.jso
 | **Consolas** | La categoría existe, pero el inventario no trae consolas | añadir productos con `category: 'consolas'` |
 | **Redes sociales** | Nota de "próximamente"; no hay enlaces falsos | `site.socials` en `site.ts` |
 | **Dirección exacta** | Solo "Itagüí, Antioquia" (petición del cliente) | `site.ts` |
-| **Dominio** | `goodgame.com.co` como marcador | `site.url` + `SITE_URL` en `build-catalog.mjs` |
+| **Dominio** | `goodgamecol.shop` (dominio real, Hostinger) | `site.url` + `SITE_URL` en `build-catalog.mjs` |
 
 ---
 

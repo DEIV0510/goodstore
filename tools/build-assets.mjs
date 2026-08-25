@@ -138,7 +138,7 @@ console.log(`  · Retirados (X roja): ${RETIRADOS.length}`)
 // ── Sitemap ─────────────────────────────────────────────────────────────────
 // Se regenera junto con el catálogo para que nunca quede desactualizado.
 // Cambia SITE_URL cuando el dominio definitivo esté listo.
-const SITE_URL = 'https://goodgame.com.co'
+const SITE_URL = 'https://goodgamecol.shop'
 const staticRoutes = ['/', '/catalogo', '/usados', '/favoritos']
 const urls = [
   ...staticRoutes.map((r) => ({ loc: r, priority: r === '/' ? '1.0' : '0.8', freq: 'weekly' })),
