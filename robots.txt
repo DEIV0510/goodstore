@@ -1,0 +1,5 @@
+# GOOD GAME — Game Store
+User-agent: *
+Allow: /
+
+Sitemap: https://goodgamecol.shop/sitemap.xml

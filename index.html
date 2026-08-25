@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#070C42" />
+
+    <title>GOOD GAME | Videojuegos, Consolas y Accesorios</title>
+    <meta
+      name="description"
+      content="Compra videojuegos, consolas y accesorios en GOOD GAME. Encuentra títulos para PlayStation y Nintendo Switch, juegos usados y más. Envíos a Medellín y toda Colombia."
+    />
+    <meta name="author" content="GOOD GAME" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://goodgamecol.shop/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GOOD GAME" />
+    <meta property="og:locale" content="es_CO" />
+    <meta property="og:title" content="GOOD GAME | Videojuegos, Consolas y Accesorios" />
+    <meta
+      property="og:description"
+      content="Videojuegos para PlayStation 4, PlayStation 5 y Nintendo Switch. Nuevos y usados. Envíos a Medellín y toda Colombia."
+    />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="https://goodgamecol.shop/" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Inter:wght@400;500;600;700&display=swap"
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "name": "GOOD GAME",
+        "alternateName": "GOOD GAME — Game Store",
+        "description": "Tienda de videojuegos, consolas y accesorios para PlayStation y Nintendo Switch.",
+        "url": "https://goodgamecol.shop/",
+        "telephone": "+573508271637",
+        "areaServed": "Colombia",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Itagüí",
+          "addressRegion": "Antioquia",
+          "addressCountry": "CO"
+        }
+      }
+    </script>
+
+    <style>
+      /* ── Pantalla de carga ──────────────────────────────────────────────
+         Vive fuera de React para pintarse en el primer fotograma.
+         El logotipo va incrustado en base64: cero peticiones de red.       */
+      html { background: #070C42; }
+
+      #gg-boot {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 34px;
+        background: radial-gradient(125% 95% at 50% 32%, #161EB4 0%, #0A0F8C 34%, #070A78 58%, #080E4C 82%, #070C42 100%);
+        font-family: Archivo, 'Segoe UI', system-ui, sans-serif;
+        transition: opacity .55s ease, visibility .55s ease;
+      }
+      #gg-boot[data-hide='true'] { opacity: 0; visibility: hidden; pointer-events: none; }
+
+      /* Malla técnica */
+      #gg-boot::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+        background-size: 44px 44px;
+        mask-image: radial-gradient(72% 58% at 50% 45%, #000 18%, transparent 80%);
+        -webkit-mask-image: radial-gradient(72% 58% at 50% 45%, #000 18%, transparent 80%);
+      }
+
+      /* Barrido tipo CRT */
+      #gg-boot::after {
+        content: '';
+        position: absolute;
+        left: 0; right: 0;
+        height: 150px;
+        background: linear-gradient(180deg, transparent, rgba(255,240,0,.075), transparent);
+        animation: gg-scan 2.6s linear infinite;
+      }
+      @keyframes gg-scan { 0% { top: -18%; } 100% { top: 108%; } }
+
+      /* Logotipo oficial */
+      .gg-boot__logo {
+        position: relative;
+        width: min(340px, 74vw);
+        height: auto;
+        animation: gg-pop .7s cubic-bezier(.16,1,.3,1) both;
+        filter: drop-shadow(0 14px 34px rgba(0,0,0,.5));
+      }
+      @keyframes gg-pop {
+        from { opacity: 0; transform: translateY(16px) scale(.93); }
+        to   { opacity: 1; transform: none; }
+      }
+
+      /* Barra de carga por bloques, como en las consolas retro */
+      .gg-boot__bar {
+        position: relative;
+        width: min(264px, 66vw);
+        height: 14px;
+        overflow: hidden;
+        background: repeating-linear-gradient(90deg,
+          rgba(255,255,255,.13) 0 18px, transparent 18px 22px);
+        animation: gg-fade .5s .15s both;
+      }
+      .gg-boot__bar i {
+        position: absolute;
+        inset: 0 auto 0 0;
+        display: block;
+        width: 0;
+        background: repeating-linear-gradient(90deg,
+          #FFF000 0 18px, transparent 18px 22px);
+        animation: gg-fill 1.15s steps(12) forwards;
+      }
+      @keyframes gg-fill { to { width: 100%; } }
+      @keyframes gg-fade { from { opacity: 0 } to { opacity: 1 } }
+
+      .gg-boot__hint {
+        position: relative;
+        margin-top: -18px;
+        font-size: .66rem;
+        font-weight: 700;
+        letter-spacing: .46em;
+        text-indent: .46em;
+        color: rgba(255,255,255,.5);
+        animation: gg-blink 1.1s steps(2, start) infinite;
+      }
+      @keyframes gg-blink { 50% { opacity: .3 } }
+
+      @media (prefers-reduced-motion: reduce) {
+        #gg-boot::after, .gg-boot__logo, .gg-boot__hint { animation: none; }
+        .gg-boot__bar i { animation: none; width: 100%; }
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/index-CzsHNlNO.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/react-Du23XLnR.js">
+    <link rel="modulepreload" crossorigin href="/assets/icons-Dpkm6ZU2.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-RGeCvrg4.css">
+  </head>
+  <body class="bg-ink-900">
+    <!-- Pantalla de carga -->
+    <div id="gg-boot" role="status" aria-live="polite" aria-label="Cargando GOOD GAME">
+      <img class="gg-boot__logo" src="data:image/png;base64,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" alt="GOOD GAME — Game Store" width="720" height="239" />
+      <div class="gg-boot__bar"><i></i></div>
+      <p class="gg-boot__hint">CARGANDO</p>
+    </div>
+
+    <noscript>
+      <div style="padding: 40px; color: #fff; font-family: system-ui">
+        <h1>GOOD GAME — Game Store</h1>
+        <p>Necesitas activar JavaScript para ver la tienda. También puedes escribirnos por WhatsApp al 350 827 1637.</p>
+      </div>
+    </noscript>
+
+    <div id="root"></div>
+  </body>
+</html>
