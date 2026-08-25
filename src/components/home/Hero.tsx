@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { ArrowRight, MessageCircle, Truck, Gamepad2, RefreshCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ProductImage from '@/components/ui/ProductImage'
@@ -16,13 +17,19 @@ const HERO_SLUGS = [
 const bySlug = new Map(products.map((p) => [p.slug, p]))
 const covers = HERO_SLUGS.map((s) => bySlug.get(s)).filter(Boolean) as typeof products
 
-/** Abanico de portadas en escritorio. */
+/**
+ * Abanico de portadas en escritorio.
+ *
+ * `i` es la posición respecto al centro (−2 … 2). La separación la pone la
+ * hoja de estilos en `--gg-step`, medida en vw: así el abanico se cierra solo
+ * en portátiles de 1280–1366 px y no se monta sobre el titular.
+ */
 const FAN = [
-  { rotate: -14, x: -196, y: 34, z: 1, scale: 0.84 },
-  { rotate: -7, x: -100, y: 8, z: 2, scale: 0.92 },
-  { rotate: 0, x: 0, y: -12, z: 3, scale: 1 },
-  { rotate: 7, x: 100, y: 8, z: 2, scale: 0.92 },
-  { rotate: 14, x: 196, y: 34, z: 1, scale: 0.84 },
+  { i: -2, rotate: -13, ry: 20, y: 38, z: 1, scale: 0.85 },
+  { i: -1, rotate: -6.5, ry: 11, y: 9, z: 2, scale: 0.92 },
+  { i: 0, rotate: 0, ry: 0, y: -14, z: 3, scale: 1 },
+  { i: 1, rotate: 6.5, ry: -11, y: 9, z: 2, scale: 0.92 },
+  { i: 2, rotate: 13, ry: -20, y: 38, z: 1, scale: 0.85 },
 ]
 
 /** Estantería compacta en móvil: es lo primero que se ve al abrir la web. */
@@ -55,7 +62,7 @@ export default function Hero() {
           <div className="relative order-1 lg:order-2">
             {/* Escritorio: abanico con profundidad */}
             <div
-              className="relative mx-auto hidden h-[420px] w-full max-w-[620px] items-center justify-center lg:flex"
+              className="gg-deck relative mx-auto hidden h-[clamp(340px,31vw,430px)] w-full max-w-[620px] items-center justify-center lg:flex"
               style={{ perspective: '1400px' }}
             >
               <div
@@ -68,11 +75,17 @@ export default function Hero() {
                   <Link
                     key={p.slug}
                     to={`/producto/${p.slug}`}
-                    className="group absolute block h-[300px] w-[228px] rounded-xl transition-transform duration-500 ease-out hover:!translate-y-[-22px] hover:!scale-105"
-                    style={{
-                      transform: `translate3d(${f.x}px, ${f.y}px, 0) rotate(${f.rotate}deg) scale(${f.scale})`,
-                      zIndex: f.z,
-                    }}
+                    className="gg-fan group absolute block aspect-[3/4] w-[clamp(168px,15.5vw,228px)] rounded-xl"
+                    style={
+                      {
+                        '--gg-i': f.i,
+                        '--gg-y': `${f.y}px`,
+                        '--gg-rot': `${f.rotate}deg`,
+                        '--gg-ry': `${f.ry}deg`,
+                        '--gg-scale': f.scale,
+                        '--gg-z': f.z,
+                      } as CSSProperties
+                    }
                     aria-label={`Ver ${p.name}`}
                   >
                     <span className="relative block h-full w-full overflow-hidden rounded-xl border border-white/12 bg-ink-800 shadow-[0_24px_48px_-18px_rgba(0,0,0,.95)]">
@@ -86,8 +99,13 @@ export default function Hero() {
                         className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-900/55 via-transparent to-white/[.06]"
                         aria-hidden="true"
                       />
-                      <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full bg-ink-900/92 px-3 py-2 text-center text-2xs font-bold text-gold-500 transition-transform duration-300 group-hover:translate-y-0">
-                        Ver producto
+                      <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full bg-ink-900/92 px-2.5 py-2 text-center transition-transform duration-300 group-hover:translate-y-0">
+                        <span className="line-clamp-1 text-2xs font-bold text-white">
+                          {p.name}
+                        </span>
+                        <span className="mt-0.5 block text-2xs font-black uppercase tracking-wider text-gold-500">
+                          Ver producto
+                        </span>
                       </span>
                     </span>
                   </Link>

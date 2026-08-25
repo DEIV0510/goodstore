@@ -93,6 +93,41 @@
     @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
   }
 
+  /* ── Abanico de portadas del hero (escritorio) ─────────────────────────
+     Cada portada recibe su sitio en el abanico por variables. El hover SUMA
+     el levantamiento a esa posición en vez de sustituirla: con las
+     utilidades de Tailwind y "!" el transform lleva !important, borraría la
+     rotación y el desplazamiento, y la portada saltaría al centro.
+     La separación va en vw para que en portátiles de 1280–1366 px el
+     abanico se cierre solo y no invada el titular.                        */
+  .gg-deck {
+    --gg-step: clamp(72px, 7.2vw, 110px);
+  }
+  .gg-fan {
+    z-index: var(--gg-z);
+    transform: translate3d(calc(var(--gg-i) * var(--gg-step)), var(--gg-y), 0)
+      rotate(var(--gg-rot)) rotateY(var(--gg-ry)) scale(var(--gg-scale));
+    transition:
+      transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
+      filter 0.35s ease;
+  }
+  .gg-fan:hover,
+  .gg-fan:focus-visible {
+    /* Se endereza, sube y pasa al frente */
+    z-index: 20;
+    transform: translate3d(calc(var(--gg-i) * var(--gg-step)), calc(var(--gg-y) - 26px), 0)
+      rotate(var(--gg-rot)) rotateY(0deg) scale(calc(var(--gg-scale) + 0.08));
+  }
+  /* Al levantar una portada, las demás se atenúan */
+  .gg-deck:hover .gg-fan:not(:hover) {
+    filter: brightness(0.62) saturate(0.9);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gg-fan {
+      transition: none;
+    }
+  }
+
   /* ── Botones ─────────────────────────────────────────────────────────── */
   .btn {
     @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold
