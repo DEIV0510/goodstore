@@ -143,6 +143,21 @@ function desdeSemilla(s: (typeof semilla)[number], i: number): Product {
 
 const catalogoSemilla: Product[] = semilla.map(desdeSemilla)
 
+/**
+ * Red de seguridad de la tienda.
+ *
+ * Si la base de datos no responde —se cayó la red, caducó una credencial, el
+ * proyecto quedó en pausa— la tienda muestra este catálogo, que es el que se
+ * publicó con la última versión del sitio. Puede traer algún precio viejo,
+ * pero eso es infinitamente mejor que una tienda en blanco.
+ *
+ * Solo la usa la tienda pública. El panel NO cae aquí a propósito: si algo
+ * falla al administrar, el administrador tiene que verlo, no ponerse a
+ * trabajar encima de datos que no son los de verdad.
+ */
+export const catalogoDeRespaldo = (): Product[] =>
+  catalogoSemilla.filter((p) => p.status === 'publicado')
+
 // ── Lectura ──────────────────────────────────────────────────────────────────
 
 export interface OpcionesCatalogo {
@@ -345,6 +360,10 @@ const categoriasDeSemilla: CategoryCard[] = categoriasSemilla.map((c, i) => ({
   active: true,
   soon: Boolean(c.soon),
 }))
+
+/** Categorías de respaldo, por el mismo motivo que `catalogoDeRespaldo`. */
+export const categoriasDeRespaldo = (): CategoryCard[] =>
+  categoriasDeSemilla.filter((c) => c.active)
 
 export async function listarCategorias(
   opciones: { incluirInactivas?: boolean } = {}

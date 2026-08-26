@@ -240,6 +240,9 @@ const faqDeSemilla: FaqItem[] = faqSemilla.map((f, i) => ({
   active: true,
 }))
 
+/** Preguntas de respaldo, por el mismo motivo que `catalogoDeRespaldo`. */
+export const faqDeRespaldo = (): FaqItem[] => faqDeSemilla
+
 export async function listarFaq(
   opciones: { todas?: boolean } = {}
 ): Promise<FaqItem[]> {

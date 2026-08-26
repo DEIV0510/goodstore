@@ -8,9 +8,15 @@ import {
   type ReactNode,
 } from 'react'
 import { cliente, backendConfigurado } from '@/lib/supabase'
-import { listarCategorias, listarProductos } from '@/services/catalogo'
+import {
+  catalogoDeRespaldo,
+  categoriasDeRespaldo,
+  listarCategorias,
+  listarProductos,
+} from '@/services/catalogo'
 import {
   CONTENIDO_POR_OMISION,
+  faqDeRespaldo,
   listarBanners,
   listarFaq,
   obtenerContenido,
@@ -61,6 +67,9 @@ interface ValorCatalogo {
 
 const CatalogoContext = createContext<ValorCatalogo | null>(null)
 
+/** Cuánto se espera a la base de datos antes de tirar del catálogo de respaldo. */
+const ESPERA_MAXIMA = 3500
+
 export function CatalogoProvider({ children }: { children: ReactNode }) {
   const [productos, setProductos] = useState<Product[]>([])
   const [categorias, setCategorias] = useState<CategoryCard[]>([])
@@ -74,6 +83,24 @@ export function CatalogoProvider({ children }: { children: ReactNode }) {
 
   const cargar = useCallback(async () => {
     setError(null)
+
+    // Reloj de paciencia.
+    //
+    // Cuando la base de datos no contesta, su cliente reintenta varias veces
+    // antes de rendirse: medido, tarda unos 8,4 segundos en lanzar el error.
+    // Ocho segundos de tienda en blanco es una venta perdida, así que a los
+    // 3,5 se pinta el catálogo de respaldo sin esperar más. Si los datos
+    // reales llegan después, se sustituyen y el visitante no nota nada.
+    //
+    // En una conexión normal la base responde en menos de medio segundo y
+    // este reloj no llega a saltar nunca.
+    const reloj = window.setTimeout(() => {
+      setProductos((a) => (a.length > 0 ? a : catalogoDeRespaldo()))
+      setCategorias((a) => (a.length > 0 ? a : categoriasDeRespaldo()))
+      setFaq((a) => (a.length > 0 ? a : faqDeRespaldo()))
+      setCargando(false)
+    }, ESPERA_MAXIMA)
+
     try {
       const [p, c, f, b, ct, aj, wa] = await Promise.all([
         listarProductos(),
@@ -84,9 +111,13 @@ export function CatalogoProvider({ children }: { children: ReactNode }) {
         obtenerAjustes(),
         obtenerWhatsapp(),
       ])
-      setProductos(p)
-      setCategorias(c)
-      setFaq(f)
+      // Una base de datos que responde bien pero devuelve CERO productos casi
+      // siempre significa "todavía no se ha cargado el catálogo", no "el
+      // negocio archivó sus 318 productos". Se prefiere mostrar el catálogo
+      // publicado antes que un escaparate vacío al cliente.
+      setProductos(p.length > 0 ? p : catalogoDeRespaldo())
+      setCategorias(c.length > 0 ? c : categoriasDeRespaldo())
+      setFaq(f.length > 0 ? f : faqDeRespaldo())
       setBanners(b)
       setContenido(ct)
       setAjustes(aj)
@@ -98,10 +129,24 @@ export function CatalogoProvider({ children }: { children: ReactNode }) {
       // hace que esos componentes tomen los valores nuevos.
       configurarSitio(aj, wa)
     } catch (e) {
-      // La tienda no puede quedarse en blanco por un fallo de red: se avisa,
-      // pero se sigue mostrando lo último que se pudo cargar.
       setError(e instanceof Error ? e.message : 'No se pudo cargar el catálogo')
+
+      // La tienda NUNCA se queda en blanco. Si la base de datos no responde
+      // —red caída, credencial caducada, proyecto en pausa— se muestra el
+      // catálogo que viene con la última versión publicada del sitio.
+      //
+      // Solo se rellena lo que esté vacío: si el fallo ocurre al recargar
+      // (por ejemplo tras un cambio en tiempo real), lo que ya se estaba
+      // mostrando es más reciente que el respaldo y se conserva.
+      setProductos((actuales) =>
+        actuales.length > 0 ? actuales : catalogoDeRespaldo()
+      )
+      setCategorias((actuales) =>
+        actuales.length > 0 ? actuales : categoriasDeRespaldo()
+      )
+      setFaq((actuales) => (actuales.length > 0 ? actuales : faqDeRespaldo()))
     } finally {
+      window.clearTimeout(reloj)
       setCargando(false)
     }
   }, [])
