@@ -1,21 +1,13 @@
-import type { CSSProperties } from 'react'
+import { useMemo, type CSSProperties } from 'react'
 import { ArrowRight, MessageCircle, Truck, Gamepad2, RefreshCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ProductImage from '@/components/ui/ProductImage'
 import { MESSAGES, waLink } from '@/data/site'
-import { products } from '@/data/products'
+import { useCatalogo } from '@/hooks/useCatalogo'
 
-/** Portadas reales usadas en la composición del hero. */
-const HERO_SLUGS = [
-  'the-legend-of-zelda-breath-of-the-wild-switch',
-  'ghost-of-tsushima-ps4',
-  'elden-ring-ps5',
-  'god-of-war-ragnarok-ps5',
-  'pokemon-scarlet-switch',
-]
-
-const bySlug = new Map(products.map((p) => [p.slug, p]))
-const covers = HERO_SLUGS.map((s) => bySlug.get(s)).filter(Boolean) as typeof products
+// Las portadas del abanico se eligen desde /admin/contenido, por slug de
+// producto. Si alguna deja de existir simplemente no se pinta: nunca se
+// sustituye por la carátula de otro juego.
 
 /**
  * Abanico de portadas en escritorio.
@@ -44,6 +36,19 @@ const SHELF = [
 ]
 
 export default function Hero() {
+  const { productos, contenido } = useCatalogo()
+  const hero = contenido.hero
+
+  // El abanico se arma resolviendo los slugs elegidos en el panel. Los que no
+  // existan se descartan, no se rellenan con otro juego.
+  const covers = useMemo(() => {
+    const porSlug = new Map(productos.map((p) => [p.slug, p]))
+    return hero.coverSlugs
+      .map((slug) => porSlug.get(slug))
+      .filter((p): p is (typeof productos)[number] => Boolean(p))
+      .slice(0, 5)
+  }, [productos, hero.coverSlugs])
+
   return (
     <section className="relative overflow-hidden" aria-labelledby="hero-title">
       {/* Fondo */}
@@ -144,7 +149,7 @@ export default function Hero() {
                 to="/catalogo"
                 className="mx-auto mt-7 flex w-fit items-center gap-2 rounded-full border border-gold-500/35 bg-gold-500/10 px-3.5 py-2 text-2xs font-bold text-gold-500 transition-colors active:bg-gold-500/20"
               >
-                {products.length} juegos disponibles
+                {productos.length} juegos disponibles
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
               </Link>
             </div>
@@ -157,17 +162,19 @@ export default function Hero() {
               className="text-balance font-display text-[2.1rem] font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-[4.1rem]"
               style={{ fontStretch: '112%' }}
             >
-              Tu próximo juego <span className="text-gold-500">empieza aquí.</span>
+              {hero.title} <span className="text-gold-500">{hero.highlight}</span>
             </h1>
 
             <p className="mx-auto mt-3.5 max-w-lg text-pretty text-[15px] leading-relaxed text-white/70 sm:text-lg lg:mx-0 lg:mt-5">
-              Videojuegos, consolas y accesorios para llevar tu experiencia gaming al
-              siguiente nivel.
+              {hero.subtitle}
             </p>
 
             <div className="mt-6 flex flex-col items-stretch gap-2.5 sm:flex-row sm:items-center sm:justify-center lg:mt-8 lg:justify-start">
-              <Link to="/catalogo" className="btn-primary h-13 px-7 text-sm sm:text-[15px]">
-                Ver catálogo
+              <Link
+                to={hero.primaryHref}
+                className="btn-primary h-13 px-7 text-sm sm:text-[15px]"
+              >
+                {hero.primaryLabel}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
               <a
@@ -177,7 +184,7 @@ export default function Hero() {
                 className="btn-secondary h-13 px-7 text-sm sm:text-[15px]"
               >
                 <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                Comprar por WhatsApp
+                {hero.secondaryLabel}
               </a>
             </div>
 

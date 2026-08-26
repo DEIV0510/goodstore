@@ -11,12 +11,13 @@ import {
   RefreshCw,
   ShieldCheck,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import ProductCard from '@/components/catalog/ProductCard'
 import ProductImage from '@/components/ui/ProductImage'
 import { ConditionBadge, PlatformBadge, RegionBadge, StockBadge, isAvailable } from '@/components/ui/Badges'
-import { products } from '@/data/products'
+import { useCatalogo } from '@/hooks/useCatalogo'
+import { registrarVista } from '@/services/catalogo'
 import { conditionLabel, genreLabel, platformLabel, regionLabel } from '@/data/taxonomy'
 import { site } from '@/data/site'
 import { cop } from '@/lib/format'
@@ -26,7 +27,8 @@ import { useStore } from '@/store/StoreContext'
 
 export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>()
-  const product = useMemo(() => products.find((p) => p.slug === slug), [slug])
+  const { productos: products, porSlug } = useCatalogo()
+  const product = useMemo(() => (slug ? porSlug(slug) : undefined), [slug, porSlug])
   const [qty, setQty] = useState(1)
   const [activeImage, setActiveImage] = useState(0)
   const { addToCart, isFavorite, toggleFavorite, setCartOpen } = useStore()
@@ -40,6 +42,12 @@ export default function ProductPage() {
       (p) => p.slug !== product.slug && p.platform === product.platform && p.genre !== product.genre
     )
     return [...sameGenre, ...samePlatform].slice(0, 5)
+  }, [product, products])
+
+  // Suma la visita para el informe de productos más vistos del panel. Es una
+  // métrica secundaria: si la llamada falla, la ficha se ve exactamente igual.
+  useEffect(() => {
+    if (product) void registrarVista(product.slug)
   }, [product])
 
   useSeo({

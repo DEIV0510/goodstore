@@ -9,13 +9,11 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { products } from '@/data/products'
+import { useCatalogo } from '@/hooks/useCatalogo'
 import type { CartEntry, CartLine, Product } from '@/types'
 
 const CART_KEY = 'gg.cart.v1'
 const FAV_KEY = 'gg.fav.v1'
-
-const bySlug = new Map(products.map((p) => [p.slug, p]))
 
 // ── Persistencia segura (Safari en modo privado puede lanzar) ────────────────
 function read<T>(key: string, fallback: T): T {
@@ -40,6 +38,7 @@ type CartAction =
   | { type: 'remove'; slug: string }
   | { type: 'setQty'; slug: string; qty: number }
   | { type: 'clear' }
+  | { type: 'podar'; existentes: Set<string> }
 
 function cartReducer(state: CartLine[], action: CartAction): CartLine[] {
   switch (action.type) {
@@ -62,6 +61,13 @@ function cartReducer(state: CartLine[], action: CartAction): CartLine[] {
       )
     case 'clear':
       return []
+    case 'podar': {
+      // Retira productos que ya no existen en el catálogo. Solo se ejecuta
+      // cuando el catálogo YA está cargado: hacerlo antes vaciaría el carrito
+      // de todo el mundo en cada recarga.
+      const limpio = state.filter((l) => action.existentes.has(l.slug))
+      return limpio.length === state.length ? state : limpio
+    }
   }
 }
 
@@ -99,19 +105,43 @@ interface StoreValue {
 const StoreContext = createContext<StoreValue | null>(null)
 
 export function StoreProvider({ children }: { children: ReactNode }) {
+  const { productos, cargando } = useCatalogo()
+
+  const bySlug = useMemo(() => new Map(productos.map((p) => [p.slug, p])), [productos])
+
+  // Se leen tal cual: mientras no haya catálogo no se puede saber qué es válido.
   const [lines, dispatch] = useReducer(cartReducer, [], () =>
-    read<CartLine[]>(CART_KEY, []).filter((l) => bySlug.has(l.slug))
+    read<CartLine[]>(CART_KEY, [])
   )
-  const [favorites, setFavorites] = useState<string[]>(() =>
-    read<string[]>(FAV_KEY, []).filter((s) => bySlug.has(s))
-  )
+  const [favorites, setFavorites] = useState<string[]>(() => read<string[]>(FAV_KEY, []))
+  const [hidratado, setHidratado] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
   const [toasts, setToasts] = useState<Toast[]>([])
   const [bump, setBump] = useState(0)
   const toastId = useRef(0)
 
-  useEffect(() => write(CART_KEY, lines), [lines])
-  useEffect(() => write(FAV_KEY, favorites), [favorites])
+  // Poda una sola vez, cuando el catálogo ya se conoce.
+  useEffect(() => {
+    if (cargando || hidratado) return
+    if (productos.length > 0) {
+      const existentes = new Set(bySlug.keys())
+      dispatch({ type: 'podar', existentes })
+      setFavorites((f) => {
+        const limpio = f.filter((s) => existentes.has(s))
+        return limpio.length === f.length ? f : limpio
+      })
+    }
+    setHidratado(true)
+  }, [cargando, hidratado, productos.length, bySlug])
+
+  // Nada se guarda antes de la poda: si el catálogo tardara o fallara, el
+  // carrito guardado queda intacto en vez de sobrescribirse con uno vacío.
+  useEffect(() => {
+    if (hidratado) write(CART_KEY, lines)
+  }, [lines, hidratado])
+  useEffect(() => {
+    if (hidratado) write(FAV_KEY, favorites)
+  }, [favorites, hidratado])
 
   const dismissToast = useCallback((id: number) => {
     setToasts((t) => t.filter((x) => x.id !== id))
@@ -134,7 +164,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           return product ? { product, qty: l.qty } : null
         })
         .filter((x): x is CartEntry => x !== null),
-    [lines]
+    [lines, bySlug]
   )
 
   const cartCount = useMemo(() => cart.reduce((n, e) => n + e.qty, 0), [cart])

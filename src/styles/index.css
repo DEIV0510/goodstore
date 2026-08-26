@@ -1,3 +1,6 @@
+/* La hoja del panel va primero: @import debe preceder a cualquier otra regla. */
+@import './admin.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

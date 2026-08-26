@@ -2,7 +2,7 @@ import { Gamepad, MessageCircle, Monitor } from 'lucide-react'
 import ProductCard from '@/components/catalog/ProductCard'
 import SectionHeading from './SectionHeading'
 import { MESSAGES, waLink } from '@/data/site'
-import { products } from '@/data/products'
+import { useCatalogo } from '@/hooks/useCatalogo'
 
 /**
  * Consolas y accesorios. El negocio maneja ambas líneas, pero todavía no
@@ -43,6 +43,7 @@ function SoonCard({
 }
 
 export default function ConsolesAccessories() {
+  const { productos: products } = useCatalogo()
   const consoles = products.filter((p) => p.category === 'consolas')
   const accessories = products.filter((p) => p.category === 'accesorios')
   const hardware = [...consoles, ...accessories]

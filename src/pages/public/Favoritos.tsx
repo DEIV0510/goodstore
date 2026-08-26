@@ -2,13 +2,14 @@ import { Heart } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import ProductCard from '@/components/catalog/ProductCard'
-import { products } from '@/data/products'
+import { useCatalogo } from '@/hooks/useCatalogo'
 import { pluralize } from '@/lib/format'
 import { useSeo } from '@/lib/seo'
 import { useStore } from '@/store/StoreContext'
 
 export default function Favoritos() {
   const { favorites } = useStore()
+  const { productos: products } = useCatalogo()
 
   useSeo({
     title: 'Mis favoritos | GOOD GAME',

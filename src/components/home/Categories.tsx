@@ -2,9 +2,14 @@ import { ArrowUpRight, Clock3 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ProductImage from '@/components/ui/ProductImage'
 import SectionHeading from './SectionHeading'
-import { categories } from '@/data/categories'
+import { useCatalogo } from '@/hooks/useCatalogo'
 
 export default function Categories() {
+  const { categorias: categories } = useCatalogo()
+
+  // Sin categorías activas la sección no se pinta: mejor eso que una rejilla vacía.
+  if (categories.length === 0) return null
+
   return (
     <section className="gg-container py-10 sm:py-12" aria-labelledby="categorias-title">
       <SectionHeading
@@ -32,8 +37,20 @@ export default function Categories() {
                 aria-hidden="true"
               />
 
-              {/* Portadas reales apiladas */}
-              {c.covers.length > 0 ? (
+              {/* Imagen propia si el panel subió una; si no, portadas reales apiladas */}
+              {c.imageUrl ? (
+                <span
+                  className="pointer-events-none absolute inset-y-0 right-0 w-[52%] overflow-hidden"
+                  aria-hidden="true"
+                >
+                  <img
+                    src={c.imageUrl}
+                    alt=""
+                    loading="lazy"
+                    className="h-full w-full object-cover opacity-70 [mask-image:linear-gradient(to_right,transparent,#000_38%)]"
+                  />
+                </span>
+              ) : c.covers.length > 0 ? (
                 <span
                   className="pointer-events-none absolute -right-2 bottom-0 top-0 flex w-[46%] items-center justify-end"
                   aria-hidden="true"

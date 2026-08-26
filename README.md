@@ -63,22 +63,45 @@ good-game/
 │   │   ├── home/          Secciones de la portada
 │   │   ├── catalog/       Tarjeta de producto y panel de filtros
 │   │   ├── cart/          Panel del carrito
-│   │   └── ui/            Piezas reutilizables (imagen, badges, drawer, toasts…)
+│   │   ├── ui/            Piezas reutilizables (imagen, badges, drawer, toasts…)
+│   │   └── admin/         Kit del panel: tabla, modal, avisos, gráficos, imágenes
+│   ├── layouts/
+│   │   ├── PublicLayout   Envoltorio de la tienda
+│   │   └── AdminLayout    Barra lateral y estructura del panel
+│   ├── pages/
+│   │   ├── public/        Home, Catalog, ProductPage, Usados, Favoritos, NotFound
+│   │   └── admin/         Las 16 pantallas del panel
+│   ├── services/          ★ Única puerta a los datos; la usan tienda y panel
+│   │   ├── catalogo.ts    Productos y categorías
+│   │   ├── pedidos.ts     Pedidos y clientes
+│   │   ├── contenido.ts   Portada, banners y preguntas
+│   │   ├── ajustes.ts     Configuración general y WhatsApp
+│   │   ├── autenticacion.ts  Sesión y permisos
+│   │   ├── equipo.ts      Administradores e historial
+│   │   ├── metricas.ts    Cifras y series de los gráficos
+│   │   └── almacenamiento.ts  Subida de imágenes
+│   ├── hooks/
+│   │   ├── useCatalogo    Datos de la tienda (base de datos o catálogo incluido)
+│   │   └── useAuth        Sesión del panel
 │   ├── data/
-│   │   ├── products.ts    ★ CATÁLOGO — fuente de verdad, se edita a mano
+│   │   ├── products.ts    ★ CATÁLOGO incluido — semilla y respaldo
 │   │   ├── site.ts        ★ Datos del negocio (WhatsApp, ubicación, redes)
 │   │   ├── categories.ts  Tarjetas de "Explora por categoría"
 │   │   ├── faq.ts         Preguntas frecuentes
 │   │   └── taxonomy.ts    Plataformas, géneros, estados, rangos de precio
 │   ├── lib/
+│   │   ├── supabase.ts    Cliente de la base de datos (null si no está conectada)
 │   │   ├── filters.ts     Motor de filtros, orden y búsqueda
 │   │   ├── whatsapp.ts    Armado de los mensajes de WhatsApp
 │   │   ├── format.ts      Precios en pesos, normalización de texto
 │   │   └── seo.ts         Title, description, canonical, Open Graph y JSON-LD
-│   ├── pages/             Home, Catalog, ProductPage, Usados, Favoritos, NotFound
 │   ├── store/             Carrito y favoritos (Context + localStorage)
-│   ├── styles/index.css   Base, componentes y utilidades
-│   └── types.ts           ★ Modelo de datos
+│   ├── styles/
+│   │   ├── index.css      Base, componentes y utilidades de la tienda
+│   │   └── admin.css      Tema claro del panel (todo bajo html.gg-admin)
+│   └── types/             ★ Modelo de datos
+│
+├── supabase/migrations/   Esquema, permisos, auditoría y almacenamiento
 │
 ├── tools/                 Utilidades de desarrollo (no se publican)
 │   ├── _source/…          Fotografías originales del negocio
@@ -86,12 +109,16 @@ good-game/
 │   ├── asignar-fotos.mjs  Qué fotografía va con cada producto (revisado a mano)
 │   ├── crop-fotos.mjs     Aísla el estuche en cada fotografía
 │   ├── build-catalog.mjs  Genera products.ts + imágenes + sitemap
+│   ├── sembrar.mjs        Carga el catálogo en la base de datos
 │   ├── hoja-fotos.mjs     Hojas de contacto para revisar las portadas
 │   ├── brand.mjs / og.mjs Logotipos, íconos e imagen para compartir
 │   └── qa.mjs             Control de calidad automatizado
 │
 └── _source/               Copia de las fotos y el brief del cliente
 ```
+
+**La tienda y el panel comparten `src/services/`.** Esa es la razón por la que
+un cambio hecho en `/admin` se ve en la tienda: no hay dos copias de los datos.
 
 ---
 
@@ -234,7 +261,25 @@ género, que es lo correcto. La clasificación vive en `tools/_clasificacion.jso
 
 ## 7. Administrar el catálogo
 
-Todo se hace en **`src/data/products.ts`**. Cada producto es un objeto:
+Hay dos formas, y la primera es la recomendada.
+
+### Desde el panel de administración (recomendado)
+
+El proyecto incluye un panel completo en **`/admin`**: productos, inventario,
+categorías, pedidos, clientes, contenido de la portada, banners, preguntas
+frecuentes, WhatsApp, configuración, administradores e historial de cambios.
+
+Requiere conectar una base de datos (Supabase) una sola vez. **Los pasos están
+en [`ADMIN.md`](ADMIN.md)**; toma unos diez minutos.
+
+Con el panel conectado no hace falta tocar código ni volver a publicar la web
+para cambiar un precio, un stock o un texto.
+
+### Editando el archivo del catálogo
+
+Mientras no haya base de datos, la tienda usa el catálogo incluido en el
+paquete y se administra en **`src/data/products.ts`**. Cada producto es un
+objeto:
 
 ```ts
 {

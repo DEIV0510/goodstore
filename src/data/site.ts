@@ -1,9 +1,29 @@
+import type { Settings, WhatsappSettings } from '@/types'
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Datos oficiales del negocio. Único lugar donde se edita esta información.
-// Nada de lo que hay aquí es inventado: todo viene del brief del cliente.
+// Datos del negocio que la tienda muestra.
+//
+// Los valores de aquí son los del brief del cliente y sirven de punto de
+// partida. Cuando hay base de datos conectada, `configurarSitio()` los sustituye
+// por lo que el administrador haya guardado en el panel.
+//
+// Se conserva la forma de objeto plano (`site.city`, `MESSAGES.general`) para no
+// tener que tocar los quince componentes que ya la usan. Como la lectura ocurre
+// al pintar, y el proveedor del catálogo cambia de estado justo al aplicar la
+// configuración, la tienda se repinta con los valores nuevos.
+//
+// Reglas del negocio que NO se pueden romper desde el panel:
+//   · el WhatsApp por omisión es el 3508271637 y ningún otro;
+//   · no hay dirección exacta, solo ciudad y departamento;
+//   · una red social sin enlace no se pinta: nunca se inventa una cuenta.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const site = {
+export interface RedSocial {
+  name: string
+  url: string
+}
+
+const POR_OMISION = {
   name: 'GOOD GAME',
   tagline: 'GAME STORE',
   claim: 'Videojuegos · Consolas · Accesorios',
@@ -20,20 +40,18 @@ export const site = {
   locationLabel: 'Itagüí, Antioquia, Colombia',
   shippingLabel: 'Envíos a Medellín y toda Colombia',
 
-  /**
-   * Redes sociales: el negocio las tiene PENDIENTES.
-   * Cuando existan, agrega objetos { name, url, icon } y el footer las mostrará
-   * automáticamente. No inventes cuentas.
-   */
-  socials: [] as { name: string; url: string }[],
+  email: '',
+  logoUrl: '/brand/logo.svg',
+
+  /** Pendientes de que el negocio las abra. Vacío = el pie no pinta iconos. */
+  socials: [] as RedSocial[],
 
   url: 'https://goodgamecol.shop',
-} as const
+}
 
-export const waLink = (message: string) =>
-  `https://wa.me/${site.whatsappIntl}?text=${encodeURIComponent(message)}`
+export const site = { ...POR_OMISION }
 
-export const MESSAGES = {
+const PLANTILLAS_POR_OMISION = {
   general: 'Hola GOOD GAME 🎮, quiero información sobre los videojuegos disponibles.',
   catalog: 'Hola GOOD GAME 🎮, quiero ver el catálogo completo y saber precios.',
   consoles:
@@ -41,4 +59,64 @@ export const MESSAGES = {
   accessories:
     'Hola GOOD GAME 🎮, quiero saber qué controles y accesorios tienen disponibles.',
   shipping: 'Hola GOOD GAME 🎮, quiero saber cómo funcionan los envíos a mi ciudad.',
-} as const
+  product:
+    'Hola GOOD GAME 🎮, quiero este juego:\n\n• {producto} — {plataforma}{precio}\n\n¿Me confirmas disponibilidad, precio y envío?',
+  cart: 'Hola GOOD GAME, estoy interesado en comprar:',
+  used: 'Hola GOOD GAME 🎮, quiero vender o entregar un juego usado.',
+}
+
+/** Mensajes con los que la tienda abre WhatsApp. Se leen al pintar. */
+export const MESSAGES = { ...PLANTILLAS_POR_OMISION }
+
+/** Formatea un número colombiano para mostrarlo: 3508271637 → 350 827 1637. */
+function paraMostrar(numero: string): string {
+  const d = numero.replace(/\D/g, '')
+  return d.length === 10 ? `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}` : numero
+}
+
+const NOMBRE_RED: Record<string, string> = {
+  instagram: 'Instagram',
+  facebook: 'Facebook',
+  tiktok: 'TikTok',
+  youtube: 'YouTube',
+}
+
+/**
+ * Aplica lo que el administrador guardó en el panel.
+ * La llama el proveedor del catálogo cada vez que carga la configuración.
+ */
+export function configurarSitio(ajustes: Settings, whatsapp: WhatsappSettings): void {
+  const digitos = whatsapp.number.replace(/\D/g, '')
+  const nacional = digitos.startsWith('57') ? digitos.slice(2) : digitos
+  const valido = nacional.length === 10
+
+  Object.assign(site, {
+    name: ajustes.company.name || POR_OMISION.name,
+    tagline: ajustes.company.tagline || POR_OMISION.tagline,
+    claim: ajustes.company.claim || POR_OMISION.claim,
+
+    // Si el número guardado no tiene diez dígitos se conserva el oficial: es
+    // preferible a publicar un enlace de WhatsApp que no lleva a ninguna parte.
+    whatsapp: valido ? nacional : POR_OMISION.whatsapp,
+    whatsappIntl: valido ? `57${nacional}` : POR_OMISION.whatsappIntl,
+    whatsappDisplay: valido ? paraMostrar(nacional) : POR_OMISION.whatsappDisplay,
+
+    city: ajustes.company.city || POR_OMISION.city,
+    region: ajustes.company.region || POR_OMISION.region,
+    country: ajustes.company.country || POR_OMISION.country,
+    locationLabel: ajustes.company.locationLabel || POR_OMISION.locationLabel,
+    shippingLabel: ajustes.company.shippingLabel || POR_OMISION.shippingLabel,
+    email: ajustes.company.email || '',
+    logoUrl: ajustes.company.logoUrl || POR_OMISION.logoUrl,
+
+    // Solo las que tienen enlace: un campo vacío no pinta icono.
+    socials: Object.entries(ajustes.socials)
+      .filter(([, url]) => typeof url === 'string' && url.trim() !== '')
+      .map(([clave, url]) => ({ name: NOMBRE_RED[clave] ?? clave, url: url.trim() })),
+  })
+
+  Object.assign(MESSAGES, whatsapp.templates)
+}
+
+export const waLink = (message: string) =>
+  `https://wa.me/${site.whatsappIntl}?text=${encodeURIComponent(message)}`

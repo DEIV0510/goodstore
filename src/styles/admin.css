@@ -1,0 +1,198 @@
+/* ═════════════════════════════════════════════════════════════════════════════
+   PANEL DE ADMINISTRACIÓN
+
+   Interfaz deliberadamente distinta a la de la tienda: aquí se trabaja con
+   tablas densas y formularios largos, y para eso las superficies claras se leen
+   mucho mejor que el azul profundo del escaparate.
+
+   La identidad se mantiene donde importa:
+     · azul oscuro de marca en la barra lateral y el encabezado
+     · amarillo solo para la acción principal de cada pantalla
+     · rojo únicamente para lo destructivo
+
+   Todo cuelga de `html.gg-admin`, así que ni una regla de aquí puede
+   filtrarse a la tienda pública.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer base {
+  html.gg-admin body {
+    @apply bg-slate-100 text-[14px] text-slate-700;
+  }
+
+  html.gg-admin h1,
+  html.gg-admin h2,
+  html.gg-admin h3,
+  html.gg-admin h4 {
+    @apply text-slate-900;
+    font-stretch: normal;
+  }
+
+  /* El anillo de foco necesita contraste contra fondo claro, no contra el
+     azul de la tienda. */
+  html.gg-admin a:focus-visible,
+  html.gg-admin button:focus-visible,
+  html.gg-admin input:focus-visible,
+  html.gg-admin select:focus-visible,
+  html.gg-admin textarea:focus-visible,
+  html.gg-admin [tabindex='0']:focus-visible {
+    @apply ring-2 ring-blue-500 ring-offset-2 ring-offset-white;
+  }
+
+  /* Dentro de la barra lateral el fondo vuelve a ser azul. */
+  html.gg-admin .adm-sidebar a:focus-visible,
+  html.gg-admin .adm-sidebar button:focus-visible {
+    @apply ring-gold-500 ring-offset-ink-900;
+  }
+
+  html.gg-admin ::-webkit-scrollbar-track {
+    background: theme('colors.slate.100');
+  }
+  html.gg-admin ::-webkit-scrollbar-thumb {
+    background: theme('colors.slate.300');
+    border: 2px solid theme('colors.slate.100');
+  }
+  html.gg-admin ::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.slate.400');
+  }
+}
+
+@layer components {
+  /* ── Superficies ─────────────────────────────────────────────────────────── */
+  .adm-card {
+    @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+  }
+  .adm-card-pad {
+    @apply adm-card p-4 sm:p-5;
+  }
+  .adm-titulo {
+    @apply font-display text-lg font-bold tracking-tight text-slate-900;
+  }
+  .adm-sub {
+    @apply text-[13px] leading-relaxed text-slate-500;
+  }
+
+  /* ── Botones ─────────────────────────────────────────────────────────────── */
+  /* min-h-[40px] en escritorio y 44px en táctil: cumple el mínimo de superficie
+     táctil sin desperdiciar altura en pantallas con ratón. */
+  .adm-btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg px-4
+           text-[13px] font-semibold transition-all duration-150
+           disabled:pointer-events-none disabled:opacity-45 sm:min-h-[40px];
+  }
+  .adm-btn-primary {
+    @apply adm-btn bg-gold-500 text-ink-900 shadow-sm hover:bg-gold-400 active:scale-[.98];
+  }
+  .adm-btn-oscuro {
+    @apply adm-btn bg-ink-900 text-white hover:bg-blue-800 active:scale-[.98];
+  }
+  .adm-btn-suave {
+    @apply adm-btn border border-slate-300 bg-white text-slate-700
+           hover:border-slate-400 hover:bg-slate-50 active:scale-[.98];
+  }
+  .adm-btn-fantasma {
+    @apply adm-btn text-slate-600 hover:bg-slate-100 hover:text-slate-900;
+  }
+  .adm-btn-peligro {
+    @apply adm-btn bg-alert-500 text-white hover:bg-alert-600 active:scale-[.98];
+  }
+  .adm-btn-sm {
+    @apply min-h-[36px] px-3 text-xs sm:min-h-[34px];
+  }
+  /* Botón de solo icono: la superficie táctil se mantiene aunque el icono sea
+     pequeño, y siempre lleva aria-label. */
+  .adm-icono {
+    @apply grid h-9 w-9 shrink-0 place-items-center rounded-lg text-slate-500
+           transition-colors hover:bg-slate-100 hover:text-slate-900;
+  }
+
+  /* ── Formularios ─────────────────────────────────────────────────────────── */
+  .adm-label {
+    @apply mb-1.5 block text-[13px] font-semibold text-slate-700;
+  }
+  .adm-input,
+  .adm-select,
+  .adm-textarea {
+    @apply block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5
+           text-[14px] text-slate-900 transition-colors
+           placeholder:text-slate-400
+           hover:border-slate-400
+           focus:border-blue-500 focus:outline-none
+           disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400;
+    min-height: 44px;
+  }
+  .adm-textarea {
+    @apply leading-relaxed;
+    min-height: 96px;
+  }
+  .adm-select {
+    @apply cursor-pointer appearance-none bg-no-repeat pr-9;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 12px center;
+  }
+  .adm-input-error {
+    @apply border-alert-500 focus:border-alert-500;
+  }
+  .adm-error {
+    @apply mt-1.5 flex items-start gap-1.5 text-[12.5px] font-medium text-alert-600;
+  }
+  .adm-ayuda {
+    @apply mt-1.5 text-[12.5px] leading-relaxed text-slate-500;
+  }
+
+  /* ── Etiquetas de estado ─────────────────────────────────────────────────── */
+  .adm-chip {
+    @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border
+           px-2.5 py-1 text-[11.5px] font-bold;
+  }
+  .adm-chip-verde {
+    @apply adm-chip border-emerald-200 bg-emerald-50 text-emerald-700;
+  }
+  .adm-chip-ambar {
+    @apply adm-chip border-amber-200 bg-amber-50 text-amber-700;
+  }
+  .adm-chip-rojo {
+    @apply adm-chip border-red-200 bg-red-50 text-red-700;
+  }
+  .adm-chip-azul {
+    @apply adm-chip border-blue-200 bg-blue-50 text-blue-700;
+  }
+  .adm-chip-gris {
+    @apply adm-chip border-slate-200 bg-slate-100 text-slate-600;
+  }
+
+  /* ── Tablas ──────────────────────────────────────────────────────────────── */
+  .adm-tabla {
+    @apply w-full border-collapse text-left text-[13.5px];
+  }
+  .adm-tabla thead th {
+    @apply whitespace-nowrap border-b border-slate-200 bg-slate-50 px-3 py-2.5
+           text-[12px] font-bold uppercase tracking-wide text-slate-500;
+  }
+  .adm-tabla tbody td {
+    @apply border-b border-slate-100 px-3 py-2.5 align-middle text-slate-700;
+  }
+  .adm-tabla tbody tr:hover {
+    @apply bg-slate-50/70;
+  }
+  .adm-tabla tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  /* ── Barra lateral ───────────────────────────────────────────────────────── */
+  .adm-sidebar {
+    @apply flex h-full flex-col bg-ink-900 text-white;
+  }
+  .adm-nav-item {
+    @apply flex min-h-[42px] items-center gap-3 rounded-lg px-3 text-[13.5px]
+           font-medium text-white/65 transition-colors
+           hover:bg-white/[.07] hover:text-white;
+  }
+  .adm-nav-activo {
+    @apply bg-gold-500/[.14] font-semibold text-gold-500;
+  }
+
+  /* Números alineados en columnas de datos: sin esto las cifras bailan. */
+  .adm-num {
+    font-variant-numeric: tabular-nums;
+  }
+}

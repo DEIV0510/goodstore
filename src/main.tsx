@@ -3,6 +3,10 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { StoreProvider } from './store/StoreContext'
+import { CatalogoProvider } from './hooks/useCatalogo'
+import { AuthProvider } from './hooks/useAuth'
+import { AvisosProvider } from './components/admin/Avisos'
+import { ConfirmarProvider } from './components/admin/Modal'
 import './styles/index.css'
 
 // ── Pantalla de carga ────────────────────────────────────────────────────────
@@ -21,12 +25,29 @@ function hideBoot() {
   }, wait)
 }
 
+// ── Proveedores ──────────────────────────────────────────────────────────────
+// El orden importa:
+//   AvisosProvider    notificaciones; lo usan tanto el panel como los servicios
+//   ConfirmarProvider diálogos de confirmación de acciones destructivas
+//   AuthProvider      sesión del panel (no interviene en la tienda)
+//   CatalogoProvider  datos de la tienda, leídos de la base de datos o del
+//                     catálogo incluido; es la fuente que comparten tienda y panel
+//   StoreProvider     carrito y favoritos; necesita el catálogo ya disponible
+//                     para resolver cada línea guardada
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <StoreProvider>
-        <App onReady={hideBoot} />
-      </StoreProvider>
+      <AvisosProvider>
+        <ConfirmarProvider>
+          <AuthProvider>
+            <CatalogoProvider>
+              <StoreProvider>
+                <App onReady={hideBoot} />
+              </StoreProvider>
+            </CatalogoProvider>
+          </AuthProvider>
+        </ConfirmarProvider>
+      </AvisosProvider>
     </BrowserRouter>
   </StrictMode>
 )

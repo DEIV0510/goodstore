@@ -25,3 +25,9 @@ tools/_muestra-recorte.png
 tools/_propuesta-fotos.json
 tools/_asignacion-fotos.json
 tools/crops-fotos
+
+# Credenciales: NUNCA al repositorio. El archivo de ejemplo sí se versiona.
+.env
+.env.local
+.env.*.local
+!.env.example

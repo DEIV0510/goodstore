@@ -5,7 +5,7 @@ import ProductCard from '@/components/catalog/ProductCard'
 import FilterPanel from '@/components/catalog/FilterPanel'
 import Drawer from '@/components/ui/Drawer'
 import { CardSkeleton } from '@/components/ui/PageLoader'
-import { products } from '@/data/products'
+import { useCatalogo } from '@/hooks/useCatalogo'
 import {
   PRICE_RANGES,
   SORTS,
@@ -30,12 +30,6 @@ import type { SortKey } from '@/types'
 
 const PAGE_SIZE = 24
 
-const searchIndex = buildSearchIndex(products, {
-  platform: platformLabel,
-  genre: genreLabel,
-  region: regionLabel,
-})
-const order = new Map(products.map((p, i) => [p.slug, i]))
 
 /** Etiqueta legible de cada filtro activo, para los chips de arriba. */
 function activeChips(f: FilterState) {
@@ -63,8 +57,25 @@ function activeChips(f: FilterState) {
 }
 
 export default function Catalog() {
+  const { productos: products } = useCatalogo()
   const [params, setParams] = useSearchParams()
   const filters = useMemo(() => fromSearchParams(params), [params])
+
+  // El índice de búsqueda y el orden base se recalculan si el catálogo cambia:
+  // con el panel conectado, un producto nuevo aparece sin recargar la página.
+  const searchIndex = useMemo(
+    () =>
+      buildSearchIndex(products, {
+        platform: platformLabel,
+        genre: genreLabel,
+        region: regionLabel,
+      }),
+    [products]
+  )
+  const order = useMemo(
+    () => new Map(products.map((p, i) => [p.slug, i])),
+    [products]
+  )
   const [visible, setVisible] = useState(PAGE_SIZE)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [pending, setPending] = useState(false)
@@ -125,7 +136,7 @@ export default function Catalog() {
   const results = useMemo(() => {
     const filtered = applyFilters(products, filters, searchIndex)
     return sortProducts(filtered, filters.sort, order)
-  }, [filters])
+  }, [products, filters, searchIndex, order])
 
   const shown = results.slice(0, visible)
   const activeCount = countActive(filters)

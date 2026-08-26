@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ProductImage from '@/components/ui/ProductImage'
 import { PlatformBadge } from '@/components/ui/Badges'
-import { products } from '@/data/products'
+import { useCatalogo } from '@/hooks/useCatalogo'
 import { genreLabel, platformLabel } from '@/data/taxonomy'
 import { normalize, priceLabel } from '@/lib/format'
 
@@ -20,6 +20,7 @@ export default function SearchOverlay({
   open: boolean
   onClose: () => void
 }) {
+  const { productos: products } = useCatalogo()
   const [q, setQ] = useState('')
   const [active, setActive] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)

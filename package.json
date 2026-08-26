@@ -13,9 +13,11 @@
     "brand": "node tools/brand.mjs",
     "boot": "node tools/boot.mjs",
     "og": "node tools/og.mjs",
-    "catalogo": "node tools/build-catalog.mjs"
+    "catalogo": "node tools/build-catalog.mjs",
+    "sembrar": "node tools/sembrar.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.112.4",
     "lucide-react": "^0.469.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -28,6 +30,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
+    "postcss-import": "^17.0.0",
     "puppeteer-core": "^25.8.0",
     "sharp": "^0.33.5",
     "tailwindcss": "^3.4.17",

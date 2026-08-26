@@ -1,23 +1,45 @@
-import { site, waLink } from '@/data/site'
+import { MESSAGES, site, waLink } from '@/data/site'
 import { platformShort } from '@/data/taxonomy'
 import { cop } from './format'
 import type { CartEntry, Product } from '@/types'
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Mensajes con los que la tienda abre WhatsApp.
+//
+// El encabezado de cada mensaje sale de las plantillas que el administrador
+// edita en /admin/whatsapp. El detalle (líneas de producto, totales, datos del
+// formulario) se arma aquí, porque depende de lo que el cliente eligió.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Rellena los huecos de una plantilla del panel.
+ * Un hueco que no se reconoce se deja tal cual: así se ve el error al probar,
+ * en vez de mandarle al cliente un mensaje con un vacío inexplicable.
+ */
+export const rellenar = (plantilla: string, valores: Record<string, string>) =>
+  plantilla.replace(/\{(\w+)\}/g, (todo, clave: string) => valores[clave] ?? todo)
+
 /** Mensaje para consultar por un producto puntual. */
-export const productMessage = (p: Product) => {
-  const price = p.price !== null ? ` (${cop(p.price)})` : ''
-  return waLink(
-    `Hola GOOD GAME 🎮, quiero este juego:\n\n` +
-      `• ${p.name} — ${platformShort(p.platform)}${price}\n\n` +
-      `¿Me confirmas disponibilidad, precio y envío?`
+export const productMessage = (p: Product) =>
+  waLink(
+    rellenar(MESSAGES.product, {
+      producto: p.name,
+      plataforma: platformShort(p.platform),
+      // El precio va con paréntesis incluidos para que la plantilla pueda
+      // escribirse como "{producto} — {plataforma}{precio}" y siga leyéndose
+      // bien cuando el producto no tiene precio publicado.
+      precio: p.price !== null ? ` (${cop(p.price)})` : '',
+    })
   )
-}
 
 /** Mensaje del carrito completo, con total aproximado cuando aplica. */
 export const cartMessage = (entries: CartEntry[]) => {
   const lines = entries.map((e) => {
     const qty = e.qty > 1 ? ` x${e.qty}` : ''
-    const price = e.product.price !== null ? ` — ${cop(e.product.price * e.qty)}` : ' — Consultar precio'
+    const price =
+      e.product.price !== null
+        ? ` — ${cop(e.product.price * e.qty)}`
+        : ' — Consultar precio'
     return `• ${e.product.name} (${platformShort(e.product.platform)})${qty}${price}`
   })
 
@@ -36,7 +58,7 @@ export const cartMessage = (entries: CartEntry[]) => {
   }
 
   return waLink(
-    `Hola GOOD GAME, estoy interesado en comprar:\n\n` +
+    `${MESSAGES.cart}\n\n` +
       lines.join('\n') +
       `\n${totalLine}\n\n` +
       `Quisiera confirmar disponibilidad y envío.`
@@ -54,7 +76,7 @@ export const usedGameMessage = (data: {
   comentario: string
 }) =>
   waLink(
-    `Hola GOOD GAME 🎮, quiero vender o entregar un juego usado.\n\n` +
+    `${MESSAGES.used}\n\n` +
       `• Nombre: ${data.nombre}\n` +
       `• WhatsApp: ${data.whatsapp}\n` +
       `• Plataforma: ${data.plataforma}\n` +
@@ -65,4 +87,5 @@ export const usedGameMessage = (data: {
       `\n¿Me confirman si les interesa y en cuánto lo reciben?`
   )
 
-export const phoneHref = `tel:+${site.whatsappIntl}`
+/** Se lee al pintar, así refleja el número que esté configurado. */
+export const phoneHref = () => `tel:+${site.whatsappIntl}`

@@ -1,11 +1,16 @@
 import { ChevronDown, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
-import { faq } from '@/data/faq'
+import { useCatalogo } from '@/hooks/useCatalogo'
 import { MESSAGES, waLink } from '@/data/site'
 import SectionHeading from './SectionHeading'
 
 export default function Faq() {
+  const { faq } = useCatalogo()
   const [open, setOpen] = useState<number | null>(0)
+
+  // Si desde el panel se ocultan todas las preguntas, la sección desaparece en
+  // vez de dejar un acordeón vacío en mitad de la portada.
+  if (faq.length === 0) return null
 
   return (
     <section id="preguntas" className="gg-container py-10 sm:py-12" aria-labelledby="faq-title">
@@ -21,7 +26,7 @@ export default function Faq() {
           const isOpen = open === i
           return (
             <div
-              key={item.q}
+              key={item.id}
               className={`overflow-hidden rounded-card border transition-colors duration-300 ${
                 isOpen ? 'border-gold-500/30 bg-ink-700/70' : 'border-white/10 bg-ink-700/40'
               }`}
@@ -40,7 +45,7 @@ export default function Faq() {
                       isOpen ? 'text-gold-500' : 'text-white'
                     }`}
                   >
-                    {item.q}
+                    {item.question}
                   </span>
                   <ChevronDown
                     className={`h-5 w-5 shrink-0 text-white/50 transition-transform duration-300 ${
@@ -57,7 +62,7 @@ export default function Faq() {
                 hidden={!isOpen}
                 className="px-5 pb-5"
               >
-                <p className="text-pretty text-sm leading-relaxed text-white/65">{item.a}</p>
+                <p className="text-pretty text-sm leading-relaxed text-white/65">{item.answer}</p>
               </div>
             </div>
           )

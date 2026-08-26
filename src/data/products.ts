@@ -18,9 +18,9 @@
 // Los productos sin fotografía muestran una portada de marca con su título.
 // Nunca se usa la carátula de otro juego.
 // ─────────────────────────────────────────────────────────────────────────────
-import type { Product } from '@/types'
+import type { ProductSeed } from '@/types/seed'
 
-export const products: Product[] = [
+export const products: ProductSeed[] = [
   {
     id: 'inv-2',
     name: 'Assassin\'s Creed Origins',
