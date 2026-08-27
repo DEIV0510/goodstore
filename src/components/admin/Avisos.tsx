@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { mensajeDeError } from '@/lib/supabase'
+import { mensajeDeError } from '@/lib/api'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Avisos del panel.

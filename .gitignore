@@ -31,3 +31,10 @@ tools/crops-fotos
 .env.local
 .env.*.local
 !.env.example
+
+# Datos del backend en desarrollo: la base de datos y las imágenes que se suben
+# se crean solas al arrancar y nunca se versionan.
+gg-datos/
+public/api/datos/
+public/medios/
+public/api/semilla.json

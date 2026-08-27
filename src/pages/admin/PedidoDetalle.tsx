@@ -29,7 +29,6 @@ import {
 import { platformShort } from '@/data/taxonomy'
 import { useAuth } from '@/hooks/useAuth'
 import { cop } from '@/lib/format'
-import { backendConfigurado } from '@/lib/supabase'
 import { normalizarWhatsapp } from '@/services/ajustes'
 import { puedeBorrar } from '@/services/autenticacion'
 import {
@@ -174,7 +173,7 @@ export default function PedidoDetalle() {
   const navegar = useNavigate()
   const avisos = useAvisos()
   const confirmar = useConfirmar()
-  const { perfil } = useAuth()
+  const { perfil, apiViva } = useAuth()
 
   const puedeEliminar = puedeBorrar(perfil?.role)
 
@@ -328,7 +327,7 @@ export default function PedidoDetalle() {
           icono={ClipboardList}
           titulo="No encontramos este pedido"
           descripcion={
-            backendConfigurado
+            apiViva
               ? 'Puede que se haya eliminado o que el enlace esté equivocado. Vuelve al listado para verlos todos.'
               : 'Todavía no hay base de datos conectada, así que aún no existe ningún pedido guardado.'
           }

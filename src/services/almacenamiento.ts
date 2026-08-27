@@ -1,45 +1,26 @@
-import { cliente, exigirBackend } from '@/lib/supabase'
+import { api, apiSubir } from '@/lib/api'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Subida de imágenes.
 //
-// Las fotos van al almacenamiento de Supabase y en la base de datos queda solo
-// la URL. Guardar imágenes dentro de la base la vuelve lenta y cara de
+// Las fotos van a una carpeta del propio hosting y en la base de datos queda
+// solo la URL. Guardar imágenes dentro de la base la vuelve lenta y cara de
 // respaldar, y complica servirlas con caché.
+//
+// La validación de verdad la hace el servidor: comprueba el tipo real leyendo
+// el CONTENIDO del archivo, no la extensión ni lo que diga el navegador, y le
+// pone él mismo un nombre nuevo. Lo de aquí solo sirve para avisar antes de
+// gastar la subida.
 // ─────────────────────────────────────────────────────────────────────────────
-
-export const DEPOSITO = 'gg-media'
 
 export type Carpeta = 'productos' | 'categorias' | 'banners' | 'marca'
 
-const TIPOS_ACEPTADOS = [
-  'image/webp',
-  'image/png',
-  'image/jpeg',
-  'image/avif',
-  'image/svg+xml',
-]
+const TIPOS_ACEPTADOS = ['image/webp', 'image/png', 'image/jpeg', 'image/avif']
 const TAMANO_MAXIMO = 5 * 1024 * 1024 // 5 MB
-
-/** Nombre de archivo seguro: sin tildes, espacios ni caracteres raros. */
-function nombreSeguro(original: string): string {
-  const punto = original.lastIndexOf('.')
-  const base = punto > 0 ? original.slice(0, punto) : original
-  const ext = punto > 0 ? original.slice(punto).toLowerCase() : ''
-  const limpio = base
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '') // quita las tildes que NFD dejó sueltas
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 60)
-  // Sufijo de tiempo: evita pisar una imagen anterior que otro producto use.
-  return `${limpio || 'imagen'}-${Date.now().toString(36)}${ext}`
-}
 
 export function validarImagen(archivo: File): string | null {
   if (!TIPOS_ACEPTADOS.includes(archivo.type)) {
-    return 'Formato no admitido. Usa WebP, PNG, JPG, AVIF o SVG.'
+    return 'Formato no admitido. Usa WebP, PNG, JPG o AVIF.'
   }
   if (archivo.size > TAMANO_MAXIMO) {
     const mb = (archivo.size / 1024 / 1024).toFixed(1)
@@ -56,34 +37,25 @@ export async function subirImagen(
   const problema = validarImagen(archivo)
   if (problema) throw new Error(problema)
 
-  const db = await exigirBackend()
-  const ruta = `${carpeta}/${nombreSeguro(archivo.name)}`
+  const datos = new FormData()
+  datos.append('archivo', archivo)
+  datos.append('carpeta', carpeta)
 
-  const { error } = await db.storage.from(DEPOSITO).upload(ruta, archivo, {
-    cacheControl: '31536000',
-    upsert: false,
-    contentType: archivo.type,
-  })
-  if (error) throw error
-
-  const { data } = db.storage.from(DEPOSITO).getPublicUrl(ruta)
-  return data.publicUrl
+  const r = await apiSubir<{ url: string }>('medios', datos)
+  return r.url
 }
 
 /**
- * Borra una imagen del almacenamiento a partir de su URL pública.
- * Las portadas que vienen con el sitio (`/games/...`) no viven en el
- * almacenamiento: para esas no hay nada que borrar.
+ * Borra una imagen del hosting.
+ * Las portadas que vienen con el sitio (`/games/...`) no se tocan: son parte
+ * del paquete publicado, no del almacén de subidas.
  */
 export async function eliminarImagen(url: string): Promise<void> {
-  const db = await cliente()
-  if (!db || !url.includes(`/${DEPOSITO}/`)) return
-  const ruta = url.split(`/${DEPOSITO}/`)[1]?.split('?')[0]
-  if (!ruta) return
-  await db.storage.from(DEPOSITO).remove([decodeURIComponent(ruta)])
+  if (!url.startsWith('/medios/')) return
+  await api('medios', { metodo: 'DELETE', cuerpo: { url } })
 }
 
-/** Lee el tamaño real de una imagen para guardarlo y evitar saltos de maquetación. */
+/** Lee el tamaño real de una imagen para reservar su espacio y evitar saltos. */
 export function medirImagen(archivo: File): Promise<{ w: number; h: number } | null> {
   return new Promise((resolver) => {
     const url = URL.createObjectURL(archivo)

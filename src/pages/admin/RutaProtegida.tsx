@@ -20,10 +20,14 @@ export default function RutaProtegida({
   children: React.ReactNode
   roles?: AdminRole[]
 }) {
-  const { perfil, cargando, configurado } = useAuth()
+  const { perfil, cargando, apiViva, instalado } = useAuth()
   const ubicacion = useLocation()
 
-  if (!configurado) return <Navigate to="/admin/login" replace />
+  // Sin API o sin cuenta creada, todo pasa por la pantalla de acceso: ella se
+  // encarga de mostrar el diagnostico o la instalacion inicial.
+  if (!cargando && (!apiViva || !instalado)) {
+    return <Navigate to="/admin/login" replace />
+  }
 
   // Mientras se resuelve si hay sesión no se decide nada: enviar al login aquí
   // expulsaría a quien sí tiene sesión cada vez que recarga la página.

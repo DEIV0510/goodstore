@@ -44,7 +44,6 @@ import { puedeBorrar } from '@/services/autenticacion'
 import { useAuth } from '@/hooks/useAuth'
 import { coverBySlug } from '@/data/covers'
 import { normalize, pluralize } from '@/lib/format'
-import { backendConfigurado } from '@/lib/supabase'
 import type { CategoryCard } from '@/types'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -110,7 +109,7 @@ const idFlecha = (id: string, direccion: -1 | 1) =>
 export default function Categorias() {
   const avisos = useAvisos()
   const confirmar = useConfirmar()
-  const { perfil } = useAuth()
+  const { perfil, apiViva } = useAuth()
   const puedeEliminar = puedeBorrar(perfil?.role)
 
   const [categorias, setCategorias] = useState<CategoryCard[]>([])
@@ -370,7 +369,7 @@ export default function Categorias() {
         </button>
       </Encabezado>
 
-      {!backendConfigurado && (
+      {!apiViva && (
         <div className="adm-card mb-4 flex items-start gap-3 border-amber-200 bg-amber-50 p-3.5">
           <AlertTriangle
             className="mt-px h-[18px] w-[18px] shrink-0 text-amber-600"

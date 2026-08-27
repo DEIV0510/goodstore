@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 5254",
-    "build": "tsc -b --noCheck && vite build",
+    "build": "node tools/semilla.mjs && tsc -b --noCheck && vite build",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview --port 5254",
     "qa": "node tools/qa.mjs",
@@ -14,10 +14,10 @@
     "boot": "node tools/boot.mjs",
     "og": "node tools/og.mjs",
     "catalogo": "node tools/build-catalog.mjs",
-    "sembrar": "node tools/sembrar.mjs"
+    "semilla": "node tools/semilla.mjs",
+    "api": "php -S 127.0.0.1:8787 -t public tools/servidor-local.php"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.112.4",
     "lucide-react": "^0.469.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

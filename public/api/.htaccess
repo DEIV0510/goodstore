@@ -1,0 +1,42 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# GOOD GAME · API
+#
+# Todo lo que llegue a /api/... lo atiende index.php. Los archivos internos
+# (núcleo, rutas, datos, semilla) no se sirven nunca de forma directa.
+# ─────────────────────────────────────────────────────────────────────────────
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /api/
+
+  # Un archivo real que exista se sirve tal cual (solo index.php lo es).
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^index\.php$ - [L]
+
+  # Todo lo demás va al enrutador, con la ruta en un parámetro.
+  RewriteRule ^(.*)$ index.php?gg_ruta=$1 [QSA,L]
+</IfModule>
+
+# Carpetas internas: nada de esto debe poder descargarse.
+<IfModule mod_authz_core.c>
+  <FilesMatch "^(semilla\.json)$">
+    Require all denied
+  </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+  <FilesMatch "^(semilla\.json)$">
+    Order allow,deny
+    Deny from all
+  </FilesMatch>
+</IfModule>
+
+RedirectMatch 404 ^/api/(nucleo|rutas|datos)/
+
+# La respuesta de la API nunca se guarda en caché: cambia y, en el panel,
+# contiene datos privados.
+<IfModule mod_headers.c>
+  Header always set Cache-Control "no-store, no-cache, must-revalidate"
+  Header always set X-Content-Type-Options "nosniff"
+</IfModule>
+
+Options -Indexes

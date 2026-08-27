@@ -26,7 +26,6 @@ const NotFound = lazy(() => import('@/pages/public/NotFound'))
 
 // ── Panel ────────────────────────────────────────────────────────────────────
 const Login = lazy(() => import('@/pages/admin/Login'))
-const NuevaClave = lazy(() => import('@/pages/admin/NuevaClave'))
 const AdminLayout = lazy(() => import('@/layouts/AdminLayout'))
 const Panel = lazy(() => import('@/pages/admin/Panel'))
 const Productos = lazy(() => import('@/pages/admin/Productos'))
@@ -67,7 +66,6 @@ export default function App({ onReady }: { onReady: () => void }) {
             Fuera del layout del panel: son pantallas completas y no deben
             mostrar la barra lateral a quien todavía no se identificó.      */}
         <Route path="/admin/login" element={<Login />} />
-        <Route path="/admin/nueva-clave" element={<NuevaClave />} />
 
         {/* ── Panel privado ─────────────────────────────────────────────── */}
         <Route

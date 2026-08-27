@@ -16,7 +16,8 @@ import {
   DESCRIPCION_ROL,
   ETIQUETA_ROL,
   actualizarMiNombre,
-  pedirRecuperacion,
+  cambiarContrasena,
+  nuevoCodigo,
 } from '@/services/autenticacion'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -26,9 +27,8 @@ import {
 // cambia es un super administrador desde /admin/administradores, porque una
 // cuenta que puede ascenderse sola no tiene ningún límite real.
 //
-// La contraseña tampoco se escribe en esta pantalla. Cambiarla es pedir el
-// correo con el enlace: así la clave nueva solo la conoce quien tiene acceso a
-// ese buzón, y esta aplicación no la ve pasar en ningún momento.
+// La contraseña sí se cambia aquí, pero pidiendo siempre la actual: una sesión
+// abierta no basta para quedarse con la cuenta de otro.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Fecha larga en español. Devuelve `vacio` cuando no hay dato. */
@@ -55,7 +55,13 @@ export default function Perfil() {
   const [nombre, setNombre] = useState('')
   const [errorNombre, setErrorNombre] = useState<string | null>(null)
   const [guardando, setGuardando] = useState(false)
-  const [enviandoCorreo, setEnviandoCorreo] = useState(false)
+  const [claveActual, setClaveActual] = useState('')
+  const [claveNueva, setClaveNueva] = useState('')
+  const [errorClave, setErrorClave] = useState<string | null>(null)
+  const [cambiandoClave, setCambiandoClave] = useState(false)
+  const [claveCodigo, setClaveCodigo] = useState('')
+  const [codigo, setCodigo] = useState<string | null>(null)
+  const [generando, setGenerando] = useState(false)
 
   // El campo se resincroniza con el perfil: `refrescarPerfil()` puede traer un
   // nombre distinto al que hay escrito (por ejemplo, si se cambió desde otra
@@ -88,16 +94,43 @@ export default function Perfil() {
     }
   }
 
-  async function cambiarContrasena() {
-    if (!perfil) return
-    setEnviandoCorreo(true)
+  async function guardarClave(e: FormEvent) {
+    e.preventDefault()
+    setErrorClave(null)
+
+    if (claveNueva.length < 8) {
+      setErrorClave('La contraseña debe tener al menos 8 caracteres.')
+      return
+    }
+    if (claveNueva === claveActual) {
+      setErrorClave('La contraseña nueva tiene que ser distinta de la actual.')
+      return
+    }
+
+    setCambiandoClave(true)
     try {
-      await pedirRecuperacion(perfil.email)
-      avisos.exito(`Te enviamos un correo a ${perfil.email} con el enlace para cambiarla.`)
+      await cambiarContrasena(claveActual, claveNueva)
+      setClaveActual('')
+      setClaveNueva('')
+      avisos.exito('Contraseña actualizada.')
     } catch (err) {
       avisos.error(err)
     } finally {
-      setEnviandoCorreo(false)
+      setCambiandoClave(false)
+    }
+  }
+
+  async function generarCodigo(e: FormEvent) {
+    e.preventDefault()
+    setGenerando(true)
+    try {
+      // El código se muestra una sola vez: el servidor solo guarda su hash.
+      setCodigo(await nuevoCodigo(claveCodigo))
+      setClaveCodigo('')
+    } catch (err) {
+      avisos.error(err)
+    } finally {
+      setGenerando(false)
     }
   }
 
@@ -186,25 +219,67 @@ export default function Perfil() {
           <section className="adm-card-pad">
             <h2 className="adm-titulo">Contraseña</h2>
             <p className="adm-sub mt-1">
-              No se escribe aquí. Te llega un correo con un enlace y la nueva contraseña
-              la eliges tú desde ahí, sin que pase por esta pantalla.
+              Se pide la actual aunque ya tengas la sesión abierta: si alguien se
+              sentara ante tu equipo desatendido, no debería poder quedarse con la
+              cuenta.
             </p>
 
-            <button
-              type="button"
-              onClick={() => void cambiarContrasena()}
-              disabled={enviandoCorreo}
-              className="adm-btn-suave mt-4"
-            >
-              <KeyRound className="h-4 w-4" aria-hidden="true" />
-              {enviandoCorreo ? 'Enviando el correo…' : 'Cambiar contraseña'}
-            </button>
+            <form onSubmit={guardarClave} className="mt-4 space-y-3" noValidate>
+              <Entrada
+                label="Contraseña actual"
+                type="password"
+                autoComplete="current-password"
+                value={claveActual}
+                onChange={(e) => setClaveActual(e.target.value)}
+              />
+              <Entrada
+                label="Contraseña nueva"
+                type="password"
+                autoComplete="new-password"
+                value={claveNueva}
+                onChange={(e) => setClaveNueva(e.target.value)}
+                ayuda="Mínimo 8 caracteres. Que no la uses en otro sitio."
+                error={errorClave ?? undefined}
+              />
+              <BotonGuardar guardando={cambiandoClave}>Cambiar contraseña</BotonGuardar>
+            </form>
+          </section>
 
-            <p className="mt-3 text-[12.5px] leading-relaxed text-slate-500">
-              El enlace llega a <strong className="text-slate-700">{perfil.email}</strong>,
-              solo sirve una vez y caduca al poco tiempo. Si no lo ves, revisa la carpeta
-              de spam.
+          {/* ── Código de recuperación ────────────────────────────────────── */}
+          <section className="adm-card-pad">
+            <h2 className="adm-titulo">Código de recuperación</h2>
+            <p className="adm-sub mt-1">
+              Es lo que te deja volver a entrar si olvidas la contraseña. Genera uno
+              nuevo si perdiste el anterior: el viejo deja de servir en ese momento.
             </p>
+
+            {codigo ? (
+              <div className="mt-4">
+                <div className="rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 p-4 text-center">
+                  <p className="select-all font-mono text-[16px] font-bold tracking-wider text-blue-900">
+                    {codigo}
+                  </p>
+                </div>
+                <p className="mt-2 text-[12.5px] leading-relaxed text-alert-600">
+                  Guárdalo ahora: al salir de esta pantalla no se puede volver a ver.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={generarCodigo} className="mt-4 space-y-3" noValidate>
+                <Entrada
+                  label="Confirma tu contraseña"
+                  type="password"
+                  autoComplete="current-password"
+                  value={claveCodigo}
+                  onChange={(e) => setClaveCodigo(e.target.value)}
+                  ayuda="Se pide para que nadie genere un código desde tu sesión abierta."
+                />
+                <button type="submit" disabled={generando} className="adm-btn-suave">
+                  <KeyRound className="h-4 w-4" aria-hidden="true" />
+                  {generando ? 'Generando…' : 'Generar un código nuevo'}
+                </button>
+              </form>
+            )}
           </section>
 
           {/* ── Sesión ────────────────────────────────────────────────────── */}

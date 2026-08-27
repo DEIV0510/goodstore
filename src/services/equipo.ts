@@ -1,147 +1,125 @@
-import { cliente, exigirBackend } from '@/lib/supabase'
-import { perfilDesdeFila } from './autenticacion'
+import { api } from '@/lib/api'
 import type { AdminProfile, AdminRole, AuditEntry } from '@/types'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Administradores e historial de cambios.
 //
-// Un administrador NO se crea desde aquí escribiendo una contraseña: se le
-// envía una invitación por correo y él elige su clave. Así ninguna contraseña
-// pasa por esta aplicación en ningún momento.
+// Un administrador NO se crea escribiéndole una contraseña: se le entrega un
+// código de recuperación que él canjea por la suya. Así ninguna contraseña
+// ajena pasa nunca por las manos de otra persona.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function listarAdministradores(): Promise<AdminProfile[]> {
-  const db = await cliente()
-  if (!db) return []
-  const { data, error } = await db
-    .from('profiles')
-    .select('id, email, name, role, status, last_login_at, created_at')
-    .order('created_at', { ascending: true })
-  if (error) throw error
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (data as any[]).map(perfilDesdeFila)
+  const r = await api<{ administradores: AdminProfile[] }>('equipo')
+  return r.administradores
+}
+
+/**
+ * Da de alta un administrador y devuelve su código de recuperación, que se
+ * muestra UNA sola vez. Con él, esa persona entra y elige su contraseña.
+ */
+export async function crearAdministrador(
+  email: string,
+  nombre: string,
+  rol: AdminRole
+): Promise<{ administrador: AdminProfile; codigo: string }> {
+  return api<{ administrador: AdminProfile; codigo: string }>('equipo', {
+    metodo: 'POST',
+    cuerpo: { email: email.trim(), nombre, rol },
+  })
 }
 
 export async function cambiarRol(id: string, rol: AdminRole): Promise<void> {
-  const db = await exigirBackend()
-  const { error } = await db.from('profiles').update({ role: rol }).eq('id', id)
-  if (error) throw error
+  await api(`equipo/${encodeURIComponent(id)}`, { metodo: 'PATCH', cuerpo: { rol } })
 }
 
 export async function cambiarEstadoAdmin(
   id: string,
   estado: 'activo' | 'suspendido'
 ): Promise<void> {
-  const db = await exigirBackend()
-  const { error } = await db.from('profiles').update({ status: estado }).eq('id', id)
-  if (error) throw error
+  await api(`equipo/${encodeURIComponent(id)}`, { metodo: 'PATCH', cuerpo: { estado } })
 }
 
-/**
- * Invita a un nuevo administrador por correo.
- *
- * Se usa el flujo de recuperación de contraseña porque la invitación directa
- * exige la clave de servicio, que jamás debe estar en el navegador. La persona
- * recibe un enlace, define su contraseña y entra con el rol 'editor'; luego un
- * super administrador lo asciende si corresponde.
- */
-export async function invitarAdministrador(email: string): Promise<void> {
-  const db = await exigirBackend()
-  const { error } = await db.auth.resetPasswordForEmail(email.trim(), {
-    redirectTo: `${window.location.origin}/admin/nueva-clave`,
+export async function eliminarAdministrador(id: string): Promise<void> {
+  await api(`equipo/${encodeURIComponent(id)}`, { metodo: 'DELETE' })
+}
+
+/** Código nuevo para alguien que perdió el suyo. Se muestra una sola vez. */
+export async function regenerarCodigo(id: string): Promise<string> {
+  const r = await api<{ codigo: string }>(`equipo/${encodeURIComponent(id)}/codigo`, {
+    metodo: 'POST',
   })
-  if (error) throw error
+  return r.codigo
 }
 
 // ── Historial ────────────────────────────────────────────────────────────────
 
-interface FilaLog {
-  id: number
-  actor_id: string | null
-  actor_name: string
-  action: AuditEntry['action']
-  entity: string
-  entity_id: string | null
-  label: string
-  detail: Record<string, { antes: unknown; ahora: unknown }> | null
-  created_at: string
-}
-
-const logDesdeFila = (f: FilaLog): AuditEntry => ({
-  id: f.id,
-  actorId: f.actor_id,
-  actorName: f.actor_name,
-  action: f.action,
-  entity: f.entity,
-  entityId: f.entity_id,
-  label: f.label,
-  detail: f.detail ?? {},
-  createdAt: f.created_at,
-})
-
 export async function listarHistorial(
   opciones: { limite?: number; entidad?: string } = {}
 ): Promise<AuditEntry[]> {
-  const db = await cliente()
-  if (!db) return []
-
-  let consulta = db
-    .from('admin_logs')
-    .select('id, actor_id, actor_name, action, entity, entity_id, label, detail, created_at')
-    .order('created_at', { ascending: false })
-    .limit(opciones.limite ?? 200)
-
-  if (opciones.entidad) consulta = consulta.eq('entity', opciones.entidad)
-
-  const { data, error } = await consulta
-  if (error) throw error
-  return (data as unknown as FilaLog[]).map(logDesdeFila)
+  const r = await api<{ historial: AuditEntry[] }>('historial', {
+    parametros: { limite: opciones.limite, entidad: opciones.entidad },
+  })
+  return r.historial
 }
 
-/** Nombres legibles de las tablas para el historial. */
+/** Nombres legibles de las tablas, para el historial. */
 export const ETIQUETA_ENTIDAD: Record<string, string> = {
-  products: 'producto',
-  categories: 'categoría',
+  productos: 'producto',
+  categorias: 'categoría',
   banners: 'banner',
-  faq: 'pregunta frecuente',
-  site_content: 'contenido',
-  settings: 'configuración',
-  whatsapp_settings: 'WhatsApp',
-  orders: 'pedido',
-  customers: 'cliente',
-  profiles: 'administrador',
+  preguntas: 'pregunta frecuente',
+  contenido: 'contenido',
+  ajustes: 'configuración',
+  whatsapp: 'WhatsApp',
+  pedidos: 'pedido',
+  clientes: 'cliente',
+  usuarios: 'administrador',
+  medios: 'imagen',
   sesion: 'sesión',
 }
 
-/** Nombres legibles de los campos, para no mostrar `old_price` al usuario. */
+/** Nombres legibles de los campos, para no mostrar `precio_antes` al usuario. */
 export const ETIQUETA_CAMPO: Record<string, string> = {
-  name: 'nombre',
+  nombre: 'nombre',
   slug: 'slug',
-  price: 'precio',
-  old_price: 'precio anterior',
+  precio: 'precio',
+  precio_antes: 'precio anterior',
   stock: 'stock',
-  status: 'estado',
-  featured: 'destacado',
-  platform: 'plataforma',
-  category: 'categoría',
-  genre: 'género',
-  condition: 'estado del producto',
+  estado: 'estado',
+  estado_copia: 'estado del producto',
+  destacado: 'destacado',
+  plataforma: 'plataforma',
+  categoria: 'categoría',
+  genero: 'género',
   region: 'región',
-  description: 'descripción',
-  images: 'imágenes',
-  tags: 'etiquetas',
+  descripcion: 'descripción',
+  imagenes: 'imágenes',
+  etiquetas: 'etiquetas',
   sku: 'SKU',
-  active: 'activo',
-  title: 'título',
-  subtitle: 'subtítulo',
-  question: 'pregunta',
-  answer: 'respuesta',
-  sort_order: 'orden',
-  role: 'rol',
-  on_sale: 'en oferta',
-  new_release: 'lanzamiento',
-  best_seller: 'más vendido',
-  value: 'valor',
+  activa: 'activa',
+  activo: 'activo',
+  titulo: 'título',
+  subtitulo: 'subtítulo',
+  pregunta: 'pregunta',
+  respuesta: 'respuesta',
+  orden: 'orden',
+  rol: 'rol',
+  oferta: 'en oferta',
+  lanzamiento: 'lanzamiento',
+  mas_vendido: 'más vendido',
+  valor: 'valor',
+  enlace: 'enlace',
+  imagen: 'imagen',
+  portadas: 'portadas',
+  nota: 'nota',
+  notas: 'notas',
+  envio: 'envío',
+  total: 'total',
+  pago: 'método de pago',
+  whatsapp: 'WhatsApp',
+  ciudad: 'ciudad',
+  email: 'correo',
 }
 
 /** Frase corta que describe una entrada del historial. */
@@ -156,7 +134,7 @@ export function describirEntrada(e: AuditEntry): string {
     case 'acceso':
       return 'inició sesión'
     default: {
-      const campos = Object.keys(e.detail).map((c) => ETIQUETA_CAMPO[c] ?? c)
+      const campos = Object.keys(e.detail ?? {}).map((c) => ETIQUETA_CAMPO[c] ?? c)
       if (campos.length === 0) return `actualizó ${entidad}${nombre}`
       const lista =
         campos.length <= 3

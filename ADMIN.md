@@ -1,119 +1,85 @@
 # Panel de administración · GOOD GAME
 
-Guía para poner en marcha `/admin` y para usarlo día a día.
+Guía del panel en `/admin`.
 
-La tienda pública y el panel son **el mismo proyecto**. Comparten los datos: lo
-que cambias en el panel se ve en la tienda sin tocar código y sin volver a
-publicar nada.
+**No hay nada que configurar.** No hace falta crear cuentas en ningún servicio,
+ni copiar claves, ni ejecutar comandos. Se publica el sitio y el panel funciona.
 
 ---
 
-## 1. Cómo está montado
+## 1. Cómo funciona
+
+La tienda y el panel son el mismo proyecto, y comparten los datos: lo que
+cambias en `/admin` se ve en la tienda al instante, sin volver a publicar nada.
 
 ```
 goodgamecol.shop/           tienda pública      · cualquiera
 goodgamecol.shop/admin      panel privado       · solo con sesión
+goodgamecol.shop/api        el motor de los dos · PHP
 ```
 
 | Capa | Dónde vive | Qué hace |
 |---|---|---|
-| Tienda | `src/pages/public/` | Lo que ve el cliente. No cambió su aspecto. |
-| Panel | `src/pages/admin/` | Gestión. Se descarga solo al entrar a `/admin`. |
-| Servicios | `src/services/` | Única puerta a los datos. La usan los dos lados. |
-| Base de datos | Supabase | Productos, pedidos, contenido, historial. |
+| Tienda | `src/pages/public/` | Lo que ve el cliente |
+| Panel | `src/pages/admin/` | Las 16 pantallas de gestión |
+| Servicios | `src/services/` | Única puerta a los datos, para ambos |
+| API | `public/api/` | PHP: valida, decide permisos y guarda |
+| Base de datos | `gg-datos/goodgame.sqlite` | Un archivo, fuera de la carpeta pública |
 
-El cliente que entra a comprar **no descarga nada del panel**: todo `/admin` va
-en fragmentos aparte que solo se piden al visitarlo.
+Todo corre **dentro del hosting que ya pagas**. Sin servicios externos, sin
+cuentas de terceros, sin nada que renovar aparte.
 
-### Mientras no haya base de datos
+### Por qué SQLite y no MySQL
 
-El proyecto funciona igual que hoy: la tienda muestra su catálogo de 318
-productos, incluido en el paquete. `/admin` **no muestra un formulario de
-acceso**, sino las instrucciones para conectarla — un inicio de sesión que no
-comprueba nada no protegería nada.
+SQLite guarda toda la base en un solo archivo. Para una tienda de 318 productos
+y dos o tres administradores va sobrado, y a cambio:
+
+- no hay que crear ninguna base de datos ni usuario en hPanel;
+- no hay contraseñas de base de datos que guardar en ningún sitio;
+- la copia de seguridad es copiar un archivo, y restaurar es devolverlo;
+- si algún día hiciera falta MySQL, solo cambia `public/api/nucleo/db.php`.
 
 ---
 
-## 2. Puesta en marcha (una sola vez)
+## 2. Primer arranque
 
-### 2.1 Crear el proyecto
+1. Publica el sitio (ver §6).
+2. Entra a **tudominio.com/admin**.
+3. Rellena tu nombre, tu correo y una contraseña. Esa será la cuenta principal,
+   con acceso total.
+4. **Guarda el código de recuperación** que aparece a continuación.
 
-1. Entra a [supabase.com](https://supabase.com) y crea un proyecto.
-2. Elige la región más cercana a Colombia (**East US** suele ser la mejor).
-3. Guarda la contraseña de la base de datos que te pida: es la del servidor, no
-   la del panel.
+Eso es todo. En esa primera visita, el servidor:
 
-### 2.2 Crear las tablas
+- crea la base de datos,
+- carga los 318 productos, las 6 categorías y las 9 preguntas frecuentes,
+- crea las carpetas internas y las protege.
 
-En **SQL Editor**, pega y ejecuta **en orden** los cuatro archivos de
-`supabase/migrations/`:
+> El formulario de creación de cuenta **solo funciona mientras no exista
+> ninguna**. En cuanto la creas, esa dirección responde «el panel ya está
+> instalado» a cualquiera que lo intente.
 
-| Archivo | Qué crea |
-|---|---|
-| `0001_esquema.sql` | Las tablas y el alta automática de perfiles |
-| `0002_permisos.sql` | Quién puede hacer qué (la seguridad real) |
-| `0003_auditoria.sql` | El registro de cambios |
-| `0004_almacenamiento.sql` | El depósito de imágenes |
+### El código de recuperación
 
-Se pueden volver a ejecutar sin romper nada.
+Se muestra **una sola vez**: el servidor guarda solo su huella, no el código.
+Es lo que te deja volver a entrar si olvidas la contraseña.
 
-### 2.3 Conectar la aplicación
+Guárdalo donde guardas tus contraseñas, o escríbelo en papel.
 
-En **Project Settings → API** copia dos cosas:
+Sustituye al típico «te enviamos un correo» porque el envío de correo en
+hosting compartido es poco fiable y dependería de otro servicio. Puedes generar
+uno nuevo cuando quieras desde **Mi perfil**; el anterior deja de servir.
 
-```bash
-cp .env.example .env
-```
+### Si pierdes la contraseña Y el código
 
-```
-VITE_SUPABASE_URL=https://xxxxxxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGci...
-```
+Hay una salida, y requiere entrar al hosting, que es justo lo que la hace
+segura: quien puede hacerlo ya es dueño del servidor.
 
-Reinicia el servidor (`npm run dev`).
-
-> La clave `anon` está **pensada** para estar en el navegador. Por sí sola no da
-> acceso a nada: quien decide qué puede hacer cada quien son las políticas de
-> `0002_permisos.sql`, que se aplican en el servidor.
->
-> La clave `service_role` **nunca** va en `.env` ni en ninguna variable `VITE_*`:
-> todo lo que empieza por `VITE_` acaba dentro del paquete que descarga el
-> navegador, y esa clave se salta todas las políticas.
-
-### 2.4 Cargar el catálogo
-
-```bash
-# Windows (PowerShell)
-$env:SUPABASE_SERVICE_KEY="eyJ..."; npm run sembrar
-
-# macOS / Linux
-SUPABASE_SERVICE_KEY="eyJ..." npm run sembrar
-```
-
-Sube los 318 productos, las 6 categorías y las 9 preguntas frecuentes que hoy
-tiene la tienda. Se puede repetir: identifica cada producto por su slug, así que
-actualiza en vez de duplicar.
-
-### 2.5 Crear tu cuenta
-
-En **Authentication → Users → Add user**, con tu correo y una contraseña.
-
-El **primero** que se registra queda como **super administrador**
-automáticamente. Los siguientes entran como *editor* y tú decides si los
-asciendes desde `/admin/administradores`.
-
-> No hay ninguna contraseña escrita en el proyecto. La eliges tú en Supabase, se
-> guarda con hash en el servidor y nunca pasa por este código.
-
-### 2.6 Recuperación de contraseña
-
-Para que el enlace del correo funcione, en **Authentication → URL Configuration**
-añade a *Redirect URLs*:
-
-```
-https://goodgamecol.shop/admin/nueva-clave
-http://localhost:5254/admin/nueva-clave
-```
+1. Entra al administrador de archivos de Hostinger.
+2. Crea un archivo vacío llamado `RESCATE.txt` dentro de la carpeta `gg-datos`
+   (está al mismo nivel que `public_html`, no dentro).
+3. Vuelve a `/admin`. Podrás definir de nuevo la cuenta principal.
+4. El archivo se borra solo al usarlo.
 
 ---
 
@@ -125,9 +91,28 @@ http://localhost:5254/admin/nueva-clave
 | **Admin** | Sí | Sí | Sí | No |
 | **Editor** | Sí | No | No | No |
 
-Esto **no** es solo esconder botones. Cada regla está escrita como política de
-la base de datos: si un editor intentara borrar un producto lanzando la petición
-desde la consola del navegador, el servidor la rechaza igual.
+Esto **no** es esconder botones. Cada regla se comprueba en el servidor, en
+cada petición. Verificado: un editor que lanza `DELETE /api/productos/…` desde
+la consola del navegador recibe `403 Tu rol no tiene permiso para hacer esto`.
+
+### Dar de alta a alguien
+
+En **Administradores → Dar de alta**, escribes su correo, su nombre y su rol.
+La cuenta se crea al momento y el panel te devuelve un **código de un solo
+uso**, que se muestra una única vez: se lo entregas en mano o por WhatsApp.
+
+Esa persona entra en `/admin`, pulsa «¿Olvidaste tu contraseña?», escribe su
+correo y el código, y elige **su propia** contraseña. Así ninguna contraseña
+ajena pasa nunca por tus manos.
+
+No se envía ningún correo, y es a propósito: el envío desde un hosting
+compartido no es fiable y dependería de otro servicio.
+
+En esa misma lista, cada fila tiene **Código** (genera uno nuevo si lo perdió;
+el anterior deja de servir), **Suspender** (le cierra el paso sin borrar nada) y
+**Borrar**. Tu propia fila va bloqueada en las tres: nadie se degrada, se
+suspende ni se borra a sí mismo. Y el panel no te deja quedarte sin ningún
+super administrador activo.
 
 ---
 
@@ -147,77 +132,113 @@ desde la consola del navegador, el servidor la rechaza igual.
 | **WhatsApp** | El número y las plantillas de cada mensaje |
 | **General** | Empresa, redes, envíos y SEO |
 | **Administradores** | Quién entra y con qué rol |
-| **Historial** | Quién cambió qué y cuándo |
+| **Historial** | Quién cambió qué, con el valor anterior y el nuevo |
 
 ---
 
 ## 5. Reglas del negocio que el panel respeta
 
-Vienen del brief del cliente y están puestas en el código, no solo en la
-documentación:
+Vienen del brief del cliente y están escritas en el código, no solo aquí:
 
 - **WhatsApp 3508271637.** Si en los ajustes se guarda un número que no tenga
-  diez dígitos, la tienda sigue usando el oficial en vez de publicar un enlace
-  roto.
+  diez dígitos, el servidor lo rechaza y la tienda sigue con el oficial.
 - **Sin dirección exacta.** Solo «Itagüí, Antioquia, Colombia» y los envíos.
 - **Redes sociales pendientes.** Un campo vacío **no** pinta el icono. Nunca se
   publica una cuenta que no existe.
-- **Nada inventado.** Un producto sin precio muestra «Consultar precio», no un
-  número de relleno. Un gráfico sin datos dice que aún no los hay. Un producto
-  sin fotografía muestra una portada de marca con su título, nunca la carátula
-  de otro juego.
-- **Los juegos marcados con X roja** en las fotos originales quedan como
-  agotados hasta que el administrador cambie su estado.
+- **Nada inventado.** Un producto sin precio muestra «Consultar precio». Un
+  gráfico sin datos dice que aún no los hay. Un producto sin fotografía muestra
+  una portada de marca con su título, nunca la carátula de otro juego.
 
 ---
 
-## 6. Publicar los cambios
-
-Cambiar datos desde el panel **no** requiere publicar nada: la tienda los lee de
-la base de datos.
-
-Solo hay que volver a publicar cuando cambia el **código**:
+## 6. Publicar
 
 ```bash
 npm run build
 ```
 
-y subir el contenido de `dist/` a `public_html` en Hostinger. Con la base de
-datos conectada, `dist/` incluye el catálogo como respaldo, pero la tienda usa
-el de la base.
+Y subir **todo** el contenido de `dist/` a `public_html`.
+
+> ⚠️ Dos cosas que los administradores de archivos suelen ocultar y hay que
+> subir igualmente: el archivo **`.htaccess`** de la raíz y la carpeta
+> **`api`** completa (que a su vez lleva otro `.htaccess`). Activa «mostrar
+> archivos ocultos» antes de subir.
+
+Cambiar **datos** desde el panel no requiere publicar nada. Solo hay que volver
+a publicar cuando cambia el **código**.
+
+### Qué NO se debe borrar al republicar
+
+La carpeta `gg-datos` (fuera de `public_html`) y la carpeta `medios` dentro de
+`public_html`. Ahí están la base de datos y las imágenes que hayas subido. El
+resto se puede sobrescribir sin miedo.
 
 ---
 
-## 7. Seguridad, en corto
+## 7. Copias de seguridad
 
-| Riesgo | Cómo se evita |
-|---|---|
-| Entrar a `/admin` sin sesión | Redirección al acceso **y** políticas en la base de datos |
-| Un editor borra un producto | La política `productos_borrar` solo admite admin y super admin |
-| Alguien lee los clientes con la clave anónima | Las tablas de clientes y pedidos exigen sesión con rol |
-| Un editor se asciende a super admin | La política de perfiles prohíbe cambiarse el rol a uno mismo |
-| Se borra algo por error | Toda acción destructiva pide confirmación |
-| No se sabe quién cambió un precio | Disparadores de auditoría con el valor anterior y el nuevo |
-| Se filtra el código fuente por `.git` | `.htaccess` devuelve 404 en esa ruta |
+Descarga `gg-datos/goodgame.sqlite` desde el administrador de archivos. Ese
+único archivo contiene productos, pedidos, clientes, contenido e historial.
+
+Para restaurar, súbelo de vuelta al mismo sitio.
+
+Hostinger además hace copias semanales del hosting completo.
 
 ---
 
-## 8. Problemas frecuentes
+## 8. Seguridad, en corto
 
-**«Falta conectar la base de datos» al entrar a `/admin`**
-No hay `.env`, está vacío o no se reinició el servidor tras crearlo.
+| Riesgo | Cómo se evita | Verificado |
+|---|---|---|
+| Entrar a `/admin` sin sesión | Redirección **y** la API responde 401 | Sí, 15 rutas |
+| Un editor borra un producto | El servidor comprueba el rol en cada petición | Sí, devuelve 403 |
+| Leer clientes o pedidos sin permiso | Esas rutas exigen rol admin | Sí, devuelve 403 |
+| Un editor se asciende solo | La API prohíbe cambiarse el propio rol | Sí, devuelve 403 |
+| Petición falsificada desde otra web (CSRF) | Cookie `SameSite=Strict` + cabecera propia obligatoria | Sí, devuelve 403 |
+| Robo de la sesión con un script | La cookie es `HttpOnly`: JavaScript no la ve | — |
+| Inyección SQL | Todo va por consultas preparadas; nunca se concatena | — |
+| Probar contraseñas a lo bruto | 8 intentos y bloqueo de 15 minutos | — |
+| Subir un `.php` disfrazado de foto | Se comprueba el contenido real, no la extensión; el servidor renombra; `.htaccess` desactiva PHP en esa carpeta | — |
+| Descargar la base de datos | Vive fuera de `public_html` | — |
+| Se borra algo por error | Toda acción destructiva pide confirmación | — |
+| No se sabe quién cambió un precio | Historial con el valor anterior y el nuevo | — |
 
-**«Tu rol no tiene permiso para hacer este cambio»**
-Es correcto: la base de datos rechazó la operación. Revisa el rol en
-`/admin/administradores`.
+---
 
-**«Tu cuenta existe pero no tiene un perfil de administrador»**
-El usuario se creó antes de ejecutar `0001_esquema.sql`. Bórralo en Supabase y
-créalo de nuevo, o inserta su fila a mano en `profiles`.
+## 9. Desarrollo en local
 
-**No llega el correo de recuperación**
-Falta la URL en *Redirect URLs* (paso 2.6), o el correo cayó en no deseado.
-Supabase limita los envíos en el plan gratuito.
+Hacen falta dos servidores: uno para la interfaz y otro para la API.
+
+```bash
+npm run api    # PHP en el 8787
+npm run dev    # Vite en el 5254
+```
+
+Vite redirige `/api` y `/medios` al de PHP, así que en el navegador todo va por
+`http://127.0.0.1:5254` como si fuera producción.
+
+Requiere PHP 8.0 o superior con `pdo_sqlite`.
+
+---
+
+## 10. Problemas frecuentes
+
+**«El panel no puede conectar con el servidor»**
+Falta subir la carpeta `api`, o el hosting no está ejecutando PHP. La propia
+pantalla lista las tres causas habituales.
+
+**«Tu rol no tiene permiso para hacer esto»**
+Es correcto: el servidor rechazó la operación. Revisa el rol en
+**Administradores**.
+
+**«Demasiados intentos fallidos»**
+Ocho fallos seguidos bloquean quince minutos. Es a propósito.
 
 **Las imágenes no suben**
-No se ejecutó `0004_almacenamiento.sql`, o el archivo pasa de 5 MB.
+Comprueba que el archivo no pase de 5 MB y que sea WebP, PNG, JPG o AVIF. Si
+falla igual, revisa que la carpeta `medios` tenga permisos de escritura.
+
+**La tienda muestra productos viejos**
+Si la API no responde, la tienda tira del catálogo que venía con la última
+versión publicada, para no quedarse en blanco. Entra a `/admin`: si también
+falla ahí, el problema es la API.

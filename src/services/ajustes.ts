@@ -1,32 +1,31 @@
-import { cliente, exigirBackend } from '@/lib/supabase'
-import { site } from '@/data/site'
+import { api } from '@/lib/api'
 import type { Settings, WhatsappSettings } from '@/types'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Configuración general y mensajes de WhatsApp.
 //
-// Los valores por omisión salen del brief del negocio (src/data/site.ts). Dos
-// reglas que NO se pueden romper desde aquí:
+// Los valores por omisión salen del brief del negocio. Tres reglas que NO se
+// pueden romper desde aquí, y que el servidor también hace cumplir:
 //
 //   • El WhatsApp es el 3508271637 y ningún otro.
 //   • No hay dirección exacta: solo "Itagüí, Antioquia, Colombia".
-//   • Las redes sociales están pendientes: van vacías y la tienda no pinta el
+//   • Las redes sociales están pendientes: van vacías, y la tienda no pinta el
 //     icono de una red sin enlace. Nunca se inventa una cuenta.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const AJUSTES_POR_OMISION: Settings = {
   company: {
-    name: site.name,
-    tagline: site.tagline,
-    claim: site.claim,
+    name: 'GOOD GAME',
+    tagline: 'GAME STORE',
+    claim: 'Videojuegos · Consolas · Accesorios',
     logoUrl: '/brand/logo.svg',
     description:
       'Tienda de videojuegos, consolas y accesorios en Itagüí, Antioquia. Envíos a Medellín y toda Colombia.',
-    city: site.city,
-    region: site.region,
-    country: site.country,
-    locationLabel: site.locationLabel,
-    shippingLabel: site.shippingLabel,
+    city: 'Itagüí',
+    region: 'Antioquia',
+    country: 'Colombia',
+    locationLabel: 'Itagüí, Antioquia, Colombia',
+    shippingLabel: 'Envíos a Medellín y toda Colombia',
     email: '',
     currency: 'COP',
   },
@@ -50,7 +49,7 @@ export const AJUSTES_POR_OMISION: Settings = {
 }
 
 export const WHATSAPP_POR_OMISION: WhatsappSettings = {
-  number: site.whatsapp,
+  number: '3508271637',
   templates: {
     general: 'Hola GOOD GAME 🎮, quiero información sobre los videojuegos disponibles.',
     catalog: 'Hola GOOD GAME 🎮, quiero ver el catálogo completo y saber precios.',
@@ -66,67 +65,50 @@ export const WHATSAPP_POR_OMISION: WhatsappSettings = {
   },
 }
 
-/** Mezcla superficial por sección, para que un ajuste guardado a medias no borre el resto. */
+/** Mezcla por secciones, para que un ajuste guardado a medias no borre el resto. */
 function fusionar<T extends object>(base: T, guardado: unknown): T {
   if (!guardado || typeof guardado !== 'object') return base
   return { ...base, ...(guardado as object) } as T
 }
 
-export async function obtenerAjustes(): Promise<Settings> {
-  const db = await cliente()
-  if (!db) return AJUSTES_POR_OMISION
-
-  const { data, error } = await db.from('settings').select('key, value')
-  if (error) throw error
-
-  const mapa = new Map((data ?? []).map((f) => [f.key as string, f.value]))
+export function fusionarAjustes(guardado: Record<string, unknown>): Settings {
   return {
-    company: fusionar(AJUSTES_POR_OMISION.company, mapa.get('company')),
-    socials: fusionar(AJUSTES_POR_OMISION.socials, mapa.get('socials')),
-    shipping: fusionar(AJUSTES_POR_OMISION.shipping, mapa.get('shipping')),
-    seo: fusionar(AJUSTES_POR_OMISION.seo, mapa.get('seo')),
+    company: fusionar(AJUSTES_POR_OMISION.company, guardado.company),
+    socials: fusionar(AJUSTES_POR_OMISION.socials, guardado.socials),
+    shipping: fusionar(AJUSTES_POR_OMISION.shipping, guardado.shipping),
+    seo: fusionar(AJUSTES_POR_OMISION.seo, guardado.seo),
   }
+}
+
+export function fusionarWhatsapp(guardado: Record<string, unknown>): WhatsappSettings {
+  const numero = guardado.number
+  return {
+    number: (typeof numero === 'string' && numero) || WHATSAPP_POR_OMISION.number,
+    templates: fusionar(WHATSAPP_POR_OMISION.templates, guardado.templates),
+  }
+}
+
+// ── Lectura y escritura ──────────────────────────────────────────────────────
+
+export async function obtenerAjustes(): Promise<Settings> {
+  const r = await api<{ ajustes: Record<string, unknown> }>('ajustes')
+  return fusionarAjustes(r.ajustes ?? {})
 }
 
 export async function guardarAjustes(
   clave: keyof Settings,
   valor: unknown
 ): Promise<void> {
-  const db = await exigirBackend()
-  const { error } = await db
-    .from('settings')
-    .upsert({ key: clave, value: valor }, { onConflict: 'key' })
-  if (error) throw error
+  await api(`ajustes/${clave}`, { metodo: 'PUT', cuerpo: { valor } })
 }
 
 export async function obtenerWhatsapp(): Promise<WhatsappSettings> {
-  const db = await cliente()
-  if (!db) return WHATSAPP_POR_OMISION
-
-  const { data, error } = await db.from('whatsapp_settings').select('key, value')
-  if (error) throw error
-
-  const mapa = new Map((data ?? []).map((f) => [f.key as string, f.value]))
-  const numero = (mapa.get('number') as { value?: string } | string | undefined) ?? null
-
-  return {
-    number:
-      (typeof numero === 'string' ? numero : numero?.value) ||
-      WHATSAPP_POR_OMISION.number,
-    templates: fusionar(WHATSAPP_POR_OMISION.templates, mapa.get('templates')),
-  }
+  const r = await api<{ whatsapp: Record<string, unknown> }>('whatsapp')
+  return fusionarWhatsapp(r.whatsapp ?? {})
 }
 
 export async function guardarWhatsapp(ajustes: WhatsappSettings): Promise<void> {
-  const db = await exigirBackend()
-  const { error } = await db.from('whatsapp_settings').upsert(
-    [
-      { key: 'number', value: { value: ajustes.number } },
-      { key: 'templates', value: ajustes.templates },
-    ],
-    { onConflict: 'key' }
-  )
-  if (error) throw error
+  await api('whatsapp', { metodo: 'PUT', cuerpo: ajustes })
 }
 
 /** Deja el número en formato internacional para los enlaces wa.me. */

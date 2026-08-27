@@ -47,6 +47,7 @@ import {
 import { Buscador } from '@/components/admin/Tabla'
 import { useConfirmar } from '@/components/admin/Modal'
 import { useAvisos } from '@/components/admin/Avisos'
+import { useAuth } from '@/hooks/useAuth'
 import {
   BENEFICIOS_POR_OMISION,
   HERO_POR_OMISION,
@@ -57,7 +58,6 @@ import {
 import { fijarDestacados, listarProductos } from '@/services/catalogo'
 import { normalize, pluralize, priceLabel } from '@/lib/format'
 import { platformShort } from '@/data/taxonomy'
-import { backendConfigurado } from '@/lib/supabase'
 import type { BenefitContent, HeroContent, Product, SectionToggles } from '@/types'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -185,6 +185,7 @@ type ErroresHero = Partial<
 >
 
 export default function Contenido() {
+  const { apiViva } = useAuth()
   const avisos = useAvisos()
   const confirmar = useConfirmar()
 
@@ -534,7 +535,7 @@ export default function Contenido() {
         </a>
       </Encabezado>
 
-      {!backendConfigurado && (
+      {!apiViva && (
         <p className="adm-card mb-5 flex items-start gap-2.5 border-amber-200 bg-amber-50 p-3.5 text-[13px] leading-relaxed text-amber-800">
           <HelpCircle className="mt-px h-4 w-4 shrink-0" aria-hidden="true" />
           <span>

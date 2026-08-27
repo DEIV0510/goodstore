@@ -90,7 +90,7 @@ good-game/
 │   │   ├── faq.ts         Preguntas frecuentes
 │   │   └── taxonomy.ts    Plataformas, géneros, estados, rangos de precio
 │   ├── lib/
-│   │   ├── supabase.ts    Cliente de la base de datos (null si no está conectada)
+│   │   ├── api.ts         Cliente de la API del propio hosting
 │   │   ├── filters.ts     Motor de filtros, orden y búsqueda
 │   │   ├── whatsapp.ts    Armado de los mensajes de WhatsApp
 │   │   ├── format.ts      Precios en pesos, normalización de texto
@@ -101,7 +101,9 @@ good-game/
 │   │   └── admin.css      Tema claro del panel (todo bajo html.gg-admin)
 │   └── types/             ★ Modelo de datos
 │
-├── supabase/migrations/   Esquema, permisos, auditoría y almacenamiento
+├── public/api/            Backend en PHP: se publica junto con la tienda
+│   ├── nucleo/            Base de datos, sesión, permisos, auditoría
+│   └── rutas/             Un archivo por recurso
 │
 ├── tools/                 Utilidades de desarrollo (no se publican)
 │   ├── _source/…          Fotografías originales del negocio
@@ -109,7 +111,8 @@ good-game/
 │   ├── asignar-fotos.mjs  Qué fotografía va con cada producto (revisado a mano)
 │   ├── crop-fotos.mjs     Aísla el estuche en cada fotografía
 │   ├── build-catalog.mjs  Genera products.ts + imágenes + sitemap
-│   ├── sembrar.mjs        Carga el catálogo en la base de datos
+│   ├── semilla.mjs        Genera la semilla del catálogo para la API
+│   ├── servidor-local.php Servidor de la API para desarrollo
 │   ├── hoja-fotos.mjs     Hojas de contacto para revisar las portadas
 │   ├── brand.mjs / og.mjs Logotipos, íconos e imagen para compartir
 │   └── qa.mjs             Control de calidad automatizado
@@ -269,16 +272,18 @@ El proyecto incluye un panel completo en **`/admin`**: productos, inventario,
 categorías, pedidos, clientes, contenido de la portada, banners, preguntas
 frecuentes, WhatsApp, configuración, administradores e historial de cambios.
 
-Requiere conectar una base de datos (Supabase) una sola vez. **Los pasos están
-en [`ADMIN.md`](ADMIN.md)**; toma unos diez minutos.
+No hay nada que configurar: la primera vez que entras a /admin creas tu cuenta
+y el sistema se prepara solo. Todo corre dentro del hosting que ya pagas, sin
+servicios externos. **El detalle está en [`ADMIN.md`](ADMIN.md)**.
 
 Con el panel conectado no hace falta tocar código ni volver a publicar la web
 para cambiar un precio, un stock o un texto.
 
 ### Editando el archivo del catálogo
 
-Mientras no haya base de datos, la tienda usa el catálogo incluido en el
-paquete y se administra en **`src/data/products.ts`**. Cada producto es un
+El catálogo incluido en el paquete (**`src/data/products.ts`**) sigue ahí: es
+la semilla con la que se carga la base de datos la primera vez, y la red de
+seguridad que la tienda usa si el servidor no respondiera. Cada producto es un
 objeto:
 
 ```ts
@@ -353,28 +358,18 @@ pasan a mostrar los productos.
 
 ## 8. Conectar más adelante
 
-### Base de datos (Firebase, Supabase, WooCommerce, API propia)
+### Base de datos — ya está hecha
 
-La interfaz **nunca lee la base de datos directamente**: solo importa
-`products` desde `src/data/products.ts`. Para migrar basta con que la fuente
-devuelva objetos con la forma de `Product` (`src/types.ts`).
+El proyecto trae su propio backend en **`public/api/`** (PHP + SQLite), que se
+publica junto con la tienda y se configura solo. No hay que conectar nada.
 
-```ts
-// src/data/products.ts  →  reemplazar por, por ejemplo:
-import { supabase } from '@/lib/supabase'
+La interfaz **nunca habla con la base de datos directamente**: pasa siempre por
+`src/services/`, que es lo que hace que tienda y panel compartan una sola
+fuente. Si algún día hiciera falta cambiar el motor (a MySQL, por ejemplo),
+solo cambia `public/api/nucleo/db.php`; ni la tienda ni las 16 pantallas del
+panel se enteran.
 
-export async function getProducts(): Promise<Product[]> {
-  const { data } = await supabase.from('products').select('*')
-  return data ?? []
-}
-```
-
-Y en las páginas, cambiar el import estático por un `useEffect`/`loader` que
-guarde el resultado en estado. El resto (filtros, carrito, buscador, SEO)
-funciona igual porque todo opera sobre el tipo `Product`.
-
-Campos que conviene crear en la tabla: `id, name, slug, platform, category,
-genre, condition, price, old_price, stock, images, description, featured, tags`.
+El detalle está en [`ADMIN.md`](ADMIN.md).
 
 ### Pasarela de pagos (Wompi, Mercado Pago, PayU, Bold…)
 
