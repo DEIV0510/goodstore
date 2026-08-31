@@ -51,9 +51,14 @@ export const AJUSTES_POR_OMISION: Settings = {
   // porque Wompi descarta cualquier importe que se le pase por la dirección.
   payments: {
     enabled: true,
+    // Arranca en «enlace» porque es lo que funciona sin llaves. Se pasa a
+    // «checkout» desde el panel, cuando el negocio pega las suyas.
+    mode: 'enlace',
     provider: 'Nequi',
     link: 'https://checkout.nequi.wompi.co/l/xT7STl',
     note: '',
+    publicKey: '',
+    hasIntegrity: false,
   },
 }
 

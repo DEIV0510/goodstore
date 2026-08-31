@@ -384,7 +384,9 @@ Colombia es lo que conviene.
 | Pasos del pago (referencia, copiar total, ir a pagar) | `src/components/cart/PagoEnLinea.tsx` |
 | Referencia y copia al portapapeles | `src/lib/pago.ts` |
 | Las dos salidas del carrito | `src/components/cart/CartDrawer.tsx` |
-| Enlace, interruptor y nombre del medio | `/admin/ajustes` → Pagos |
+| Checkout Web firmado (importe y referencia) | `public/api/rutas/pago.php` |
+| Página de vuelta de la pasarela | `src/pages/public/Pago.tsx` (`/pago`) |
+| Modo, enlace, llaves y nombre del medio | `/admin/ajustes` → Pagos |
 | Validación en el servidor (solo `https://`) | `public/api/rutas/ajustes.php` |
 
 **La limitación que manda en el diseño:** un enlace de cobro no acepta que se
@@ -398,10 +400,28 @@ El botón **solo aparece con un total cerrado**: si `cartHasPending` es cierto
 (algún producto sin precio publicado), la tienda manda a WhatsApp, porque el
 total que vería el cliente no sería el que va a pagar.
 
-**Para que el importe viaje solo** haría falta el *Checkout Web* de Wompi, que
-sí recibe importe y referencia y confirma el pago por webhook. Necesita la
-llave pública y el **secreto de integridad** del panel de Wompi; el secreto
-tiene que firmarse en el servidor (`public/api/`), nunca en el navegador.
+**El Checkout Web ya está montado** para que el importe no lo escriba nadie. Se
+enciende en `/admin/ajustes` → Pagos pegando la llave pública y el secreto de
+integridad de Wompi. Con eso:
+
+- el **total lo calcula el servidor** leyendo los precios de la base y lo firma:
+  `SHA256(referencia + centavos + COP + secreto)`. Lo que mande el navegador se
+  ignora — comprobado enviando `price`, `total` y `amount-in-cents` falsos;
+- el **pedido se registra antes** de mandar a pagar, así que existe aunque el
+  cliente cierre el navegador a mitad;
+- al volver por `/pago`, el sitio **le pregunta a Wompi** el estado real (nunca
+  se cree lo que venga en la URL) y confirma el pedido solo si el importe cuadra.
+
+El **secreto de integridad** vive en el grupo `secretos` de la tabla de
+opciones, que ninguna ruta de lectura devuelve. Solo lo lee `pago.php` al firmar.
+
+```bash
+php tools/prueba-firma-wompi.php
+```
+
+Coteja la firma contra el ejemplo publicado por Wompi. Si alguien cambia el
+orden de la concatenación, esta prueba falla antes de que lo descubra un cliente
+en la caja.
 
 ---
 

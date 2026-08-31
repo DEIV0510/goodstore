@@ -297,7 +297,7 @@ function gg_valor_banner(string $campo, array $cuerpo)
         // Inalcanzable mientras el mapa de columnas mande, y por eso mismo se
         // deja: si algún día se añade un campo al mapa y se olvida aquí, falla
         // con un mensaje claro en vez de guardar un valor sin validar.
-        default => throw new GgError("El campo «$campo» no se puede guardar aquí."),
+        default => throw new GgError("El campo «{$campo}» no se puede guardar aquí."),
     };
 }
 
@@ -333,7 +333,7 @@ function gg_valor_pregunta(string $campo, array $cuerpo)
         'answer'    => gg_texto_obligatorio($cuerpo, 'answer', 2000),
         'sortOrder' => gg_entero($cuerpo, 'sortOrder', 0, 9999) ?? 0,
         'active'    => gg_bool_entrada($cuerpo, 'active', true) ? 1 : 0,
-        default     => throw new GgError("El campo «$campo» no se puede guardar aquí."),
+        default     => throw new GgError("El campo «{$campo}» no se puede guardar aquí."),
     };
 }
 

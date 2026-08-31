@@ -288,15 +288,47 @@ export interface CompanySettings {
  * y seguro posible: se lo copia al portapapeles y le entrega una referencia
  * con la que el negocio cuadra el pago con el pedido.
  */
+/**
+ * Cómo cobra la tienda.
+ *
+ *   enlace   — enlace de cobro de monto abierto. El cliente escribe el total;
+ *              la tienda se lo copia al portapapeles. No necesita llaves.
+ *   checkout — Checkout Web de Wompi. El servidor calcula el total, lo firma y
+ *              el importe llega relleno. Necesita llave pública y secreto.
+ */
+export type PaymentMode = 'enlace' | 'checkout'
+
 export interface PaymentSettings {
   /** Con el interruptor apagado, la tienda solo ofrece el pedido por WhatsApp. */
   enabled: boolean
+  mode: PaymentMode
   /** Cómo se le llama al medio de pago en pantalla. Ej.: «Nequi». */
   provider: string
-  /** El enlace de cobro. Vacío = no se muestra, aunque esté activado. */
+  /** El enlace de cobro (modo enlace). Vacío = no se muestra, aunque esté activado. */
   link: string
   /** Aclaración opcional bajo el botón. Vacío = no se pinta nada. */
   note: string
+  /** Llave pública de la pasarela. Es pública de verdad: viaja al navegador. */
+  publicKey: string
+  /**
+   * Si hay secreto de integridad guardado. NUNCA el secreto: ese vive en el
+   * servidor, en un grupo que ninguna ruta de lectura devuelve.
+   */
+  hasIntegrity: boolean
+  /**
+   * Solo de ida, y solo desde el panel. El servidor lo guarda aparte y jamás lo
+   * devuelve, así que al cargar la pantalla siempre llega vacío.
+   */
+  integritySecret?: string
+}
+
+/** Lo que la tienda sabe de un pago al volver de la pasarela. */
+export interface PaymentResult {
+  estado: string
+  mensaje: string
+  pedido: string | null
+  total: number
+  pagado?: number
 }
 
 export interface Settings {

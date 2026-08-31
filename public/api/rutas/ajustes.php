@@ -56,6 +56,9 @@ const GG_WHATSAPP_PLANTILLAS = [
 /** Una plantilla es un mensaje completo, no una etiqueta: cabe holgado. */
 const GG_PLANTILLA_MAX = 2000;
 
+/** Cómo cobra la tienda. Lista cerrada, igual que los roles. */
+const GG_PAGO_MODOS = ['enlace', 'checkout'];
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Ayudas locales
 //
@@ -110,7 +113,7 @@ function gg_ajustes_url(array $datos, string $clave, array $previo, int $maximo 
         // un servidor ajeno.
         if (str_starts_with($v, '//') || str_starts_with($v, '/\\')) {
             throw new GgError(
-                "El enlace de «$clave» apunta a otro dominio. Escribe una ruta del sitio, " .
+                "El enlace de «{$clave}» apunta a otro dominio. Escribe una ruta del sitio, " .
                 'como «/medios/logo.webp», o la dirección completa empezando por «https://».'
             );
         }
@@ -119,7 +122,7 @@ function gg_ajustes_url(array $datos, string $clave, array $previo, int $maximo 
     if (preg_match('#^https?://[^\s]+$#i', $v)) {
         return $v;
     }
-    throw new GgError("El enlace de «$clave» debe empezar por «/» o por «https://».");
+    throw new GgError("El enlace de «{$clave}» debe empezar por «/» o por «https://».");
 }
 
 /**
@@ -138,7 +141,7 @@ function gg_ajustes_red(array $datos, string $clave, array $previo): string
     }
     if (!preg_match('#^https://[^\s]+$#i', $v)) {
         throw new GgError(
-            "El enlace de «$clave» debe empezar por «https://», o quedar vacío si esa red todavía no existe."
+            "El enlace de «{$clave}» debe empezar por «https://», o quedar vacío si esa red todavía no existe."
         );
     }
     return $v;
@@ -184,6 +187,68 @@ function gg_ajustes_enlace_pago(array $datos, string $clave, array $previo): str
         );
     }
     return $v;
+}
+
+/**
+ * Llave PÚBLICA de la pasarela.
+ *
+ * Se llama pública porque lo es: viaja en el formulario que ve el navegador y
+ * no sirve para cobrar nada por su cuenta. Aun así se comprueba la forma, para
+ * que un dedazo se detecte aquí y no en la caja: Wompi las emite como
+ * `pub_prod_…` (producción) o `pub_test_…` (pruebas).
+ */
+function gg_ajustes_llave(array $datos, string $clave, array $previo): string
+{
+    $v = gg_ajustes_texto($datos, $clave, 120, $previo);
+    if ($v === '') {
+        return '';
+    }
+    if (!preg_match('/^pub_(prod|test)_[A-Za-z0-9]{10,}$/', $v)) {
+        throw new GgError(
+            'Esa no parece la llave pública de Wompi. Empieza por «pub_prod_» (o «pub_test_» ' .
+            'si estás probando) y la encuentras en tu panel de Wompi, en Desarrolladores.'
+        );
+    }
+    return $v;
+}
+
+/**
+ * Guarda el secreto de integridad FUERA del bloque de ajustes.
+ *
+ * Vive en el grupo «secretos», que ninguna ruta de lectura devuelve: ni
+ * /api/ajustes, ni /api/publico, ni el historial. Solo lo lee /api/pago para
+ * firmar, y de ahí no sale.
+ *
+ * Reglas de escritura:
+ *   · si la clave no viene, no se toca (el panel no lo reenvía en cada guardado);
+ *   · si viene vacía, se borra: es la forma de desconfigurar la pasarela;
+ *   · si viene con valor, se comprueba la forma y se sustituye.
+ *
+ * Devuelve solo si al final hay secreto o no, que es lo único que puede salir.
+ */
+function gg_ajustes_guardar_secreto(array $datos, array $previo): bool
+{
+    $habia = trim((string) (gg_opciones('secretos')['wompiIntegridad'] ?? '')) !== '';
+
+    if (!array_key_exists('integritySecret', $datos)) {
+        return $habia;
+    }
+
+    $v = trim((string) $datos['integritySecret']);
+
+    if ($v === '') {
+        gg_guardar_opcion('secretos', 'wompiIntegridad', '');
+        return false;
+    }
+    if (!preg_match('/^(prod|test)_integrity_[A-Za-z0-9]{10,}$/', $v)) {
+        throw new GgError(
+            'Ese no parece el secreto de integridad. Empieza por «prod_integrity_» ' .
+            '(o «test_integrity_») y está en tu panel de Wompi, en Desarrolladores.'
+        );
+    }
+
+    gg_guardar_opcion('secretos', 'wompiIntegridad', $v);
+    return true;
 }
 
 /**
@@ -406,14 +471,25 @@ if ($recurso === 'ajustes') {
                 'keywords'    => gg_ajustes_texto($crudo, 'keywords', 400, $base),
                 'ogImage'     => gg_ajustes_url($crudo, 'ogImage', $base),
             ],
-            // El enlace de cobro es de monto abierto: el cliente escribe el
-            // total en la pasarela. La tienda se lo copia al portapapeles, y
-            // solo ofrece pagar cuando el total está cerrado.
+            // Dos formas de cobrar, y el modo decide cuál usa la tienda:
+            //
+            //   enlace   — enlace de cobro de monto abierto: el cliente escribe
+            //              el total, y la tienda se lo copia al portapapeles.
+            //   checkout — Checkout Web firmado: el importe y la referencia
+            //              viajan solos. Necesita llave pública y secreto.
+            //
+            // El SECRETO DE INTEGRIDAD no está en esta lista a propósito: se
+            // guarda aparte, más abajo, en un grupo que ninguna ruta devuelve.
             'payments' => [
-                'enabled'  => gg_ajustes_interruptor($crudo, 'enabled', $base, false),
-                'provider' => gg_ajustes_texto($crudo, 'provider', 60, $base),
-                'link'     => gg_ajustes_enlace_pago($crudo, 'link', $base),
-                'note'     => gg_ajustes_texto($crudo, 'note', 300, $base),
+                'enabled'      => gg_ajustes_interruptor($crudo, 'enabled', $base, false),
+                'mode'         => gg_opcion($crudo, 'mode', GG_PAGO_MODOS, (string) ($base['mode'] ?? 'enlace')),
+                'provider'     => gg_ajustes_texto($crudo, 'provider', 60, $base),
+                'link'         => gg_ajustes_enlace_pago($crudo, 'link', $base),
+                'note'         => gg_ajustes_texto($crudo, 'note', 300, $base),
+                'publicKey'    => gg_ajustes_llave($crudo, 'publicKey', $base),
+                // Solo dice SI hay secreto guardado, nunca cuál. Es lo que
+                // necesita el panel para pintar «configurado» sin enseñarlo.
+                'hasIntegrity' => gg_ajustes_guardar_secreto($crudo, $base),
             ],
         };
 

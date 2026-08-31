@@ -72,6 +72,24 @@ function gg_ahora(): string
 }
 
 /**
+ * ¿Existe ya esa columna? SQLite no tiene «ADD COLUMN IF NOT EXISTS», y volver
+ * a añadir una que ya está lanza excepción. Se consulta el esquema en vez de
+ * intentarlo y capturar el error, para no confundir un fallo real con uno
+ * esperado.
+ */
+function gg_columna_existe(PDO $db, string $tabla, string $columna): bool
+{
+    // El nombre de la tabla sale siempre de una constante del código, nunca de
+    // la petición: PRAGMA no admite parámetros enlazados.
+    foreach ($db->query("PRAGMA table_info($tabla)") as $c) {
+        if (($c['name'] ?? '') === $columna) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Crea o actualiza el esquema.
  *
  * Se ejecuta en cada arranque y es idempotente: cada paso comprueba si ya está
@@ -83,7 +101,37 @@ function gg_migrar(PDO $db): void
     $db->exec('CREATE TABLE IF NOT EXISTS gg_meta (clave TEXT PRIMARY KEY, valor TEXT NOT NULL)');
 
     $version = (int) (gg_meta($db, 'esquema') ?? '0');
-    if ($version >= 1) {
+
+    // ── Esquema 2 · pagos en línea ──────────────────────────────────────────
+    //
+    // Va ANTES de la salida temprana a propósito: las bases que ya están en
+    // producción se quedaron en la versión 1, y sin esto actualizar el código
+    // dejaría la tienda pidiendo columnas que allí no existen.
+    if ($version === 1) {
+        $db->beginTransaction();
+        try {
+            // La referencia que viaja a la pasarela y el id que ella devuelve.
+            // Se guardan para poder cotejar un pago con su pedido meses después.
+            if (!gg_columna_existe($db, 'pedidos', 'pago_ref')) {
+                $db->exec('ALTER TABLE pedidos ADD COLUMN pago_ref TEXT');
+            }
+            if (!gg_columna_existe($db, 'pedidos', 'pago_id')) {
+                $db->exec('ALTER TABLE pedidos ADD COLUMN pago_id TEXT');
+            }
+            // Buscar por referencia es lo que hace la página de retorno cada vez
+            // que alguien vuelve de la pasarela.
+            $db->exec('CREATE INDEX IF NOT EXISTS pedidos_pago_ref ON pedidos (pago_ref)');
+
+            gg_meta_set($db, 'esquema', '2');
+            $db->commit();
+        } catch (Throwable $e) {
+            $db->rollBack();
+            throw $e;
+        }
+        return;
+    }
+
+    if ($version >= 2) {
         return;
     }
 
@@ -183,6 +231,8 @@ function gg_migrar(PDO $db): void
                 email       TEXT,
                 ciudad      TEXT,
                 notas       TEXT,
+                pago_ref    TEXT,
+                pago_id     TEXT,
                 creado      TEXT NOT NULL,
                 actualizado TEXT NOT NULL
             )
@@ -379,4 +429,49 @@ function gg_json($v, $porOmision = [])
     }
     $d = json_decode($v, true);
     return $d === null ? $porOmision : $d;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Códigos de pedido
+//
+// Vive aquí, y no en la ruta de pedidos, porque hay dos sitios que crean
+// pedidos: el panel cuando el administrador registra una venta, y el pago en
+// línea cuando un cliente empieza a pagar. Los dos necesitan el mismo código.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Código legible y ordenable: GG-AAMMDD-NNNN.
+ *
+ * Lleva la fecha delante para que ordenar por código sea ordenar por día, y
+ * cuatro cifras al azar en vez de un contador para no tener que mantener una
+ * secuencia aparte. Si el número ya estuviera usado se reintenta: la columna es
+ * UNIQUE y un choque tumbaría la inserción entera.
+ */
+function gg_pedido_codigo_nuevo(): string
+{
+    $dia = gmdate('ymd');
+
+    for ($intento = 0; $intento < 25; $intento++) {
+        $codigo = 'GG-' . $dia . '-' . random_int(1000, 9999);
+        if (gg_valor('SELECT 1 FROM pedidos WHERE codigo = ?', [$codigo]) === null) {
+            return $codigo;
+        }
+    }
+
+    // Reserva por si el día estuviera casi lleno y el azar siguiera chocando:
+    // se continúa por el número más alto ya usado. Vale más un código feo que
+    // dejar al administrador sin poder registrar la venta que acaba de cerrar.
+    // El número empieza en el carácter 11: «GG-» (3) + AAMMDD (6) + «-» (1).
+    $ultimo = (int) gg_valor(
+        'SELECT MAX(CAST(substr(codigo, 11) AS INTEGER)) FROM pedidos WHERE codigo LIKE ?',
+        ['GG-' . $dia . '-%']
+    );
+    for ($n = max(1000, $ultimo + 1); $n <= 9999; $n++) {
+        $codigo = 'GG-' . $dia . '-' . str_pad((string) $n, 4, '0', STR_PAD_LEFT);
+        if (gg_valor('SELECT 1 FROM pedidos WHERE codigo = ?', [$codigo]) === null) {
+            return $codigo;
+        }
+    }
+
+    throw new GgError('Hoy ya no quedan códigos de pedido libres. Avisa al desarrollador.', 409);
 }

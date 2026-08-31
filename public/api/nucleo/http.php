@@ -91,14 +91,14 @@ function gg_texto(array $datos, string $clave, int $maximo = 500, string $porOmi
         return $porOmision;
     }
     if (!is_scalar($datos[$clave])) {
-        throw new GgError("El campo «$clave» debe ser texto.");
+        throw new GgError("El campo «{$clave}» debe ser texto.");
     }
     $v = trim((string) $datos[$clave]);
     // Se quitan los caracteres de control, que no aportan nada y sí rompen
     // cosas más adelante (JSON, cabeceras, registros).
     $v = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $v) ?? '';
     if (mb_strlen($v) > $maximo) {
-        throw new GgError("El campo «$clave» no puede pasar de $maximo caracteres.");
+        throw new GgError("El campo «{$clave}» no puede pasar de $maximo caracteres.");
     }
     return $v;
 }
@@ -107,7 +107,7 @@ function gg_texto_obligatorio(array $datos, string $clave, int $maximo = 500): s
 {
     $v = gg_texto($datos, $clave, $maximo);
     if ($v === '') {
-        throw new GgError("El campo «$clave» es obligatorio.");
+        throw new GgError("El campo «{$clave}» es obligatorio.");
     }
     return $v;
 }
@@ -123,14 +123,14 @@ function gg_entero(array $datos, string $clave, ?int $min = null, ?int $max = nu
         return null;
     }
     if (!is_numeric($v)) {
-        throw new GgError("El campo «$clave» debe ser un número.");
+        throw new GgError("El campo «{$clave}» debe ser un número.");
     }
     $n = (int) $v;
     if ($min !== null && $n < $min) {
-        throw new GgError("El campo «$clave» no puede ser menor que $min.");
+        throw new GgError("El campo «{$clave}» no puede ser menor que $min.");
     }
     if ($max !== null && $n > $max) {
-        throw new GgError("El campo «$clave» no puede ser mayor que $max.");
+        throw new GgError("El campo «{$clave}» no puede ser mayor que $max.");
     }
     return $n;
 }
@@ -151,7 +151,7 @@ function gg_opcion(array $datos, string $clave, array $validos, ?string $porOmis
     }
     $v = (string) $datos[$clave];
     if (!in_array($v, $validos, true)) {
-        throw new GgError("El valor de «$clave» no es válido.");
+        throw new GgError("El valor de «{$clave}» no es válido.");
     }
     return $v;
 }
@@ -163,7 +163,7 @@ function gg_lista(array $datos, string $clave, int $maximo = 40, int $largoItem 
         return [];
     }
     if (!is_array($datos[$clave])) {
-        throw new GgError("El campo «$clave» debe ser una lista.");
+        throw new GgError("El campo «{$clave}» debe ser una lista.");
     }
     $salida = [];
     foreach (array_slice($datos[$clave], 0, $maximo) as $item) {
@@ -215,7 +215,7 @@ function gg_enlace(array $datos, string $clave, string $porOmision = '/catalogo'
     if (preg_match('#^https?://#i', $v)) {
         return $v;
     }
-    throw new GgError("El enlace de «$clave» debe empezar por «/» o por «https://».");
+    throw new GgError("El enlace de «{$clave}» debe empezar por «/» o por «https://».");
 }
 
 /** Fecha ISO o null. */
@@ -227,7 +227,7 @@ function gg_fecha(array $datos, string $clave): ?string
     }
     $t = strtotime($v);
     if ($t === false) {
-        throw new GgError("La fecha de «$clave» no es válida.");
+        throw new GgError("La fecha de «{$clave}» no es válida.");
     }
     return gmdate('Y-m-d\TH:i:s\Z', $t);
 }

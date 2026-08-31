@@ -65,6 +65,12 @@ gg_responder([
         'sqlite'       => extension_loaded('pdo_sqlite'),
         'gd'           => extension_loaded('gd'),
         'https'        => gg_es_https(),
+        // Con qué puede el servidor preguntarle a la pasarela si un pago se
+        // aprobó. Sin ninguna de las dos, el Checkout Web se puede cobrar pero
+        // la tienda no podría confirmar el resultado por su cuenta.
+        'salidaWeb'    => function_exists('curl_init')
+            ? 'curl'
+            : ((bool) ini_get('allow_url_fopen') ? 'fopen' : 'no'),
         'datosFuera'   => $datosFuera,
         'carpetaDatos' => $carpetaDatos,
         'productos'    => (int) gg_valor('SELECT COUNT(*) FROM productos'),

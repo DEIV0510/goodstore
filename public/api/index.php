@@ -93,6 +93,9 @@ try {
         case 'historial':
             require __DIR__ . '/rutas/equipo.php';
             break;
+        case 'pago':
+            require __DIR__ . '/rutas/pago.php';
+            break;
         case 'medios':
             require __DIR__ . '/rutas/medios.php';
             break;

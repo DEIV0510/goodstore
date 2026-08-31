@@ -3,6 +3,8 @@ import {
   Building2,
   CreditCard,
   ExternalLink,
+  KeyRound,
+  Lock,
   Plus,
   Search,
   Share2,
@@ -32,6 +34,7 @@ import {
   Selector,
 } from '@/components/admin/UI'
 import { site } from '@/data/site'
+import { useAuth } from '@/hooks/useAuth'
 import { cop, normalize } from '@/lib/format'
 import { AJUSTES_POR_OMISION, guardarAjustes, obtenerAjustes } from '@/services/ajustes'
 import type { Settings } from '@/types'
@@ -94,6 +97,8 @@ function numeroOpcional(valor: string): number | null {
 
 export default function Ajustes() {
   const avisos = useAvisos()
+  // Para avisar si el servidor no puede confirmar los pagos por su cuenta.
+  const { diagnostico } = useAuth()
   const confirmar = useConfirmar()
 
   const [ajustes, setAjustes] = useState<Settings>(AJUSTES_POR_OMISION)
@@ -254,23 +259,59 @@ export default function Ajustes() {
 
   async function enviarPagos(e: FormEvent) {
     e.preventDefault()
+    const { enabled, mode } = ajustes.payments
     const enlace = ajustes.payments.link.trim()
+    const llave = ajustes.payments.publicKey.trim()
+    const secreto = (ajustes.payments.integritySecret ?? '').trim()
 
-    // Activar el cobro sin enlace dejaría un botón que no lleva a pagar. El
-    // servidor también lo evita apagándolo, pero avisar aquí es más claro que
+    // Activar el cobro sin lo que hace falta dejaría un botón que no lleva a
+    // pagar. El servidor también lo evita, pero avisar aquí es más claro que
     // guardar en silencio algo distinto de lo que se pidió.
-    if (ajustes.payments.enabled && !enlace) {
-      setErrores({
-        'payments.link': 'Pega el enlace de cobro, o apaga el pago en línea.',
-      })
-      return
+    if (mode === 'checkout') {
+      if (enabled && !llave) {
+        setErrores({
+          'payments.publicKey': 'Pega la llave pública de Wompi, o apaga el pago en línea.',
+        })
+        return
+      }
+      if (llave && !/^pub_(prod|test)_/.test(llave)) {
+        setErrores({
+          'payments.publicKey': 'La llave pública empieza por «pub_prod_» o «pub_test_».',
+        })
+        return
+      }
+      if (enabled && !secreto && !ajustes.payments.hasIntegrity) {
+        setErrores({
+          'payments.integritySecret':
+            'Pega el secreto de integridad: sin él no se puede firmar el cobro.',
+        })
+        return
+      }
+      if (secreto && !/^(prod|test)_integrity_/.test(secreto)) {
+        setErrores({
+          'payments.integritySecret':
+            'El secreto empieza por «prod_integrity_» o «test_integrity_».',
+        })
+        return
+      }
+    } else {
+      if (enabled && !enlace) {
+        setErrores({
+          'payments.link': 'Pega el enlace de cobro, o apaga el pago en línea.',
+        })
+        return
+      }
+      if (enlace && !/^https:\/\//i.test(enlace)) {
+        setErrores({ 'payments.link': 'El enlace tiene que empezar por «https://».' })
+        return
+      }
     }
-    if (enlace && !/^https:\/\//i.test(enlace)) {
-      setErrores({ 'payments.link': 'El enlace tiene que empezar por «https://».' })
-      return
-    }
+
     setErrores({})
     await guardarBloque('payments', 'Pagos en línea')
+    // El secreto no vuelve del servidor: se limpia del formulario para que la
+    // pantalla no dé a entender que sigue ahí escrito.
+    setAjustes((a) => ({ ...a, payments: { ...a.payments, integritySecret: '' } }))
   }
 
   async function enviarSeo(e: FormEvent) {
@@ -868,7 +909,9 @@ export default function Ajustes() {
             <div className="min-w-0">
               <h2 className="adm-titulo">Pagos en línea</h2>
               <p className="adm-sub mt-1">
-                El enlace de cobro con el que el cliente paga desde el carrito.
+                {ajustes.payments.mode === 'checkout'
+                  ? 'Cobro firmado por el servidor: el cliente no escribe el valor.'
+                  : 'El enlace de cobro con el que el cliente paga desde el carrito.'}
               </p>
             </div>
             {sucia('payments') && (
@@ -879,13 +922,23 @@ export default function Ajustes() {
           {/* Lo que de verdad hay que entender antes de tocar nada. */}
           <div className="mt-5 rounded-lg border border-blue-200 bg-blue-50 p-3.5">
             <p className="text-[13px] font-bold text-blue-900">Cómo funciona</p>
-            <p className="mt-1.5 text-[12.5px] leading-relaxed text-blue-900">
-              Un enlace de cobro <strong>no recibe el total</strong>: el cliente lo
-              escribe él mismo en la pasarela. Por eso la tienda le copia el valor
-              exacto al portapapeles y le da una <strong>referencia</strong> que viaja
-              en el mensaje de WhatsApp, que es con lo que cuadras el pago con el
-              pedido. La pasarela solo te avisa del dinero, no de qué juegos son.
-            </p>
+            {ajustes.payments.mode === 'checkout' ? (
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-blue-900">
+                El <strong>total lo calcula el servidor</strong> con los precios de tu
+                catálogo y lo firma antes de mandarlo, así que nadie puede cambiarlo desde
+                el navegador. El cliente llega a la pasarela con el valor ya puesto, y al
+                volver el sitio pregunta si el pago se aprobó y{' '}
+                <strong>registra el pedido solo</strong> en Pedidos.
+              </p>
+            ) : (
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-blue-900">
+                Un enlace de cobro <strong>no recibe el total</strong>: el cliente lo
+                escribe él mismo en la pasarela. Por eso la tienda le copia el valor
+                exacto al portapapeles y le da una <strong>referencia</strong> que viaja
+                en el mensaje de WhatsApp, que es con lo que cuadras el pago con el
+                pedido. La pasarela solo te avisa del dinero, no de qué juegos son.
+              </p>
+            )}
           </div>
 
           <div className="mt-5">
@@ -898,9 +951,28 @@ export default function Ajustes() {
           </div>
 
           <div className="mt-4">
+            <Selector
+              label="Cómo cobras"
+              value={ajustes.payments.mode}
+              onChange={(e) => editarPagos({ mode: e.target.value as Settings['payments']['mode'] })}
+              opciones={[
+                { valor: 'enlace', etiqueta: 'Enlace de cobro (el cliente escribe el total)' },
+                { valor: 'checkout', etiqueta: 'Checkout Web (el total viaja relleno)' },
+              ]}
+              ayuda={
+                ajustes.payments.mode === 'checkout'
+                  ? 'El servidor calcula el total desde los precios reales, lo firma y registra el pedido solo. Necesita las dos llaves de abajo.'
+                  : 'No necesita llaves: basta el enlace de cobro. El cliente escribe el valor que la tienda le copia.'
+              }
+            />
+          </div>
+
+          {/* El enlace solo se pide en su modo. Si cambias a Checkout Web no
+              se borra: sigue guardado por si vuelves. */}
+          <div className={ajustes.payments.mode === 'enlace' ? 'mt-4' : 'hidden'}>
             <Entrada
               label="Enlace de cobro"
-              requerido={ajustes.payments.enabled}
+              requerido={ajustes.payments.enabled && ajustes.payments.mode === 'enlace'}
               type="url"
               inputMode="url"
               spellCheck={false}
@@ -929,6 +1001,93 @@ export default function Ajustes() {
             )}
           </div>
 
+          {/* ── Llaves del Checkout Web ────────────────────────────────────
+              Solo se piden en ese modo: en «enlace» no hacen falta y llenar la
+              pantalla de campos que nadie va a usar solo confunde. */}
+          {ajustes.payments.mode === 'checkout' && (
+            <>
+              <div className="mt-4">
+                <Entrada
+                  label="Llave pública de Wompi"
+                  requerido={ajustes.payments.enabled}
+                  spellCheck={false}
+                  autoComplete="off"
+                  placeholder="pub_prod_..."
+                  value={ajustes.payments.publicKey}
+                  onChange={(e) => editarPagos({ publicKey: e.target.value })}
+                  error={errores['payments.publicKey']}
+                  ayuda="En tu panel de Wompi, en Desarrolladores. Es pública: viaja al navegador y no sirve para cobrar por su cuenta."
+                />
+              </div>
+
+              <div className="mt-4">
+                <Entrada
+                  label="Secreto de integridad"
+                  type="password"
+                  spellCheck={false}
+                  autoComplete="off"
+                  placeholder={
+                    ajustes.payments.hasIntegrity
+                      ? '•••••••• (ya guardado — escribe uno nuevo para cambiarlo)'
+                      : 'prod_integrity_...'
+                  }
+                  value={ajustes.payments.integritySecret ?? ''}
+                  onChange={(e) => editarPagos({ integritySecret: e.target.value })}
+                  error={errores['payments.integritySecret']}
+                  ayuda="Se guarda en el servidor y no vuelve a salir de ahí: ni a esta pantalla, ni a la tienda, ni al historial."
+                />
+
+                <p className="mt-2 flex items-start gap-1.5 text-[12.5px] leading-relaxed text-slate-600">
+                  <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+                  {ajustes.payments.hasIntegrity ? (
+                    <span>
+                      <strong className="text-emerald-700">Secreto configurado.</strong> Deja
+                      el campo vacío para conservarlo tal cual.
+                    </span>
+                  ) : (
+                    <span>
+                      <strong className="text-amber-700">Falta el secreto.</strong> Sin él la
+                      tienda no puede firmar el cobro y no ofrece pagar en línea.
+                    </span>
+                  )}
+                </p>
+              </div>
+
+              {/* Sin salida a internet el cobro funciona, pero la tienda no
+                  podría preguntar si el pago se aprobó ni registrar el pedido
+                  sola. Vale más decirlo aquí que descubrirlo con una venta. */}
+              {diagnostico?.salidaWeb === 'no' && (
+                <p
+                  role="status"
+                  className="mt-4 flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3.5 text-[12.5px] leading-relaxed text-amber-900"
+                >
+                  <AlertTriangle className="mt-px h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span>
+                    <strong>Este servidor no puede salir a internet</strong> (ni cURL ni
+                    allow_url_fopen). El cliente podrá pagar, pero la tienda no podrá
+                    confirmar el resultado ni registrar el pedido sola: tendrás que
+                    revisarlo en tu panel de Wompi. Actívalo en hPanel → Avanzado →
+                    Configuración PHP.
+                  </span>
+                </p>
+              )}
+
+              <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3.5">
+                <p className="flex items-center gap-2 text-[13px] font-bold text-slate-900">
+                  <KeyRound className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+                  Dónde están esas dos llaves
+                </p>
+                <p className="mt-1.5 text-[12.5px] leading-relaxed text-slate-600">
+                  Entra a tu cuenta de Wompi → <strong>Desarrolladores</strong> →{' '}
+                  <strong>Configuración técnica</strong>. Copia la llave pública
+                  («pub_prod_…») y el secreto de integridad («prod_integrity_…»). Si usas
+                  las de prueba («pub_test_…»), la tienda habla sola con el entorno de
+                  pruebas de Wompi: no se cobra dinero de verdad.
+                </p>
+              </div>
+            </>
+          )}
+
           <div className="mt-4">
             <Entrada
               label="Nombre del medio de pago"
@@ -954,7 +1113,12 @@ export default function Ajustes() {
               Así lo ve el cliente en el carrito
             </p>
             <div className="mt-3 max-w-sm rounded-xl bg-[#091052] p-4">
-              {ajustes.payments.enabled && ajustes.payments.link.trim() ? (
+              {ajustes.payments.enabled &&
+              (ajustes.payments.mode === 'checkout'
+                ? ajustes.payments.publicKey.trim() !== '' &&
+                  (ajustes.payments.hasIntegrity ||
+                    (ajustes.payments.integritySecret ?? '').trim() !== '')
+                : ajustes.payments.link.trim() !== '') ? (
                 <>
                   <p className="grid min-h-[44px] place-items-center rounded-xl bg-[#FFF000] px-4 text-[13px] font-bold text-[#070C42]">
                     Pagar en línea
@@ -963,9 +1127,11 @@ export default function Ajustes() {
                     Pedir por WhatsApp
                   </p>
                   <p className="mt-2.5 text-[11.5px] leading-relaxed text-white/55">
-                    Pagará con {ajustes.payments.provider.trim() || 'Nequi'}. Solo aparece
-                    cuando el carrito tiene un total cerrado: si algún producto está sin
-                    precio, la tienda manda a WhatsApp.
+                    {ajustes.payments.mode === 'checkout'
+                      ? `Llegará a ${ajustes.payments.provider.trim() || 'Wompi'} con el total ya puesto y el pedido queda registrado en Pedidos.`
+                      : `Pagará con ${ajustes.payments.provider.trim() || 'Nequi'} escribiendo el total que la tienda le copia.`}{' '}
+                    Solo aparece cuando el carrito tiene un total cerrado: si algún producto
+                    está sin precio, la tienda manda a WhatsApp.
                   </p>
                 </>
               ) : (

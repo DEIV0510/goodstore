@@ -1,8 +1,9 @@
 import { Check, Copy, ExternalLink, MessageCircle, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
 import { site } from '@/data/site'
+import { mensajeDeError } from '@/lib/api'
 import { cop } from '@/lib/format'
-import { copiar, importeParaPegar } from '@/lib/pago'
+import { copiar, importeParaPegar, irALaPasarela, prepararPago } from '@/lib/pago'
 import { cartMessage } from '@/lib/whatsapp'
 import type { CartEntry } from '@/types'
 
@@ -26,6 +27,81 @@ interface Props {
   entries: CartEntry[]
   total: number
   referencia: string
+}
+
+/**
+ * Checkout Web: un solo botón.
+ *
+ * El total ya viaja calculado y firmado por el servidor, así que aquí no hay
+ * nada que copiar ni que apuntar. La lista de juegos sí hace falta que llegue
+ * al negocio, y para eso el pedido queda registrado en el panel en el momento
+ * en que se pulsa: la pasarela no manda esa información.
+ */
+function PagoDirecto({ entries, total }: { entries: CartEntry[]; total: number }) {
+  const [enviando, setEnviando] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function pagar() {
+    setEnviando(true)
+    setError(null)
+    try {
+      const f = await prepararPago(entries.map((e) => ({ slug: e.product.slug, qty: e.qty })))
+      // A partir de aquí el navegador se va a la pasarela; el estado de carga
+      // se queda puesto a propósito, para que nadie pulse dos veces.
+      irALaPasarela(f)
+    } catch (e) {
+      setError(mensajeDeError(e))
+      setEnviando(false)
+    }
+  }
+
+  return (
+    <div className="px-4 py-6">
+      <div className="rounded-xl border border-white/10 bg-white/[.04] px-4 py-4 text-center">
+        <p className="text-2xs font-bold uppercase tracking-[.18em] text-white/50">
+          Total a pagar
+        </p>
+        <p className="tabular mt-1 font-display text-3xl font-black text-gold-500">
+          {cop(total)}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => void pagar()}
+        disabled={enviando}
+        className="btn-primary mt-4 w-full"
+      >
+        <ExternalLink className="h-4 w-4" aria-hidden="true" />
+        {enviando ? 'Abriendo el pago seguro…' : `Pagar con ${site.pago.proveedor}`}
+      </button>
+
+      {error && (
+        <p
+          role="alert"
+          className="mt-3 rounded-lg border border-alert-500/30 bg-alert-500/10 px-3 py-2.5 text-[12.5px] leading-relaxed text-alert-400"
+        >
+          {error}
+        </p>
+      )}
+
+      <p className="mt-4 flex items-start gap-1.5 text-[12.5px] leading-relaxed text-white/55">
+        <ShieldCheck className="mt-px h-3.5 w-3.5 shrink-0 text-white/40" aria-hidden="true" />
+        El valor y la referencia viajan ya puestos: no tienes que escribir nada. El pago se
+        procesa en la plataforma de {site.pago.proveedor} y GOOD GAME no ve ni guarda los
+        datos de tu tarjeta o tu cuenta.
+      </p>
+
+      {site.pago.nota && (
+        <p className="mt-2 text-[12.5px] leading-relaxed text-white/55">{site.pago.nota}</p>
+      )}
+
+      <p className="mt-6 rounded-lg border border-white/10 bg-white/[.03] px-3 py-2.5 text-[12.5px] leading-relaxed text-white/55">
+        ¿Prefieres coordinar por chat? Vuelve atrás y usa «Pedir por WhatsApp»: te
+        confirmamos disponibilidad y envío antes de que pagues nada.
+      </p>
+    </div>
+  )
 }
 
 /** Un paso, con su número, su marca de hecho y su contenido. */
@@ -66,6 +142,15 @@ function Paso({
 }
 
 export default function PagoEnLinea({ entries, total, referencia }: Props) {
+  // Con el Checkout Web no hay pasos que dar: el importe viaja resuelto.
+  if (site.pago.modo === 'checkout') {
+    return <PagoDirecto entries={entries} total={total} />
+  }
+  return <PagoPorEnlace entries={entries} total={total} referencia={referencia} />
+}
+
+/** Los tres pasos del enlace de cobro de monto abierto. */
+function PagoPorEnlace({ entries, total, referencia }: Props) {
   const [copiado, setCopiado] = useState(false)
   const [falloCopia, setFalloCopia] = useState(false)
   const [pedidoEnviado, setPedidoEnviado] = useState(false)

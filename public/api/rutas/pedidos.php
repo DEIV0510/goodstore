@@ -155,42 +155,9 @@ function gg_pedido_uno(string $id): ?array
     return gg_salida_pedido($p, $lineas, $cliente);
 }
 
-/**
- * Código legible y ordenable: GG-AAMMDD-NNNN.
- *
- * Lleva la fecha delante para que ordenar por código sea ordenar por día, y
- * cuatro cifras al azar en vez de un contador para no tener que mantener una
- * secuencia aparte. Si el número ya estuviera usado se reintenta: la columna es
- * UNIQUE y un choque tumbaría la inserción entera.
- */
-function gg_pedido_codigo_nuevo(): string
-{
-    $dia = gmdate('ymd');
+// gg_pedido_codigo_nuevo() vive en nucleo/db.php: la usan tanto esta ruta
+// como la del pago en línea, que también crea pedidos.
 
-    for ($intento = 0; $intento < 25; $intento++) {
-        $codigo = 'GG-' . $dia . '-' . random_int(1000, 9999);
-        if (gg_valor('SELECT 1 FROM pedidos WHERE codigo = ?', [$codigo]) === null) {
-            return $codigo;
-        }
-    }
-
-    // Reserva por si el día estuviera casi lleno y el azar siguiera chocando:
-    // se continúa por el número más alto ya usado. Vale más un código feo que
-    // dejar al administrador sin poder registrar la venta que acaba de cerrar.
-    // El número empieza en el carácter 11: «GG-» (3) + AAMMDD (6) + «-» (1).
-    $ultimo = (int) gg_valor(
-        'SELECT MAX(CAST(substr(codigo, 11) AS INTEGER)) FROM pedidos WHERE codigo LIKE ?',
-        ['GG-' . $dia . '-%']
-    );
-    for ($n = max(1000, $ultimo + 1); $n <= 9999; $n++) {
-        $codigo = 'GG-' . $dia . '-' . str_pad((string) $n, 4, '0', STR_PAD_LEFT);
-        if (gg_valor('SELECT 1 FROM pedidos WHERE codigo = ?', [$codigo]) === null) {
-            return $codigo;
-        }
-    }
-
-    throw new GgError('Hoy ya no quedan códigos de pedido libres. Avisa al desarrollador.', 409);
-}
 
 /**
  * Valida las líneas que llegan del navegador y devuelve las filas a guardar.

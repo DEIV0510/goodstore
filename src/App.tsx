@@ -22,6 +22,7 @@ const Catalog = lazy(() => import('@/pages/public/Catalog'))
 const ProductPage = lazy(() => import('@/pages/public/ProductPage'))
 const Usados = lazy(() => import('@/pages/public/Usados'))
 const Favoritos = lazy(() => import('@/pages/public/Favoritos'))
+const Pago = lazy(() => import('@/pages/public/Pago'))
 const NotFound = lazy(() => import('@/pages/public/NotFound'))
 
 // ── Panel ────────────────────────────────────────────────────────────────────
@@ -59,6 +60,8 @@ export default function App({ onReady }: { onReady: () => void }) {
           <Route path="/producto/:slug" element={<ProductPage />} />
           <Route path="/usados" element={<Usados />} />
           <Route path="/favoritos" element={<Favoritos />} />
+          {/* Vuelta de la pasarela. La abre Wompi, no un enlace de la tienda. */}
+          <Route path="/pago" element={<Pago />} />
           <Route path="*" element={<NotFound />} />
         </Route>
 

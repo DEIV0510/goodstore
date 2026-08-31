@@ -141,6 +141,12 @@ export interface Diagnostico {
   sqlite: boolean
   gd: boolean
   https: boolean
+  /**
+   * Con qué puede el servidor salir a internet para preguntarle a la pasarela
+   * si un pago se aprobó: 'curl', 'fopen' o 'no'. Opcional porque un servidor
+   * con la versión anterior del backend todavía no lo manda.
+   */
+  salidaWeb?: 'curl' | 'fopen' | 'no'
   datosFuera: boolean
   carpetaDatos: string | null
   productos: number

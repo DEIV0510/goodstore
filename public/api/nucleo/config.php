@@ -136,6 +136,26 @@ function gg_url_medios(string $nombre): string
     return '/medios/' . $nombre;
 }
 
+/**
+ * Dirección pública del sitio, deducida de la propia petición.
+ *
+ * Se usa para decirle a la pasarela a dónde devolver al cliente. No se guarda
+ * en ningún ajuste a propósito: así funciona igual en el dominio de verdad y en
+ * uno de pruebas, sin que nadie tenga que acordarse de actualizarlo.
+ *
+ * El Host lo manda el cliente, así que se comprueba antes de usarlo: solo
+ * letras, dígitos, puntos, guiones y un puerto. Un Host manipulado no puede
+ * convertir la URL de retorno en un enlace hacia otro sitio.
+ */
+function gg_url_sitio(): string
+{
+    $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
+    if (!preg_match('/^[A-Za-z0-9.-]+(:\d{1,5})?$/', $host)) {
+        $host = 'goodgamecol.shop';
+    }
+    return (gg_es_https() ? 'https://' : 'http://') . $host;
+}
+
 /** true si la petición llegó por HTTPS (contando el proxy del hosting). */
 function gg_es_https(): bool
 {

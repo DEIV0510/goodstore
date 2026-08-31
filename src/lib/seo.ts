@@ -8,6 +8,8 @@ interface Seo {
   image?: string
   /** Datos estructurados schema.org para páginas de producto. */
   jsonLd?: Record<string, unknown>
+  /** Para páginas que no deben salir en Google: el resultado de un pago, etc. */
+  noindex?: boolean
 }
 
 const setMeta = (selector: string, attr: string, value: string) => {
@@ -27,7 +29,7 @@ const setMeta = (selector: string, attr: string, value: string) => {
 }
 
 /** Actualiza title, description, canonical, Open Graph y JSON-LD por ruta. */
-export function useSeo({ title, description, path, image, jsonLd }: Seo) {
+export function useSeo({ title, description, path, image, jsonLd, noindex }: Seo) {
   useEffect(() => {
     document.title = title
     const url = `${site.url}${path}`
@@ -41,6 +43,15 @@ export function useSeo({ title, description, path, image, jsonLd }: Seo) {
     setMeta('meta[property="og:image"]', 'content', img)
     setMeta('meta[property="og:type"]', 'content', path.startsWith('/producto/') ? 'product' : 'website')
 
+    // La etiqueta se quita al salir, no solo se cambia: dejarla puesta
+    // desindexaría la siguiente página que visite el usuario.
+    const robots = document.head.querySelector('meta[name="robots"]')
+    if (noindex) {
+      setMeta('meta[name="robots"]', 'content', 'noindex, nofollow')
+    } else if (robots) {
+      robots.remove()
+    }
+
     const prev = document.getElementById('gg-jsonld-page')
     prev?.remove()
     if (jsonLd) {
@@ -53,6 +64,9 @@ export function useSeo({ title, description, path, image, jsonLd }: Seo) {
 
     return () => {
       document.getElementById('gg-jsonld-page')?.remove()
+      // Se quita al salir, no basta con cambiarla: dejarla puesta
+      // desindexaría la siguiente página que visite el cliente.
+      if (noindex) document.head.querySelector('meta[name="robots"]')?.remove()
     }
-  }, [title, description, path, image, jsonLd])
+  }, [title, description, path, image, jsonLd, noindex])
 }

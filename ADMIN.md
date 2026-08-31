@@ -176,14 +176,54 @@ cliente. Solo se admiten enlaces `https://`; el panel te muestra el dominio al
 que apunta para que compruebes que es el correcto antes de guardar. Queda
 registrado en el **Historial**, con el enlace anterior y el nuevo.
 
-### Cómo sería sin que el cliente teclee nada
+---
 
-Wompi tiene además el **Checkout Web**, que sí recibe el importe y la
-referencia y avisa al sitio cuando el pago se aprueba. Necesita dos datos del
-panel de Wompi: la **llave pública** y el **secreto de integridad**. Con eso se
-puede montar sobre el backend que ya tiene el sitio. No está hecho porque esas
-llaves no se han entregado, y no se construye a ciegas algo por donde pasa
-dinero.
+## 5-bis. Checkout Web · que el cliente no escriba el total
+
+Ya está montado. Se enciende en **General → Pagos → Cómo cobras → Checkout
+Web**, y necesita dos datos de tu panel de Wompi.
+
+### Cómo activarlo
+
+1. Entra a tu cuenta de Wompi → **Desarrolladores** → **Configuración técnica**.
+2. Copia la **llave pública** (`pub_prod_…`) y el **secreto de integridad**
+   (`prod_integrity_…`).
+3. En **General → Pagos**, cambia «Cómo cobras» a **Checkout Web** y pégalos.
+4. Guarda. La tienda cambia sola: el botón pasa a ser uno solo, «Pagar».
+
+> Si quieres probar antes sin mover dinero, usa las llaves de prueba
+> (`pub_test_…` y `test_integrity_…`). La tienda detecta el prefijo y habla
+> sola con el entorno de pruebas de Wompi.
+
+### Qué cambia para el cliente
+
+| | Enlace de cobro | Checkout Web |
+|---|---|---|
+| Escribe el total | Sí, lo copia y lo pega | **No** |
+| Referencia | Se la damos y la manda por WhatsApp | Viaja sola |
+| El pedido | Lo mandas tú por WhatsApp | **Se registra solo** en Pedidos |
+| Confirmación | La miras en el panel de Wompi | **El sitio la comprueba** |
+
+### Lo que impide que te paguen de menos
+
+El total **lo calcula el servidor** leyendo los precios de tu catálogo, no el
+navegador. Da igual lo que alguien intente enviar desde su equipo: se comprobó
+mandando `price`, `total` y `amount-in-cents` falsos, y el importe firmado
+siguió siendo el real. Además:
+
+- si un producto del carrito **no tiene precio**, no deja pagar;
+- si **no queda stock** suficiente, no deja pagar;
+- al volver, si el importe cobrado **no cuadra** con el del pedido, el pedido
+  NO se da por bueno: sale un aviso para que lo revises con el cliente.
+
+### Sobre el secreto de integridad
+
+Se guarda en el servidor, en un sitio que **ninguna dirección de la API
+devuelve**. Ni el panel, ni la tienda, ni el historial pueden verlo: una vez
+guardado, el campo aparece vacío y solo dice «Secreto configurado». Si lo
+pierdes, sácalo otra vez de Wompi y pégalo de nuevo.
+
+Déjalo vacío al guardar y se conserva el que ya estaba.
 
 ---
 

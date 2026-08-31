@@ -53,6 +53,7 @@ const POR_OMISION = {
    */
   pago: {
     activo: true,
+    modo: 'enlace' as 'enlace' | 'checkout',
     proveedor: 'Nequi',
     enlace: 'https://checkout.nequi.wompi.co/l/xT7STl',
     nota: '',
@@ -126,10 +127,20 @@ export function configurarSitio(ajustes: Settings, whatsapp: WhatsappSettings): 
       .filter(([, url]) => typeof url === 'string' && url.trim() !== '')
       .map(([clave, url]) => ({ name: NOMBRE_RED[clave] ?? clave, url: url.trim() })),
 
-    // Un enlace de cobro vacío apaga el pago en línea aunque el interruptor
-    // esté encendido: es preferible a enseñar un botón que no lleva a pagar.
+    // Cada modo tiene su propio requisito, y si no se cumple el pago en línea
+    // se apaga aunque el interruptor esté encendido: es preferible a enseñar un
+    // botón que no lleva a ninguna parte.
+    //
+    //   checkout — hacen falta la llave pública Y el secreto (que el servidor
+    //              confirma con hasIntegrity, sin enseñarlo nunca);
+    //   enlace   — hace falta el enlace de cobro.
     pago: {
-      activo: ajustes.payments.enabled && ajustes.payments.link.trim() !== '',
+      activo:
+        ajustes.payments.enabled &&
+        (ajustes.payments.mode === 'checkout'
+          ? ajustes.payments.publicKey.trim() !== '' && ajustes.payments.hasIntegrity
+          : ajustes.payments.link.trim() !== ''),
+      modo: ajustes.payments.mode === 'checkout' ? 'checkout' : 'enlace',
       proveedor: ajustes.payments.provider.trim() || POR_OMISION.pago.proveedor,
       enlace: ajustes.payments.link.trim(),
       nota: ajustes.payments.note.trim(),

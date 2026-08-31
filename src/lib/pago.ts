@@ -20,6 +20,8 @@
 // quedaría solo con el formato.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { api } from '@/lib/api'
+
 /**
  * Alfabeto sin caracteres que se confunden al dictar o al copiar a mano:
  * fuera 0/O, 1/I/L y 5/S. La referencia se lee por WhatsApp o por teléfono.
@@ -52,6 +54,57 @@ export function referenciaDePedido(): string {
  * en blanco o mal leído. Se copia «250000» y no hay forma de equivocarse.
  */
 export const importeParaPegar = (total: number): string => String(Math.round(total))
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Checkout Web
+//
+// Aquí NO se calcula ningún total ni se firma nada: el navegador solo dice qué
+// quiere comprar. El servidor mira los precios en la base, suma, firma con el
+// secreto —que nunca sale de allí— y devuelve los campos ya listos. Por eso
+// nadie puede pagar mil pesos por una consola editando la petición.
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface FormularioDePago {
+  url: string
+  pedido: string
+  total: number
+  campos: Record<string, string>
+}
+
+/**
+ * Pide al servidor el formulario firmado para este carrito.
+ * Lanza `ErrorApi` con un mensaje que ya se puede enseñar tal cual.
+ */
+export async function prepararPago(
+  items: { slug: string; qty: number }[]
+): Promise<FormularioDePago> {
+  return api<FormularioDePago>('pago/preparar', { metodo: 'POST', cuerpo: { items } })
+}
+
+/**
+ * Envía al cliente a la pasarela.
+ *
+ * Se hace con un formulario y no cambiando `location`, porque así los campos
+ * viajan como los espera Wompi y no hay que armar a mano una dirección larga
+ * donde un carácter mal escapado rompería la firma.
+ */
+export function irALaPasarela(f: FormularioDePago): void {
+  const form = document.createElement('form')
+  form.method = 'GET'
+  form.action = f.url
+  form.style.display = 'none'
+
+  for (const [nombre, valor] of Object.entries(f.campos)) {
+    const campo = document.createElement('input')
+    campo.type = 'hidden'
+    campo.name = nombre
+    campo.value = valor
+    form.appendChild(campo)
+  }
+
+  document.body.appendChild(form)
+  form.submit()
+}
 
 /**
  * Copia un texto al portapapeles. Devuelve si lo consiguió, para que la
