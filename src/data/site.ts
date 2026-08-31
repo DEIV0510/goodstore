@@ -46,6 +46,18 @@ const POR_OMISION = {
   /** Pendientes de que el negocio las abra. Vacío = el pie no pinta iconos. */
   socials: [] as RedSocial[],
 
+  /**
+   * Pago en línea con enlace de cobro. Es de MONTO ABIERTO: el cliente escribe
+   * el total en la pasarela, así que la tienda se lo copia al portapapeles para
+   * que no lo teclee mal. Sin enlace no se ofrece, aunque esté activado.
+   */
+  pago: {
+    activo: true,
+    proveedor: 'Nequi',
+    enlace: 'https://checkout.nequi.wompi.co/l/xT7STl',
+    nota: '',
+  },
+
   url: 'https://goodgamecol.shop',
 }
 
@@ -113,6 +125,15 @@ export function configurarSitio(ajustes: Settings, whatsapp: WhatsappSettings): 
     socials: Object.entries(ajustes.socials)
       .filter(([, url]) => typeof url === 'string' && url.trim() !== '')
       .map(([clave, url]) => ({ name: NOMBRE_RED[clave] ?? clave, url: url.trim() })),
+
+    // Un enlace de cobro vacío apaga el pago en línea aunque el interruptor
+    // esté encendido: es preferible a enseñar un botón que no lleva a pagar.
+    pago: {
+      activo: ajustes.payments.enabled && ajustes.payments.link.trim() !== '',
+      proveedor: ajustes.payments.provider.trim() || POR_OMISION.pago.proveedor,
+      enlace: ajustes.payments.link.trim(),
+      nota: ajustes.payments.note.trim(),
+    },
   })
 
   Object.assign(MESSAGES, whatsapp.templates)

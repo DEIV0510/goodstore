@@ -46,6 +46,15 @@ export const AJUSTES_POR_OMISION: Settings = {
       'videojuegos, PlayStation, Nintendo Switch, juegos usados, Itagüí, Medellín, Colombia',
     ogImage: '/og-image.png',
   },
+  // Enlace de cobro entregado por el negocio, a nombre de «Good game david
+  // correa». Es de MONTO ABIERTO: el cliente escribe el total en la pasarela,
+  // porque Wompi descarta cualquier importe que se le pase por la dirección.
+  payments: {
+    enabled: true,
+    provider: 'Nequi',
+    link: 'https://checkout.nequi.wompi.co/l/xT7STl',
+    note: '',
+  },
 }
 
 export const WHATSAPP_POR_OMISION: WhatsappSettings = {
@@ -77,6 +86,7 @@ export function fusionarAjustes(guardado: Record<string, unknown>): Settings {
     socials: fusionar(AJUSTES_POR_OMISION.socials, guardado.socials),
     shipping: fusionar(AJUSTES_POR_OMISION.shipping, guardado.shipping),
     seo: fusionar(AJUSTES_POR_OMISION.seo, guardado.seo),
+    payments: fusionar(AJUSTES_POR_OMISION.payments, guardado.payments),
   }
 }
 

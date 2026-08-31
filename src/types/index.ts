@@ -279,11 +279,32 @@ export interface CompanySettings {
   currency: string
 }
 
+/**
+ * Pago en línea mediante un enlace de cobro (Wompi, Bold, Mercado Pago…).
+ *
+ * Un enlace de cobro NO admite que el importe viaje en la dirección: se
+ * comprobó contra el enlace real y los parámetros se descartan. Por eso el
+ * cliente escribe el total en la pasarela, y la tienda se lo pone lo más fácil
+ * y seguro posible: se lo copia al portapapeles y le entrega una referencia
+ * con la que el negocio cuadra el pago con el pedido.
+ */
+export interface PaymentSettings {
+  /** Con el interruptor apagado, la tienda solo ofrece el pedido por WhatsApp. */
+  enabled: boolean
+  /** Cómo se le llama al medio de pago en pantalla. Ej.: «Nequi». */
+  provider: string
+  /** El enlace de cobro. Vacío = no se muestra, aunque esté activado. */
+  link: string
+  /** Aclaración opcional bajo el botón. Vacío = no se pinta nada. */
+  note: string
+}
+
 export interface Settings {
   company: CompanySettings
   socials: SocialLinks
   shipping: ShippingSettings
   seo: SeoSettings
+  payments: PaymentSettings
 }
 
 /** Plantillas de mensaje según el contexto desde el que se escribe. */

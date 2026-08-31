@@ -1,9 +1,21 @@
-import { Minus, Plus, ShoppingCart, Trash2, MessageCircle } from 'lucide-react'
+import {
+  ArrowLeft,
+  CreditCard,
+  Minus,
+  Plus,
+  ShoppingCart,
+  Trash2,
+  MessageCircle,
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import PagoEnLinea from '@/components/cart/PagoEnLinea'
 import Drawer from '@/components/ui/Drawer'
 import ProductImage from '@/components/ui/ProductImage'
 import { PlatformBadge } from '@/components/ui/Badges'
+import { site } from '@/data/site'
 import { cop, pluralize } from '@/lib/format'
+import { referenciaDePedido } from '@/lib/pago'
 import { cartMessage } from '@/lib/whatsapp'
 import { useStore } from '@/store/StoreContext'
 
@@ -20,17 +32,70 @@ export default function CartDrawer() {
     clearCart,
   } = useStore()
 
+  // El panel tiene dos caras: el carrito de siempre y los pasos del pago.
+  const [vista, setVista] = useState<'carrito' | 'pago'>('carrito')
+  const [referencia, setReferencia] = useState('')
+
   const close = () => setCartOpen(false)
   const empty = cart.length === 0
+
+  // Al cerrar el carrito se vuelve al resumen. Si el cliente reabre el panel,
+  // debe encontrarlo como lo dejó de normal, no a medio pagar.
+  useEffect(() => {
+    if (!cartOpen) setVista('carrito')
+  }, [cartOpen])
+
+  // Un carrito vacío no tiene nada que pagar: puede quedarse así si se elimina
+  // el último producto justo estando en los pasos del pago.
+  useEffect(() => {
+    if (empty) setVista('carrito')
+  }, [empty])
+
+  /**
+   * El pago en línea solo aparece cuando de verdad se puede cobrar:
+   *   · el negocio lo activó y hay enlace de cobro;
+   *   · hay un total cerrado (> 0);
+   *   · ningún producto está pendiente de precio. Con un precio sin confirmar,
+   *     el total que vería el cliente no sería el que va a pagar, y eso es
+   *     justo el error que no puede ocurrir.
+   */
+  const puedePagarEnLinea =
+    site.pago.activo && cartTotal > 0 && !cartHasPending && !empty
+
+  function abrirPago() {
+    // La referencia se genera una sola vez por intento: tiene que ser la misma
+    // en el mensaje de WhatsApp y en la pantalla.
+    setReferencia(referenciaDePedido())
+    setVista('pago')
+  }
+
+  const enPago = vista === 'pago' && puedePagarEnLinea
 
   return (
     <Drawer
       open={cartOpen}
       onClose={close}
-      title={empty ? 'Tu carrito' : `Tu carrito · ${cartCount}`}
+      title={
+        enPago
+          ? `Pagar · ${cop(cartTotal)}`
+          : empty
+            ? 'Tu carrito'
+            : `Tu carrito · ${cartCount}`
+      }
       labelId="cart-title"
       footer={
-        empty ? undefined : (
+        empty ? undefined : enPago ? (
+          // En los pasos del pago el pie se reduce a la salida: todo lo demás
+          // está arriba, en el cuerpo, que es lo que hace scroll.
+          <button
+            type="button"
+            onClick={() => setVista('carrito')}
+            className="btn-secondary w-full"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Volver al carrito
+          </button>
+        ) : (
           <div className="space-y-3">
             <dl className="space-y-1.5 text-sm">
               <div className="flex items-center justify-between">
@@ -52,8 +117,16 @@ export default function CartDrawer() {
             {cartHasPending && (
               <p className="rounded-lg border border-gold-500/25 bg-gold-500/[.07] px-3 py-2 text-2xs leading-relaxed text-gold-300">
                 Hay productos sin precio publicado. Te confirmamos el valor exacto por
-                WhatsApp antes de cerrar el pedido.
+                WhatsApp antes de cerrar el pedido
+                {site.pago.activo && ', y ahí mismo puedes pagar en línea'}.
               </p>
+            )}
+
+            {puedePagarEnLinea && (
+              <button type="button" onClick={abrirPago} className="btn-primary w-full">
+                <CreditCard className="h-4 w-4" aria-hidden="true" />
+                Pagar en línea
+              </button>
             )}
 
             <a
@@ -61,10 +134,10 @@ export default function CartDrawer() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={close}
-              className="btn-primary w-full"
+              className={puedePagarEnLinea ? 'btn-wa w-full' : 'btn-primary w-full'}
             >
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
-              Finalizar compra
+              {puedePagarEnLinea ? 'Pedir por WhatsApp' : 'Finalizar compra'}
             </a>
 
             <button
@@ -79,7 +152,9 @@ export default function CartDrawer() {
         )
       }
     >
-      {empty ? (
+      {enPago ? (
+        <PagoEnLinea entries={cart} total={cartTotal} referencia={referencia} />
+      ) : empty ? (
         <div className="flex h-full flex-col items-center justify-center gap-4 px-6 py-16 text-center">
           <span className="grid h-16 w-16 place-items-center rounded-2xl border border-white/10 bg-white/[.04]">
             <ShoppingCart className="h-7 w-7 text-white/35" aria-hidden="true" />

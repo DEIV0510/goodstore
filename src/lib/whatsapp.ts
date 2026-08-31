@@ -32,8 +32,15 @@ export const productMessage = (p: Product) =>
     })
   )
 
-/** Mensaje del carrito completo, con total aproximado cuando aplica. */
-export const cartMessage = (entries: CartEntry[]) => {
+/**
+ * Mensaje del carrito completo, con total aproximado cuando aplica.
+ *
+ * `referencia` solo llega cuando el cliente eligió pagar en línea. La pasarela
+ * le entrega al negocio un importe y unos datos de envío, pero NO la lista de
+ * juegos: este código es lo único que permite emparejar ese pago con este
+ * pedido. Sin él, el mensaje sale exactamente igual que siempre.
+ */
+export const cartMessage = (entries: CartEntry[], referencia?: string) => {
   const lines = entries.map((e) => {
     const qty = e.qty > 1 ? ` x${e.qty}` : ''
     const price =
@@ -57,11 +64,19 @@ export const cartMessage = (entries: CartEntry[]) => {
     totalLine = '\nTodos los productos están pendientes de precio.'
   }
 
+  // Va arriba del todo, antes que la lista: es el dato con el que el negocio
+  // busca el pago en la pasarela, y así se ve sin desplegar el mensaje.
+  const cabeceraReferencia = referencia ? `Referencia del pedido: ${referencia}\n\n` : ''
+  const cierre = referencia
+    ? `Voy a pagar en línea por ${site.pago.proveedor} con esta referencia.`
+    : 'Quisiera confirmar disponibilidad y envío.'
+
   return waLink(
     `${MESSAGES.cart}\n\n` +
+      cabeceraReferencia +
       lines.join('\n') +
       `\n${totalLine}\n\n` +
-      `Quisiera confirmar disponibilidad y envío.`
+      cierre
   )
 }
 

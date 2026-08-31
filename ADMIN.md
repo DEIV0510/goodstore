@@ -43,7 +43,7 @@ y dos o tres administradores va sobrado, y a cambio:
 
 ## 2. Primer arranque
 
-1. Publica el sitio (ver §6).
+1. Publica el sitio (ver §7).
 2. Entra a **tudominio.com/admin**.
 3. Rellena tu nombre, tu correo y una contraseña. Esa será la cuenta principal,
    con acceso total.
@@ -130,13 +130,64 @@ super administrador activo.
 | **Banners** | Franjas promocionales, con fechas de inicio y fin |
 | **Preguntas** | El bloque de preguntas frecuentes |
 | **WhatsApp** | El número y las plantillas de cada mensaje |
-| **General** | Empresa, redes, envíos y SEO |
+| **General** | Empresa, redes, envíos, SEO y **pagos en línea** |
 | **Administradores** | Quién entra y con qué rol |
 | **Historial** | Quién cambió qué, con el valor anterior y el nuevo |
 
 ---
 
-## 5. Reglas del negocio que el panel respeta
+## 5. Pagos en línea
+
+Se configuran en **General → Pagos**. Hoy está puesto el enlace de cobro de
+Wompi/Nequi a nombre de «Good game david correa».
+
+### Cómo llega el dinero, en concreto
+
+1. El cliente arma el carrito y pulsa **Pagar en línea**.
+2. La tienda le da una **referencia** (`GG-7F3K`) y le pide que te mande el
+   pedido por WhatsApp. Ese mensaje lleva la referencia y la lista de juegos.
+3. Le copia el **total exacto** al portapapeles.
+4. Lo lleva a la pasarela, donde pega el valor, elige medio de pago y escribe
+   su dirección de envío.
+
+Tú recibes **dos cosas por separado**: el pedido por WhatsApp (con la
+referencia) y el pago en la pasarela (con el importe y la dirección). La
+referencia es lo que los une.
+
+> ⚠️ **Por qué el cliente escribe el total y no viaja solo.**
+> Un enlace de cobro no acepta que se le pase el importe: se probó contra el
+> enlace real con `?amount=`, `?amount-in-cents=` y `?reference=` y Wompi los
+> descarta. Por eso la tienda copia el valor al portapapeles, que es lo más
+> cerca que se puede estar de que no haya errores. **Coteja siempre el importe
+> recibido con el total del pedido antes de despachar.**
+
+### Cuándo NO aparece el botón
+
+A propósito, para que nadie pague un valor equivocado:
+
+- si en **General → Pagos** está apagado, o el enlace está vacío;
+- si el carrito tiene **algún producto sin precio publicado**: ahí el total no
+  es definitivo, así que la tienda manda a WhatsApp a cuadrarlo.
+
+### Si cambias de pasarela
+
+Pega el enlace nuevo en **General → Pagos** y cambia el nombre que ve el
+cliente. Solo se admiten enlaces `https://`; el panel te muestra el dominio al
+que apunta para que compruebes que es el correcto antes de guardar. Queda
+registrado en el **Historial**, con el enlace anterior y el nuevo.
+
+### Cómo sería sin que el cliente teclee nada
+
+Wompi tiene además el **Checkout Web**, que sí recibe el importe y la
+referencia y avisa al sitio cuando el pago se aprueba. Necesita dos datos del
+panel de Wompi: la **llave pública** y el **secreto de integridad**. Con eso se
+puede montar sobre el backend que ya tiene el sitio. No está hecho porque esas
+llaves no se han entregado, y no se construye a ciegas algo por donde pasa
+dinero.
+
+---
+
+## 6. Reglas del negocio que el panel respeta
 
 Vienen del brief del cliente y están escritas en el código, no solo aquí:
 
@@ -151,7 +202,7 @@ Vienen del brief del cliente y están escritas en el código, no solo aquí:
 
 ---
 
-## 6. Publicar
+## 7. Publicar
 
 ```bash
 npm run build
@@ -175,7 +226,7 @@ resto se puede sobrescribir sin miedo.
 
 ---
 
-## 7. Copias de seguridad
+## 8. Copias de seguridad
 
 Descarga `gg-datos/goodgame.sqlite` desde el administrador de archivos. Ese
 único archivo contiene productos, pedidos, clientes, contenido e historial.
@@ -186,7 +237,7 @@ Hostinger además hace copias semanales del hosting completo.
 
 ---
 
-## 8. Seguridad, en corto
+## 9. Seguridad, en corto
 
 | Riesgo | Cómo se evita | Verificado |
 |---|---|---|
@@ -205,7 +256,7 @@ Hostinger además hace copias semanales del hosting completo.
 
 ---
 
-## 9. Desarrollo en local
+## 10. Desarrollo en local
 
 Hacen falta dos servidores: uno para la interfaz y otro para la API.
 
@@ -221,7 +272,7 @@ Requiere PHP 8.0 o superior con `pdo_sqlite`.
 
 ---
 
-## 10. Problemas frecuentes
+## 11. Problemas frecuentes
 
 **«El panel no puede conectar con el servidor»**
 Falta subir la carpeta `api`, o el hosting no está ejecutando PHP. La propia

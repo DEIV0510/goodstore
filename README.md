@@ -3,7 +3,7 @@
 Tienda web de videojuegos, consolas y accesorios para **GOOD GAME** (Itagüí, Antioquia).
 Catálogo de **318 productos físicos** (445 unidades) para PlayStation 5, PlayStation 4,
 Nintendo Switch, Switch 2 y accesorios, con precios y existencias reales, carrito,
-filtros, buscador y cierre de compra por WhatsApp.
+filtros, buscador y cierre de compra por WhatsApp o pago en línea con Nequi.
 
 ---
 
@@ -62,7 +62,7 @@ good-game/
 │   │   ├── layout/        Header, Footer, menú móvil, buscador, botones flotantes
 │   │   ├── home/          Secciones de la portada
 │   │   ├── catalog/       Tarjeta de producto y panel de filtros
-│   │   ├── cart/          Panel del carrito
+│   │   ├── cart/          Panel del carrito y pasos del pago en línea
 │   │   ├── ui/            Piezas reutilizables (imagen, badges, drawer, toasts…)
 │   │   └── admin/         Kit del panel: tabla, modal, avisos, gráficos, imágenes
 │   ├── layouts/
@@ -93,6 +93,7 @@ good-game/
 │   │   ├── api.ts         Cliente de la API del propio hosting
 │   │   ├── filters.ts     Motor de filtros, orden y búsqueda
 │   │   ├── whatsapp.ts    Armado de los mensajes de WhatsApp
+│   │   ├── pago.ts        Referencia de pedido y copia del total
 │   │   ├── format.ts      Precios en pesos, normalización de texto
 │   │   └── seo.ts         Title, description, canonical, Open Graph y JSON-LD
 │   ├── store/             Carrito y favoritos (Context + localStorage)
@@ -163,6 +164,7 @@ ninguna imagen de banco: **todas las portadas son fotos reales del inventario.**
 | Productos relacionados | ✅ |
 | Carrito: agregar, cantidad, eliminar, vaciar, persistencia | ✅ |
 | Finalizar compra → WhatsApp con el pedido armado | ✅ |
+| Pago en línea con Nequi/Wompi (referencia + total copiable) | ✅ configurable en /admin |
 | Favoritos con página propia | ✅ |
 | Sección y formulario de videojuegos usados | ✅ envía por WhatsApp |
 | Botón flotante de WhatsApp + volver arriba | ✅ |
@@ -371,24 +373,35 @@ panel se enteran.
 
 El detalle está en [`ADMIN.md`](ADMIN.md).
 
-### Pasarela de pagos (Wompi, Mercado Pago, PayU, Bold…)
+### Pasarela de pagos — ya está conectada
 
-Hoy el carrito termina en WhatsApp. El único punto que hay que tocar es el pie
-del panel del carrito, en `src/components/cart/CartDrawer.tsx`:
+El carrito ofrece **dos salidas**: pagar en línea con el enlace de cobro de
+Wompi/Nequi, y pedir por WhatsApp. Ambas siguen funcionando en paralelo, que en
+Colombia es lo que conviene.
 
-```tsx
-<a href={cartMessage(cart)} …>Finalizar compra</a>
-```
+| Pieza | Dónde |
+| --- | --- |
+| Pasos del pago (referencia, copiar total, ir a pagar) | `src/components/cart/PagoEnLinea.tsx` |
+| Referencia y copia al portapapeles | `src/lib/pago.ts` |
+| Las dos salidas del carrito | `src/components/cart/CartDrawer.tsx` |
+| Enlace, interruptor y nombre del medio | `/admin/ajustes` → Pagos |
+| Validación en el servidor (solo `https://`) | `public/api/rutas/ajustes.php` |
 
-Se reemplaza por un botón que llame a la pasarela con `cart`, `cartTotal` y los
-datos del cliente. Recomendado:
+**La limitación que manda en el diseño:** un enlace de cobro no acepta que se
+le pase el importe. Se comprobó contra el enlace real con `?amount=`,
+`?amount-in-cents=` y `?reference=`: la pasarela los descarta y deja el campo
+vacío. Por eso el cliente escribe el total, la tienda se lo copia al
+portapapeles y le entrega una referencia que viaja en el mensaje de WhatsApp,
+que es con lo que el negocio cuadra el pago con el pedido.
 
-1. Añadir un paso de datos de envío antes del pago.
-2. Crear la referencia de pago en un backend (no en el navegador).
-3. Dejar el botón de WhatsApp como alternativa: en Colombia convierte mucho.
+El botón **solo aparece con un total cerrado**: si `cartHasPending` es cierto
+(algún producto sin precio publicado), la tienda manda a WhatsApp, porque el
+total que vería el cliente no sería el que va a pagar.
 
-`cartTotal` ya viene calculado y `cartHasPending` avisa si hay productos sin
-precio publicado (no se debería cobrar en línea un carrito con precios pendientes).
+**Para que el importe viaje solo** haría falta el *Checkout Web* de Wompi, que
+sí recibe importe y referencia y confirma el pago por webhook. Necesita la
+llave pública y el **secreto de integridad** del panel de Wompi; el secreto
+tiene que firmarse en el servidor (`public/api/`), nunca en el navegador.
 
 ---
 

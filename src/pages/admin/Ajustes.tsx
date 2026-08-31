@@ -1,6 +1,8 @@
 import {
   AlertTriangle,
   Building2,
+  CreditCard,
+  ExternalLink,
   Plus,
   Search,
   Share2,
@@ -26,6 +28,7 @@ import {
   Encabezado,
   Entrada,
   ErrorEstado,
+  Interruptor,
   Selector,
 } from '@/components/admin/UI'
 import { site } from '@/data/site'
@@ -36,7 +39,7 @@ import type { Settings } from '@/types'
 // ─────────────────────────────────────────────────────────────────────────────
 // Ajustes de la tienda.
 //
-// Cuatro bloques que se guardan por separado (guardarAjustes(clave, valor)):
+// Cinco bloques que se guardan por separado (guardarAjustes(clave, valor)):
 // así un error al escribir el SEO no arrastra los datos de la empresa.
 //
 // Dos reglas del negocio viven aquí y no se pueden romper desde la interfaz:
@@ -52,7 +55,21 @@ const PESTANAS: { clave: Pestana; etiqueta: string; icono: LucideIcon }[] = [
   { clave: 'socials', etiqueta: 'Contacto y redes', icono: Share2 },
   { clave: 'shipping', etiqueta: 'Envíos', icono: Truck },
   { clave: 'seo', etiqueta: 'SEO', icono: Search },
+  { clave: 'payments', etiqueta: 'Pagos', icono: CreditCard },
 ]
+
+/**
+ * El dominio de un enlace, para que quien lo pega vea a dónde apunta de verdad.
+ * Un enlace a medio escribir no es un error todavía: devuelve null y no se
+ * pinta nada, en vez de gritarle a alguien que aún está tecleando.
+ */
+function dominioDe(enlace: string): string | null {
+  try {
+    return new URL(enlace).hostname
+  } catch {
+    return null
+  }
+}
 
 const REDES: { clave: keyof Settings['socials']; etiqueta: string; ejemplo: string }[] = [
   { clave: 'instagram', etiqueta: 'Instagram', ejemplo: 'https://instagram.com/tucuenta' },
@@ -145,6 +162,11 @@ export default function Ajustes() {
     for (const campo of Object.keys(parcial)) limpiarError(`seo.${campo}`)
   }
 
+  function editarPagos(parcial: Partial<Settings['payments']>) {
+    setAjustes((a) => ({ ...a, payments: { ...a.payments, ...parcial } }))
+    for (const campo of Object.keys(parcial)) limpiarError(`payments.${campo}`)
+  }
+
   // ── Guardado ───────────────────────────────────────────────────────────────
 
   /** Compara contra lo cargado para avisar de cambios pendientes. */
@@ -228,6 +250,27 @@ export default function Ajustes() {
     e.preventDefault()
     setErrores({})
     await guardarBloque('shipping', 'Envíos')
+  }
+
+  async function enviarPagos(e: FormEvent) {
+    e.preventDefault()
+    const enlace = ajustes.payments.link.trim()
+
+    // Activar el cobro sin enlace dejaría un botón que no lleva a pagar. El
+    // servidor también lo evita apagándolo, pero avisar aquí es más claro que
+    // guardar en silencio algo distinto de lo que se pidió.
+    if (ajustes.payments.enabled && !enlace) {
+      setErrores({
+        'payments.link': 'Pega el enlace de cobro, o apaga el pago en línea.',
+      })
+      return
+    }
+    if (enlace && !/^https:\/\//i.test(enlace)) {
+      setErrores({ 'payments.link': 'El enlace tiene que empezar por «https://».' })
+      return
+    }
+    setErrores({})
+    await guardarBloque('payments', 'Pagos en línea')
   }
 
   async function enviarSeo(e: FormEvent) {
@@ -807,6 +850,139 @@ export default function Ajustes() {
 
           <div className="mt-5 flex justify-end">
             <BotonGuardar guardando={guardando === 'seo'}>Guardar SEO</BotonGuardar>
+          </div>
+        </form>
+      )}
+
+      {/* ── PAGOS ─────────────────────────────────────────────────────────── */}
+      {pestana === 'payments' && (
+        <form
+          id="aj-panel-payments"
+          role="tabpanel"
+          aria-labelledby="aj-tab-payments"
+          onSubmit={enviarPagos}
+          noValidate
+          className="adm-card-pad"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="adm-titulo">Pagos en línea</h2>
+              <p className="adm-sub mt-1">
+                El enlace de cobro con el que el cliente paga desde el carrito.
+              </p>
+            </div>
+            {sucia('payments') && (
+              <span className="adm-chip-ambar self-center">Cambios sin guardar</span>
+            )}
+          </div>
+
+          {/* Lo que de verdad hay que entender antes de tocar nada. */}
+          <div className="mt-5 rounded-lg border border-blue-200 bg-blue-50 p-3.5">
+            <p className="text-[13px] font-bold text-blue-900">Cómo funciona</p>
+            <p className="mt-1.5 text-[12.5px] leading-relaxed text-blue-900">
+              Un enlace de cobro <strong>no recibe el total</strong>: el cliente lo
+              escribe él mismo en la pasarela. Por eso la tienda le copia el valor
+              exacto al portapapeles y le da una <strong>referencia</strong> que viaja
+              en el mensaje de WhatsApp, que es con lo que cuadras el pago con el
+              pedido. La pasarela solo te avisa del dinero, no de qué juegos son.
+            </p>
+          </div>
+
+          <div className="mt-5">
+            <Interruptor
+              activo={ajustes.payments.enabled}
+              onChange={(v) => editarPagos({ enabled: v })}
+              label="Aceptar pagos en línea"
+              descripcion="Apagado, el carrito solo ofrece pedir por WhatsApp."
+            />
+          </div>
+
+          <div className="mt-4">
+            <Entrada
+              label="Enlace de cobro"
+              requerido={ajustes.payments.enabled}
+              type="url"
+              inputMode="url"
+              spellCheck={false}
+              placeholder="https://checkout.nequi.wompi.co/l/..."
+              value={ajustes.payments.link}
+              onChange={(e) => editarPagos({ link: e.target.value })}
+              error={errores['payments.link']}
+              ayuda="El que te da la pasarela (Wompi, Bold, Mercado Pago…). Déjalo vacío para no cobrar en línea."
+            />
+
+            {dominioDe(ajustes.payments.link) && (
+              <p className="mt-2 flex flex-wrap items-center gap-2 text-[12.5px] text-slate-600">
+                <span>
+                  Apunta a <strong className="text-slate-900">{dominioDe(ajustes.payments.link)}</strong>
+                </span>
+                <a
+                  href={ajustes.payments.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-semibold text-blue-700 underline"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                  Abrirlo para comprobarlo
+                </a>
+              </p>
+            )}
+          </div>
+
+          <div className="mt-4">
+            <Entrada
+              label="Nombre del medio de pago"
+              value={ajustes.payments.provider}
+              onChange={(e) => editarPagos({ provider: e.target.value })}
+              ayuda="Como lo verá el cliente: «Nequi», «Bancolombia», «Bold»… Si lo dejas vacío se usa «Nequi»."
+            />
+          </div>
+
+          <div className="mt-4">
+            <AreaTexto
+              label="Aclaración (opcional)"
+              rows={2}
+              value={ajustes.payments.note}
+              onChange={(e) => editarPagos({ note: e.target.value })}
+              ayuda="Sale bajo el botón de pagar. Vacío no pinta nada. No prometas plazos que no puedas cumplir."
+            />
+          </div>
+
+          {/* Vista previa: lo que ve el cliente, con los colores de la tienda. */}
+          <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <p className="text-[12px] font-bold uppercase tracking-wide text-slate-500">
+              Así lo ve el cliente en el carrito
+            </p>
+            <div className="mt-3 max-w-sm rounded-xl bg-[#091052] p-4">
+              {ajustes.payments.enabled && ajustes.payments.link.trim() ? (
+                <>
+                  <p className="grid min-h-[44px] place-items-center rounded-xl bg-[#FFF000] px-4 text-[13px] font-bold text-[#070C42]">
+                    Pagar en línea
+                  </p>
+                  <p className="mt-2 grid min-h-[44px] place-items-center rounded-xl bg-[#25D366] px-4 text-[13px] font-bold text-[#04241a]">
+                    Pedir por WhatsApp
+                  </p>
+                  <p className="mt-2.5 text-[11.5px] leading-relaxed text-white/55">
+                    Pagará con {ajustes.payments.provider.trim() || 'Nequi'}. Solo aparece
+                    cuando el carrito tiene un total cerrado: si algún producto está sin
+                    precio, la tienda manda a WhatsApp.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="grid min-h-[44px] place-items-center rounded-xl bg-[#FFF000] px-4 text-[13px] font-bold text-[#070C42]">
+                    Finalizar compra
+                  </p>
+                  <p className="mt-2.5 text-[11.5px] leading-relaxed text-white/55">
+                    Sin pago en línea, el carrito cierra por WhatsApp como siempre.
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-5 flex justify-end">
+            <BotonGuardar guardando={guardando === 'payments'}>Guardar pagos</BotonGuardar>
           </div>
         </form>
       )}

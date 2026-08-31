@@ -38,6 +38,7 @@ const GG_AJUSTES_SECCIONES = [
     'socials'  => 'Redes sociales',
     'shipping' => 'Envíos',
     'seo'      => 'SEO y buscadores',
+    'payments' => 'Pagos en línea',
 ];
 
 /** Plantillas de WhatsApp, en el mismo orden en que las pinta el panel. */
@@ -138,6 +139,48 @@ function gg_ajustes_red(array $datos, string $clave, array $previo): string
     if (!preg_match('#^https://[^\s]+$#i', $v)) {
         throw new GgError(
             "El enlace de «$clave» debe empezar por «https://», o quedar vacío si esa red todavía no existe."
+        );
+    }
+    return $v;
+}
+
+/**
+ * Interruptor de un ajuste, conservando el guardado si la clave no viene.
+ *
+ * Los valores llegan de SQLite pasando por JSON, así que un «sí» puede venir
+ * como true, como 1 o como "1" según por dónde haya pasado. gg_bool() los
+ * normaliza todos.
+ */
+function gg_ajustes_interruptor(array $datos, string $clave, array $previo, bool $porOmision): bool
+{
+    if (!array_key_exists($clave, $datos)) {
+        return array_key_exists($clave, $previo) ? gg_bool($previo[$clave]) : $porOmision;
+    }
+    return gg_bool_entrada($datos, $clave, $porOmision);
+}
+
+/**
+ * Enlace de cobro de la pasarela.
+ *
+ * Se exige **https** sin excepción: por aquí pasa dinero de un cliente, y un
+ * enlace http lo marcaría el navegador como no seguro justo en el momento de
+ * pagar. Vacío es válido y significa «todavía no hay pasarela»: la tienda
+ * entonces no enseña el botón, en vez de llevar a una página rota.
+ *
+ * Que sea un enlace de una pasarela concreta no se puede comprobar aquí sin
+ * dejar fuera al proveedor que el negocio elija mañana; el panel enseña el
+ * dominio detectado para que quien lo guarda vea a dónde apunta de verdad.
+ */
+function gg_ajustes_enlace_pago(array $datos, string $clave, array $previo): string
+{
+    $v = gg_ajustes_texto($datos, $clave, 500, $previo);
+    if ($v === '') {
+        return '';
+    }
+    if (!preg_match('#^https://[^\s/]+\.[^\s/]+(/[^\s]*)?$#i', $v)) {
+        throw new GgError(
+            'El enlace de pago debe ser una dirección completa que empiece por «https://», ' .
+            'como la que entrega la pasarela. Déjalo vacío para no ofrecer pago en línea.'
         );
     }
     return $v;
@@ -362,6 +405,15 @@ if ($recurso === 'ajustes') {
                 'description' => gg_ajustes_texto($crudo, 'description', 400, $base),
                 'keywords'    => gg_ajustes_texto($crudo, 'keywords', 400, $base),
                 'ogImage'     => gg_ajustes_url($crudo, 'ogImage', $base),
+            ],
+            // El enlace de cobro es de monto abierto: el cliente escribe el
+            // total en la pasarela. La tienda se lo copia al portapapeles, y
+            // solo ofrece pagar cuando el total está cerrado.
+            'payments' => [
+                'enabled'  => gg_ajustes_interruptor($crudo, 'enabled', $base, false),
+                'provider' => gg_ajustes_texto($crudo, 'provider', 60, $base),
+                'link'     => gg_ajustes_enlace_pago($crudo, 'link', $base),
+                'note'     => gg_ajustes_texto($crudo, 'note', 300, $base),
             ],
         };
 
