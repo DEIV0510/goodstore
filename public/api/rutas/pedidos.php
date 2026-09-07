@@ -379,6 +379,13 @@ if ($id !== '' && count($ruta) === 2 && $metodo === 'PATCH') {
         $cambios['notas'] = gg_pedido_texto_o_null($cuerpo, 'notes', 2000);
     }
 
+    // La guía se guarda ANTES de mirar el estado: si el panel manda las dos
+    // cosas en la misma petición —lo normal al despachar—, el correo de
+    // «enviado» ya lleva el número y no hay que mandar otro después.
+    if (array_key_exists('trackingCode', $cuerpo)) {
+        $cambios['guia'] = gg_pedido_texto_o_null($cuerpo, 'trackingCode', 80);
+    }
+
     if (array_key_exists('shipping', $cuerpo)) {
         $envio = gg_entero($cuerpo, 'shipping', 0, gg_pedido_max_dinero()) ?? 0;
         $cambios['envio'] = $envio;
@@ -394,6 +401,18 @@ if ($id !== '' && count($ruta) === 2 && $metodo === 'PATCH') {
         $cambios['actualizado'] = gg_ahora();
         gg_actualizar('pedidos', $id, $cambios);
         gg_auditar_cambio('pedidos', $id, (string) $antes['codigo'], $antes, $cambios);
+
+        // ── Lo que el pedido hace solo ──────────────────────────────────────
+        // Al cambiar de estado se pone el stock al día y se le avisa al
+        // cliente. Va DESPUÉS de guardar y con la ficha ya fresca, para que el
+        // correo lleve la guía que se acaba de escribir. Es la misma llamada
+        // que hace la vuelta de la pasarela: la regla vive en un solo sitio.
+        if (isset($cambios['estado']) && $cambios['estado'] !== $antes['estado']) {
+            $fresco = gg_fila('SELECT * FROM pedidos WHERE id = ?', [$id]);
+            if ($fresco) {
+                gg_pedido_al_cambiar_estado($fresco, (string) $antes['estado'], (string) $cambios['estado']);
+            }
+        }
     }
 
     gg_responder(['pedido' => gg_pedido_uno($id)]);

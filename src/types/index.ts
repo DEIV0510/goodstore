@@ -177,6 +177,14 @@ export interface Order {
   shipping: number
   total: number
   notes: string | null
+  /** Dirección de envío que dejó el cliente al comprar. */
+  address: string | null
+  /** Número de guía del transportador. Va en el correo de «enviado». */
+  trackingCode: string | null
+  /** Referencia con la que la pasarela identifica este pedido. */
+  paymentRef: string | null
+  /** Si el stock de este pedido ya se descontó del inventario. */
+  stockApplied: boolean
   items: OrderItem[]
   createdAt: string
   updatedAt: string

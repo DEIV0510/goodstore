@@ -37,7 +37,7 @@ $secreto = 'test_integrity_NO-DEBE-SALIR-123456';
 // ─────────────────────────────────────────────────────────────────────────────
 if (($argv[1] ?? '') === '--servir') {
     $tmp = $argv[2];
-    $_SERVER['DOCUMENT_ROOT'] = $tmp;
+    $_SERVER['DOCUMENT_ROOT'] = $tmp . '/publico';  // gg_carpeta_datos() usa dirname(): así el gg-datos cae DENTRO del temporal
 
     require __DIR__ . '/../public/api/nucleo/config.php';
     require __DIR__ . '/../public/api/nucleo/http.php';
@@ -58,7 +58,7 @@ if (($argv[1] ?? '') === '--servir') {
 // Paso 1 (el padre): lanza al hijo y examina lo que devolvió.
 // ─────────────────────────────────────────────────────────────────────────────
 $tmp = sys_get_temp_dir() . '/gg-prueba-fuga-' . bin2hex(random_bytes(4));
-mkdir($tmp . '/gg-datos', 0777, true);
+mkdir($tmp . '/publico', 0777, true);
 
 $cmd = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(__FILE__)
     . ' --servir ' . escapeshellarg($tmp) . ' 2>&1';

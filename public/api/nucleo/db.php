@@ -90,7 +90,7 @@ function gg_columna_existe(PDO $db, string $tabla, string $columna): bool
 }
 
 /** Última versión del esquema que entiende este código. */
-const GG_ESQUEMA = 3;
+const GG_ESQUEMA = 4;
 
 /**
  * Escalones que lleva una base ya instalada hasta la versión de hoy.
@@ -144,6 +144,27 @@ function gg_migrar_incrementos(PDO $db, int $version): void
                 $db->exec('ALTER TABLE pedidos ADD COLUMN direccion TEXT');
             }
             gg_meta_set($db, 'esquema', '3');
+            $db->commit();
+        } catch (Throwable $e) {
+            $db->rollBack();
+            throw $e;
+        }
+    }
+
+    // ── 4 · stock automático y guía de envío ────────────────────────────────
+    if ($version < 4) {
+        $db->beginTransaction();
+        try {
+            // Si el stock de este pedido ya se descontó. Sin esta marca, marcar
+            // dos veces un pedido como confirmado descontaría el doble.
+            if (!gg_columna_existe($db, 'pedidos', 'stock_aplicado')) {
+                $db->exec('ALTER TABLE pedidos ADD COLUMN stock_aplicado INTEGER NOT NULL DEFAULT 0');
+            }
+            // Número de guía del transportador, para el correo de «enviado».
+            if (!gg_columna_existe($db, 'pedidos', 'guia')) {
+                $db->exec('ALTER TABLE pedidos ADD COLUMN guia TEXT');
+            }
+            gg_meta_set($db, 'esquema', '4');
             $db->commit();
         } catch (Throwable $e) {
             $db->rollBack();
@@ -292,6 +313,9 @@ function gg_migrar(PDO $db): void
                 pago_id     TEXT,
                 avisado     TEXT,
                 direccion   TEXT,
+                -- Si el stock de este pedido ya se descontó, y la guía del envío.
+                stock_aplicado INTEGER NOT NULL DEFAULT 0,
+                guia        TEXT,
                 creado      TEXT NOT NULL,
                 actualizado TEXT NOT NULL
             )

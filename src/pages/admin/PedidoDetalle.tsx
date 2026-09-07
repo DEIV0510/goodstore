@@ -184,6 +184,8 @@ export default function PedidoDetalle() {
   /** Estado que se está aplicando: bloquea la fila entera mientras viaja. */
   const [cambiando, setCambiando] = useState<OrderStatus | null>(null)
   const [notas, setNotas] = useState('')
+  const [guia, setGuia] = useState('')
+  const [guardandoGuia, setGuardandoGuia] = useState(false)
   const [envio, setEnvio] = useState('')
   const [guardandoNotas, setGuardandoNotas] = useState(false)
   const [guardandoEnvio, setGuardandoEnvio] = useState(false)
@@ -198,6 +200,7 @@ export default function PedidoDetalle() {
       // Los campos editables parten siempre de lo guardado, no de lo tecleado
       // antes: tras recargar no puede quedar un valor a medias en pantalla.
       setNotas(encontrado?.notes ?? '')
+      setGuia(encontrado?.trackingCode ?? '')
       setEnvio(encontrado ? String(encontrado.shipping) : '')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se pudo cargar el pedido')
@@ -267,6 +270,35 @@ export default function PedidoDetalle() {
       avisos.error(err)
     } finally {
       setGuardandoNotas(false)
+    }
+  }
+
+  /**
+   * Guarda el número de guía.
+   *
+   * Se guarda ANTES de pasar el pedido a «enviado» a propósito: así el correo
+   * que se le manda al cliente en ese momento ya lo lleva, y no hay que
+   * escribirle otra vez para dárselo.
+   */
+  async function guardarGuia(e: FormEvent) {
+    e.preventDefault()
+    if (!pedido) return
+
+    setGuardandoGuia(true)
+    try {
+      const limpia = guia.trim() || null
+      await actualizarPedido(pedido.id, { trackingCode: limpia })
+      setPedido((p) => (p ? { ...p, trackingCode: limpia } : p))
+      setGuia(limpia ?? '')
+      avisos.exito(
+        limpia
+          ? 'Guía guardada. Al pasar el pedido a «enviado» se la mandamos al cliente.'
+          : 'Guía borrada.'
+      )
+    } catch (err) {
+      avisos.error(err)
+    } finally {
+      setGuardandoGuia(false)
     }
   }
 
@@ -344,6 +376,7 @@ export default function PedidoDetalle() {
   const cliente = pedido.customer ?? null
   const envioCambiado = Math.max(0, Number(envio) || 0) !== pedido.shipping
   const notasCambiadas = notas !== (pedido.notes ?? '')
+  const guiaCambiada = guia !== (pedido.trackingCode ?? '')
 
   return (
     <>
@@ -437,7 +470,55 @@ export default function PedidoDetalle() {
               }
             />
 
-            {/* ── Envío y totales ─────────────────────────────────────────── */}
+            {/* ── A dónde va y con qué guía ───────────────────────────────── */}
+            <div className="border-t border-slate-200 p-4 sm:px-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <h2 className="adm-titulo text-[15px]">Envío</h2>
+                {pedido.stockApplied && (
+                  <span className="adm-chip-verde self-center">
+                    Stock ya descontado
+                  </span>
+                )}
+              </div>
+
+              {pedido.address ? (
+                <p className="mt-2 text-[13.5px] leading-relaxed text-slate-700">
+                  {pedido.address}
+                  {pedido.customer?.city && (
+                    <span className="text-slate-500"> · {pedido.customer.city}</span>
+                  )}
+                </p>
+              ) : (
+                <p className="mt-2 text-[13px] text-slate-500">
+                  Este pedido no trae dirección: se registró a mano o el cliente la
+                  dejó en la pasarela.
+                </p>
+              )}
+
+              <form onSubmit={guardarGuia} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+                <div className="sm:w-64">
+                  <Entrada
+                    label="Número de guía"
+                    value={guia}
+                    onChange={(ev) => setGuia(ev.target.value)}
+                    placeholder="Ej. 999888777"
+                    ayuda="Se lo mandamos al cliente cuando pases el pedido a «enviado»."
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={guardandoGuia || !guiaCambiada}
+                  className="adm-btn-suave adm-btn-sm sm:mb-6"
+                >
+                  {guardandoGuia && (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  )}
+                  {guardandoGuia ? 'Guardando…' : 'Guardar guía'}
+                </button>
+              </form>
+            </div>
+
+            {/* ── Envío cobrado y totales ─────────────────────────────────── */}
             <div className="border-t border-slate-200 bg-slate-50 p-4 sm:px-5">
               <form
                 onSubmit={guardarEnvio}

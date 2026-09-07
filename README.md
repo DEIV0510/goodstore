@@ -28,6 +28,7 @@ Abre <http://localhost:5254>.
 | `php tools/prueba-esquema.php` | Comprueba que instalar desde cero y migrar dejan el mismo esquema |
 | `node tools/prueba-omisiones.mjs` | Comprueba que tienda y servidor parten de los mismos valores de pago |
 | `php tools/prueba-fuga-publica.php` | Comprueba que /api/publico no filtra datos del negocio |
+| `php tools/prueba-stock.php` | Comprueba que el inventario se descuenta solo, y una sola vez |
 | `npm run brand` | Regenera logotipos e íconos desde `_source/logos/` |
 | `node tools/hoja-fotos.mjs` | Hojas de contacto para revisar que cada portada es la correcta |
 | `npm run boot` | Reinyecta la pantalla de carga en `index.html` |
@@ -171,6 +172,8 @@ ninguna imagen de banco: **todas las portadas son fotos reales del inventario.**
 | Pago en línea con Nequi/Wompi (referencia + total copiable) | ✅ configurable en /admin |
 | Datos de envío del cliente y pedido registrado solo | ✅ |
 | Aviso por correo de cada pedido, al negocio y al cliente | ✅ configurable en /admin |
+| Inventario descontado solo al confirmar y devuelto al cancelar | ✅ una sola vez, nunca en negativo |
+| Aviso al cliente en cada cambio de estado, con número de guía | ✅ desde la ficha del pedido |
 | Favoritos con página propia | ✅ |
 | Sección y formulario de videojuegos usados | ✅ envía por WhatsApp |
 | Botón flotante de WhatsApp + volver arriba | ✅ |

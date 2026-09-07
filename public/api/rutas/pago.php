@@ -542,6 +542,30 @@ if ($accion === 'estado' && $metodo === 'GET') {
                     ? gg_fila('SELECT * FROM clientes WHERE id = ?', [$frescos['cliente_id']])
                     : null;
                 gg_pago_avisar($frescos, gg_pago_lineas($pedido['id']), $suCliente, 'pagado');
+
+                // Y el stock se descuenta solo, igual que si el administrador
+                // hubiera confirmado el pedido a mano desde el panel. El aviso
+                // al cliente ya salió arriba con el correo de «pago aprobado»,
+                // así que aquí solo interesa el inventario.
+                try {
+                    $movimiento = gg_stock_sincronizar(
+                        gg_fila('SELECT * FROM pedidos WHERE id = ?', [$pedido['id']]),
+                        'confirmado'
+                    );
+                    if ($movimiento !== 'sin cambios') {
+                        gg_auditar(
+                            'actualizar',
+                            'pedidos',
+                            (string) $pedido['id'],
+                            (string) $pedido['codigo'],
+                            ['stock' => ['antes' => 'pago aprobado', 'ahora' => $movimiento]]
+                        );
+                    }
+                } catch (Throwable $e) {
+                    // El dinero ya entró: un tropiezo del inventario no puede
+                    // hacer que el cliente vea un error tras haber pagado.
+                    error_log('[GOOD GAME] Stock no aplicado: ' . $e->getMessage());
+                }
             }
         }
 

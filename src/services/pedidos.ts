@@ -138,7 +138,7 @@ export async function cambiarEstadoPedido(
 
 export async function actualizarPedido(
   id: string,
-  cambios: Partial<Pick<Order, 'notes' | 'paymentMethod' | 'shipping' | 'status'>>
+  cambios: Partial<Pick<Order, 'notes' | 'paymentMethod' | 'shipping' | 'status' | 'trackingCode'>>
 ): Promise<void> {
   // Si cambia el envío, el servidor recalcula el total: si no, el pedido
   // quedaría con un total que no cuadra con sus propias cifras.

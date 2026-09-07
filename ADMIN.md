@@ -262,6 +262,54 @@ Déjalo vacío al guardar y se conserva el que ya estaba.
 
 ---
 
+## 5-ter. Lo que el pedido hace solo
+
+Desde que el cliente termina de pagar, tú solo tocas **un** control: el estado
+del pedido. Todo lo demás va detrás.
+
+### Al cambiar el estado
+
+| Pones el pedido en… | El inventario | Al cliente le llega |
+|---|---|---|
+| **Pendiente** | No se toca | Nada |
+| **Confirmado** | **Se descuenta** lo vendido | «Tu pedido está confirmado» |
+| **Preparando** | Sigue descontado | Nada (es movimiento tuyo) |
+| **Enviado** | Sigue descontado | «Tu pedido va en camino» **con la guía** |
+| **Entregado** | Sigue descontado | «Gracias por comprar con nosotros» |
+| **Cancelado** | **Vuelve** al inventario | «Tu pedido fue cancelado» |
+
+Un pedido *pendiente* no bloquea unidades a propósito: si alguien empieza a
+pagar y se arrepiente, el juego tiene que seguir a la venta.
+
+El descuento **no se repite**. Puedes pasar el pedido de confirmado a
+preparando y a enviado, o recargar la página de la pasarela veinte veces: las
+unidades salen una sola vez. Y si lo cancelas y lo vuelves a abrir, vuelven a
+salir una sola vez.
+
+Tampoco baja de cero. Si vendiste una copia por fuera y el inventario ya estaba
+en 0, el pedido se registra igual y el stock se queda en 0: es mejor un
+inventario que revisar que una venta que la tienda se niega a anotar.
+
+### El número de guía
+
+En la ficha del pedido, bajo **Envío**, hay un campo para el número de guía.
+Escríbelo y guárdalo **antes** de pasar el pedido a *enviado*: el correo que
+sale en ese momento ya lo lleva, y el cliente no tiene que pedírtelo.
+
+Si lo pasas a *enviado* sin guía, el correo sale igual y le dice que te escriba
+para pedirla. Puedes añadirla después, pero ese correo ya salió.
+
+### Qué NO se manda solo
+
+- Los avisos al cliente solo salen si **dejó correo** al comprar y tienes
+  encendido el interruptor de **General → Pagos y avisos**.
+- Si el correo falla, el pedido **igual cambia de estado**. No se pierde la
+  venta por un problema del servidor de correo; el fallo queda en el registro.
+- No se manda nada por WhatsApp automáticamente. Ese mensaje lo escribes tú,
+  con el botón que trae el correo del pedido.
+
+---
+
 ## 6. Reglas del negocio que el panel respeta
 
 Vienen del brief del cliente y están escritas en el código, no solo aquí:

@@ -25,6 +25,7 @@ require __DIR__ . '/nucleo/auditoria.php';
 require __DIR__ . '/nucleo/semilla.php';
 require __DIR__ . '/nucleo/salidas.php';
 require __DIR__ . '/nucleo/correo.php';
+require __DIR__ . '/nucleo/pedidos-auto.php';
 
 // ── Cabeceras de seguridad ───────────────────────────────────────────────────
 header('X-Content-Type-Options: nosniff');

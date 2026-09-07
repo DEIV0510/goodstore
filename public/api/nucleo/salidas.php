@@ -124,6 +124,14 @@ function gg_salida_pedido(array $f, array $lineas = [], ?array $cliente = null):
         'shipping'      => (int) $f['envio'],
         'total'         => (int) $f['total'],
         'notes'         => $f['notas'],
+        // Envío y pago en línea. Con ?? porque una base que todavía no ha
+        // migrado no trae estas columnas, y el panel debe seguir abriendo en
+        // vez de reventar durante los segundos que dura la actualización.
+        'address'       => $f['direccion'] ?? null,
+        'trackingCode'  => $f['guia'] ?? null,
+        'paymentRef'    => $f['pago_ref'] ?? null,
+        /** Si el stock de este pedido ya se descontó del inventario. */
+        'stockApplied'  => (int) ($f['stock_aplicado'] ?? 0) === 1,
         'createdAt'     => $f['creado'],
         'updatedAt'     => $f['actualizado'],
         'items'         => array_map(static fn($l) => [

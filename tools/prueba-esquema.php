@@ -66,7 +66,12 @@ gg_migrar($b);
 // verdad, no para simularlos. El índice va primero: SQLite se niega a quitar
 // una columna de la que cuelga un índice.
 $b->exec('DROP INDEX IF EXISTS pedidos_pago_ref');
-foreach (['pago_ref', 'pago_id', 'avisado', 'direccion'] as $col) {
+// TODO al añadir un escalón: mete aquí sus columnas nuevas. Si se olvida, la
+// prueba pasa igual pero deja de recorrer ese escalón, que es lo único que
+// venía a comprobar.
+foreach (
+    ['pago_ref', 'pago_id', 'avisado', 'direccion', 'stock_aplicado', 'guia'] as $col
+) {
     if (gg_columna_existe($b, 'pedidos', $col)) {
         $b->exec("ALTER TABLE pedidos DROP COLUMN $col");
     }
@@ -110,6 +115,7 @@ foreach ($esquemaA as $tabla => $colsA) {
 // Y que las columnas del pago estén donde deben, que es lo que falló.
 foreach ([['pedidos', 'pago_ref', true], ['pedidos', 'pago_id', true],
           ['pedidos', 'avisado', true], ['pedidos', 'direccion', true],
+          ['pedidos', 'stock_aplicado', true], ['pedidos', 'guia', true],
           ['clientes', 'pago_ref', false], ['clientes', 'pago_id', false]] as [$t, $c, $debe]) {
     $hay = gg_columna_existe($a, $t, $c);
     if ($hay !== $debe) {
