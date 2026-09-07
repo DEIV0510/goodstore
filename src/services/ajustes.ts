@@ -59,6 +59,9 @@ export const AJUSTES_POR_OMISION: Settings = {
     note: '',
     publicKey: '',
     hasIntegrity: false,
+    // Vacío a propósito: no se inventa una dirección de nadie.
+    orderEmail: '',
+    emailCustomer: true,
   },
 }
 
@@ -124,6 +127,17 @@ export async function obtenerWhatsapp(): Promise<WhatsappSettings> {
 
 export async function guardarWhatsapp(ajustes: WhatsappSettings): Promise<void> {
   await api('whatsapp', { metodo: 'PUT', cuerpo: ajustes })
+}
+
+/**
+ * Manda un correo de prueba a la dirección de avisos.
+ *
+ * Existe porque el envío desde un hosting compartido falla de formas que no se
+ * ven —la dirección mal escrita, el correo en spam, el envío apagado— y vale
+ * más descubrirlo pulsando un botón que con la primera venta de verdad.
+ */
+export async function probarCorreo(): Promise<{ para: string; mensaje: string }> {
+  return api<{ para: string; mensaje: string }>('pago/probar-correo', { metodo: 'POST' })
 }
 
 /** Deja el número en formato internacional para los enlaces wa.me. */

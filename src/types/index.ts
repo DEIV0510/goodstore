@@ -320,6 +320,10 @@ export interface PaymentSettings {
    * devuelve, así que al cargar la pantalla siempre llega vacío.
    */
   integritySecret?: string
+  /** A dónde llega el aviso de cada pedido. Vacío = no se avisa. */
+  orderEmail: string
+  /** Si al cliente se le manda su comprobante cuando deja correo. */
+  emailCustomer: boolean
 }
 
 /** Lo que la tienda sabe de un pago al volver de la pasarela. */

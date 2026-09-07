@@ -24,6 +24,8 @@ Abre <http://localhost:5254>.
 | `npm run typecheck` | Revisa los tipos de TypeScript |
 | `npm run catalogo` | Regenera el catálogo desde el inventario: `products.ts`, imágenes y `sitemap.xml` |
 | `npm run qa` | Control de calidad automatizado en navegador real (ver §9) |
+| `php tools/prueba-firma-wompi.php` | Coteja la firma de Wompi con el ejemplo de su documentación |
+| `php tools/prueba-esquema.php` | Comprueba que instalar desde cero y migrar dejan el mismo esquema |
 | `npm run brand` | Regenera logotipos e íconos desde `_source/logos/` |
 | `node tools/hoja-fotos.mjs` | Hojas de contacto para revisar que cada portada es la correcta |
 | `npm run boot` | Reinyecta la pantalla de carga en `index.html` |
@@ -165,6 +167,8 @@ ninguna imagen de banco: **todas las portadas son fotos reales del inventario.**
 | Carrito: agregar, cantidad, eliminar, vaciar, persistencia | ✅ |
 | Finalizar compra → WhatsApp con el pedido armado | ✅ |
 | Pago en línea con Nequi/Wompi (referencia + total copiable) | ✅ configurable en /admin |
+| Datos de envío del cliente y pedido registrado solo | ✅ |
+| Aviso por correo de cada pedido, al negocio y al cliente | ✅ configurable en /admin |
 | Favoritos con página propia | ✅ |
 | Sección y formulario de videojuegos usados | ✅ envía por WhatsApp |
 | Botón flotante de WhatsApp + volver arriba | ✅ |
@@ -382,7 +386,9 @@ Colombia es lo que conviene.
 | Pieza | Dónde |
 | --- | --- |
 | Pasos del pago (referencia, copiar total, ir a pagar) | `src/components/cart/PagoEnLinea.tsx` |
+| Datos del cliente antes de pagar | `src/components/cart/DatosDelCliente.tsx` |
 | Referencia y copia al portapapeles | `src/lib/pago.ts` |
+| Avisos por correo (negocio y cliente) | `public/api/nucleo/correo.php` |
 | Las dos salidas del carrito | `src/components/cart/CartDrawer.tsx` |
 | Checkout Web firmado (importe y referencia) | `public/api/rutas/pago.php` |
 | Página de vuelta de la pasarela | `src/pages/public/Pago.tsx` (`/pago`) |

@@ -15,7 +15,6 @@ import ProductImage from '@/components/ui/ProductImage'
 import { PlatformBadge } from '@/components/ui/Badges'
 import { site } from '@/data/site'
 import { cop, pluralize } from '@/lib/format'
-import { referenciaDePedido } from '@/lib/pago'
 import { cartMessage } from '@/lib/whatsapp'
 import { useStore } from '@/store/StoreContext'
 
@@ -34,7 +33,6 @@ export default function CartDrawer() {
 
   // El panel tiene dos caras: el carrito de siempre y los pasos del pago.
   const [vista, setVista] = useState<'carrito' | 'pago'>('carrito')
-  const [referencia, setReferencia] = useState('')
 
   const close = () => setCartOpen(false)
   const empty = cart.length === 0
@@ -63,9 +61,8 @@ export default function CartDrawer() {
     site.pago.activo && cartTotal > 0 && !cartHasPending && !empty
 
   function abrirPago() {
-    // La referencia se genera una sola vez por intento: tiene que ser la misma
-    // en el mensaje de WhatsApp y en la pantalla.
-    setReferencia(referenciaDePedido())
+    // El pedido y su referencia los crea el servidor cuando el cliente manda
+    // sus datos: aquí solo se cambia de cara.
     setVista('pago')
   }
 
@@ -153,7 +150,7 @@ export default function CartDrawer() {
       }
     >
       {enPago ? (
-        <PagoEnLinea entries={cart} total={cartTotal} referencia={referencia} />
+        <PagoEnLinea entries={cart} total={cartTotal} />
       ) : empty ? (
         <div className="flex h-full flex-col items-center justify-center gap-4 px-6 py-16 text-center">
           <span className="grid h-16 w-16 place-items-center rounded-2xl border border-white/10 bg-white/[.04]">

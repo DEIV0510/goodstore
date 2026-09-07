@@ -5,6 +5,8 @@ import {
   ExternalLink,
   KeyRound,
   Lock,
+  Mail,
+  Send,
   Plus,
   Search,
   Share2,
@@ -36,7 +38,12 @@ import {
 import { site } from '@/data/site'
 import { useAuth } from '@/hooks/useAuth'
 import { cop, normalize } from '@/lib/format'
-import { AJUSTES_POR_OMISION, guardarAjustes, obtenerAjustes } from '@/services/ajustes'
+import {
+  AJUSTES_POR_OMISION,
+  guardarAjustes,
+  obtenerAjustes,
+  probarCorreo,
+} from '@/services/ajustes'
 import type { Settings } from '@/types'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -58,7 +65,7 @@ const PESTANAS: { clave: Pestana; etiqueta: string; icono: LucideIcon }[] = [
   { clave: 'socials', etiqueta: 'Contacto y redes', icono: Share2 },
   { clave: 'shipping', etiqueta: 'Envíos', icono: Truck },
   { clave: 'seo', etiqueta: 'SEO', icono: Search },
-  { clave: 'payments', etiqueta: 'Pagos', icono: CreditCard },
+  { clave: 'payments', etiqueta: 'Pagos y avisos', icono: CreditCard },
 ]
 
 /**
@@ -111,6 +118,7 @@ export default function Ajustes() {
   const [guardando, setGuardando] = useState<Pestana | null>(null)
   const [errores, setErrores] = useState<Record<string, string>>({})
   const [zonaNueva, setZonaNueva] = useState('')
+  const [probando, setProbando] = useState(false)
 
   const botonesPestana = useRef<(HTMLButtonElement | null)[]>([])
 
@@ -312,6 +320,25 @@ export default function Ajustes() {
     // El secreto no vuelve del servidor: se limpia del formulario para que la
     // pantalla no dé a entender que sigue ahí escrito.
     setAjustes((a) => ({ ...a, payments: { ...a.payments, integritySecret: '' } }))
+  }
+
+  /**
+   * Guarda y manda un correo de prueba, en ese orden: probar con una dirección
+   * que todavía no está guardada mandaría el correo a la anterior.
+   */
+  async function probarElCorreo() {
+    setProbando(true)
+    try {
+      if (sucia('payments')) {
+        await guardarBloque('payments', 'Pagos y avisos')
+      }
+      const r = await probarCorreo()
+      avisos.exito(`Correo enviado a ${r.para}. Si no llega en un par de minutos, mira en spam.`)
+    } catch (e) {
+      avisos.error(e)
+    } finally {
+      setProbando(false)
+    }
   }
 
   async function enviarSeo(e: FormEvent) {
@@ -1088,7 +1115,59 @@ export default function Ajustes() {
             </>
           )}
 
-          <div className="mt-4">
+          {/* ── Avisos ──────────────────────────────────────────────────── */}
+          <div className="mt-6 border-t border-slate-200 pt-5">
+            <h3 className="flex items-center gap-2 text-[14px] font-bold text-slate-900">
+              <Mail className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+              Avisos de pedido
+            </h3>
+            <p className="adm-sub mt-1">
+              Cada vez que alguien compre, te llega un correo con qué pidió, quién es y a
+              dónde enviarlo. Llega igual si el pago se queda a medias, para que sepas a
+              quién escribirle.
+            </p>
+
+            <div className="mt-4">
+              <Entrada
+                label="Tu correo para los avisos"
+                type="email"
+                inputMode="email"
+                spellCheck={false}
+                autoComplete="off"
+                placeholder="pedidos@goodgamecol.shop"
+                value={ajustes.payments.orderEmail}
+                onChange={(e) => editarPagos({ orderEmail: e.target.value })}
+                error={errores['payments.orderEmail']}
+                ayuda="Mejor uno de tu propio dominio: sale y entra por el mismo servidor y no cae en spam. Vacío = no se avisa."
+              />
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => void probarElCorreo()}
+                disabled={probando || !ajustes.payments.orderEmail.trim()}
+                className="adm-btn-suave adm-btn-sm"
+              >
+                <Send className="h-3.5 w-3.5" aria-hidden="true" />
+                {probando ? 'Enviando…' : 'Enviar un correo de prueba'}
+              </button>
+              <span className="text-[12.5px] text-slate-500">
+                Compruébalo antes de la primera venta.
+              </span>
+            </div>
+
+            <div className="mt-4">
+              <Interruptor
+                activo={ajustes.payments.emailCustomer}
+                onChange={(v) => editarPagos({ emailCustomer: v })}
+                label="Mandarle el comprobante al cliente"
+                descripcion="Solo si dejó su correo. Le llega el detalle de lo que compró."
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 border-t border-slate-200 pt-5">
             <Entrada
               label="Nombre del medio de pago"
               value={ajustes.payments.provider}

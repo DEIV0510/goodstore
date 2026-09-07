@@ -8,9 +8,9 @@
 //
 // De ahí salen las dos piezas de este archivo:
 //
-//   · `referenciaDePedido()` — un código corto que la tienda le da al cliente
-//     y que viaja en el mensaje de WhatsApp. Es lo que le permite al negocio
-//     cuadrar un pago suelto de la pasarela con el pedido que le llegó.
+//   · el pedido se registra en el servidor ANTES de pagar, y su código es la
+//     referencia: así el negocio puede cuadrar un pago suelto de la pasarela
+//     con el pedido que le llegó.
 //
 //   · `importeParaPegar()` — el total en dígitos pelados, sin «$» ni puntos,
 //     que es lo único que el campo de la pasarela acepta sin pelearse.
@@ -21,31 +21,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { api } from '@/lib/api'
-
-/**
- * Alfabeto sin caracteres que se confunden al dictar o al copiar a mano:
- * fuera 0/O, 1/I/L y 5/S. La referencia se lee por WhatsApp o por teléfono.
- */
-const ALFABETO = 'ABCDEFGHJKMNPQRTUVWXYZ2346789'
-
-/**
- * Código corto de pedido, del estilo `GG-7F3K`.
- *
- * No pretende ser único en el mundo: solo distinguir los pedidos de un mismo
- * día en una tienda pequeña. Con 29⁴ combinaciones (≈707.000) es de sobra.
- */
-export function referenciaDePedido(): string {
-  let codigo = ''
-  // crypto está en todos los navegadores que la tienda soporta; el respaldo
-  // con Math.random evita que un entorno raro rompa el carrito por un código.
-  const aleatorio =
-    typeof crypto !== 'undefined' && crypto.getRandomValues
-      ? Array.from(crypto.getRandomValues(new Uint32Array(4)))
-      : Array.from({ length: 4 }, () => Math.floor(Math.random() * 0xffffffff))
-
-  for (const n of aleatorio) codigo += ALFABETO[n % ALFABETO.length]
-  return `GG-${codigo}`
-}
 
 /**
  * El total tal como hay que escribirlo en la pasarela: solo dígitos.
@@ -64,21 +39,78 @@ export const importeParaPegar = (total: number): string => String(Math.round(tot
 // nadie puede pagar mil pesos por una consola editando la petición.
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface FormularioDePago {
-  url: string
-  pedido: string
-  total: number
-  campos: Record<string, string>
+/** Los datos con los que el cliente cierra su compra él solo. */
+export interface DatosCliente {
+  nombre: string
+  whatsapp: string
+  email: string
+  ciudad: string
+  direccion: string
 }
 
 /**
- * Pide al servidor el formulario firmado para este carrito.
+ * Lo que devuelve el servidor tras registrar el pedido.
+ *
+ * En modo `checkout` trae el formulario firmado; en `enlace`, el enlace de cobro
+ * y la referencia. En los dos casos el pedido YA quedó guardado y el negocio ya
+ * recibió su aviso: lo que pase después en la pasarela no cambia eso.
+ */
+export type PedidoPreparado =
+  | { modo: 'checkout'; url: string; pedido: string; total: number; campos: Record<string, string> }
+  | { modo: 'enlace'; enlace: string; pedido: string; referencia: string; total: number }
+
+/**
+ * Registra el pedido y pide lo necesario para cobrarlo.
  * Lanza `ErrorApi` con un mensaje que ya se puede enseñar tal cual.
  */
 export async function prepararPago(
-  items: { slug: string; qty: number }[]
-): Promise<FormularioDePago> {
-  return api<FormularioDePago>('pago/preparar', { metodo: 'POST', cuerpo: { items } })
+  items: { slug: string; qty: number }[],
+  cliente: DatosCliente
+): Promise<PedidoPreparado> {
+  return api<PedidoPreparado>('pago/preparar', {
+    metodo: 'POST',
+    cuerpo: { items, cliente },
+  })
+}
+
+// ── Recordar los datos, para que un cliente que vuelve no los reescriba ──────
+
+const CLAVE_DATOS = 'gg.datos.v1'
+
+export const DATOS_VACIOS: DatosCliente = {
+  nombre: '',
+  whatsapp: '',
+  email: '',
+  ciudad: '',
+  direccion: '',
+}
+
+/** Lo que este navegador recuerda del comprador. Nunca sale de su equipo. */
+export function datosGuardados(): DatosCliente {
+  try {
+    const crudo = localStorage.getItem(CLAVE_DATOS)
+    if (!crudo) return DATOS_VACIOS
+    const d = JSON.parse(crudo) as Partial<DatosCliente>
+    // Campo a campo: un localStorage manipulado no debe meter objetos raros.
+    return {
+      nombre: typeof d.nombre === 'string' ? d.nombre : '',
+      whatsapp: typeof d.whatsapp === 'string' ? d.whatsapp : '',
+      email: typeof d.email === 'string' ? d.email : '',
+      ciudad: typeof d.ciudad === 'string' ? d.ciudad : '',
+      direccion: typeof d.direccion === 'string' ? d.direccion : '',
+    }
+  } catch {
+    return DATOS_VACIOS
+  }
+}
+
+export function guardarDatos(d: DatosCliente): void {
+  try {
+    localStorage.setItem(CLAVE_DATOS, JSON.stringify(d))
+  } catch {
+    // Modo incógnito o almacenamiento lleno: se pierde la comodidad de que los
+    // recuerde, y nada más. No es motivo para romper la compra.
+  }
 }
 
 /**
@@ -88,7 +120,7 @@ export async function prepararPago(
  * viajan como los espera Wompi y no hay que armar a mano una dirección larga
  * donde un carácter mal escapado rompería la firma.
  */
-export function irALaPasarela(f: FormularioDePago): void {
+export function irALaPasarela(f: { url: string; campos: Record<string, string> }): void {
   const form = document.createElement('form')
   form.method = 'GET'
   form.action = f.url

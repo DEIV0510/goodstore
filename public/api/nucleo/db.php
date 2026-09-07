@@ -89,6 +89,69 @@ function gg_columna_existe(PDO $db, string $tabla, string $columna): bool
     return false;
 }
 
+/** Última versión del esquema que entiende este código. */
+const GG_ESQUEMA = 3;
+
+/**
+ * Escalones que lleva una base ya instalada hasta la versión de hoy.
+ *
+ * Cada uno se salta si ya está aplicado, así que ejecutarlo dos veces no rompe
+ * nada. Se llaman en orden y cada uno deja anotada su versión: si el hosting se
+ * cae a mitad, la próxima petición retoma donde se quedó en vez de repetir todo.
+ *
+ * Las columnas nuevas van TAMBIÉN en el CREATE TABLE de más abajo, que es lo que
+ * usa una instalación desde cero. Si se añaden aquí y allí no, la tienda funciona
+ * al actualizar y se rompe al instalarla limpia — que es un fallo muy fácil de
+ * cometer y muy difícil de ver.
+ */
+function gg_migrar_incrementos(PDO $db, int $version): void
+{
+    // ── 2 · pago en línea ───────────────────────────────────────────────────
+    if ($version < 2) {
+        $db->beginTransaction();
+        try {
+            // La referencia que viaja a la pasarela y el id que ella devuelve:
+            // con eso se cuadra un pago con su pedido meses después.
+            if (!gg_columna_existe($db, 'pedidos', 'pago_ref')) {
+                $db->exec('ALTER TABLE pedidos ADD COLUMN pago_ref TEXT');
+            }
+            if (!gg_columna_existe($db, 'pedidos', 'pago_id')) {
+                $db->exec('ALTER TABLE pedidos ADD COLUMN pago_id TEXT');
+            }
+            // Buscar por referencia es lo que hace la página de retorno cada vez
+            // que alguien vuelve de la pasarela.
+            $db->exec('CREATE INDEX IF NOT EXISTS pedidos_pago_ref ON pedidos (pago_ref)');
+            gg_meta_set($db, 'esquema', '2');
+            $db->commit();
+        } catch (Throwable $e) {
+            $db->rollBack();
+            throw $e;
+        }
+    }
+
+    // ── 3 · aviso por correo y dirección de envío ───────────────────────────
+    if ($version < 3) {
+        $db->beginTransaction();
+        try {
+            // Cuándo se avisó de este pedido. Sirve para no mandar dos correos
+            // si el cliente recarga la página de retorno.
+            if (!gg_columna_existe($db, 'pedidos', 'avisado')) {
+                $db->exec('ALTER TABLE pedidos ADD COLUMN avisado TEXT');
+            }
+            // La dirección de envío del pedido. Va en el pedido y no en el
+            // cliente porque una misma persona puede pedir a sitios distintos.
+            if (!gg_columna_existe($db, 'pedidos', 'direccion')) {
+                $db->exec('ALTER TABLE pedidos ADD COLUMN direccion TEXT');
+            }
+            gg_meta_set($db, 'esquema', '3');
+            $db->commit();
+        } catch (Throwable $e) {
+            $db->rollBack();
+            throw $e;
+        }
+    }
+}
+
 /**
  * Crea o actualiza el esquema.
  *
@@ -102,36 +165,11 @@ function gg_migrar(PDO $db): void
 
     $version = (int) (gg_meta($db, 'esquema') ?? '0');
 
-    // ── Esquema 2 · pagos en línea ──────────────────────────────────────────
-    //
-    // Va ANTES de la salida temprana a propósito: las bases que ya están en
-    // producción se quedaron en la versión 1, y sin esto actualizar el código
-    // dejaría la tienda pidiendo columnas que allí no existen.
-    if ($version === 1) {
-        $db->beginTransaction();
-        try {
-            // La referencia que viaja a la pasarela y el id que ella devuelve.
-            // Se guardan para poder cotejar un pago con su pedido meses después.
-            if (!gg_columna_existe($db, 'pedidos', 'pago_ref')) {
-                $db->exec('ALTER TABLE pedidos ADD COLUMN pago_ref TEXT');
-            }
-            if (!gg_columna_existe($db, 'pedidos', 'pago_id')) {
-                $db->exec('ALTER TABLE pedidos ADD COLUMN pago_id TEXT');
-            }
-            // Buscar por referencia es lo que hace la página de retorno cada vez
-            // que alguien vuelve de la pasarela.
-            $db->exec('CREATE INDEX IF NOT EXISTS pedidos_pago_ref ON pedidos (pago_ref)');
-
-            gg_meta_set($db, 'esquema', '2');
-            $db->commit();
-        } catch (Throwable $e) {
-            $db->rollBack();
-            throw $e;
-        }
-        return;
-    }
-
-    if ($version >= 2) {
+    // Una base ya instalada solo pasa por los escalones que le falten, en orden.
+    // Están al principio y NO dependen del bloque de creación de abajo: las
+    // bases que ya están en producción nunca vuelven a ejecutar aquello.
+    if ($version > 0) {
+        gg_migrar_incrementos($db, $version);
         return;
     }
 
@@ -231,8 +269,6 @@ function gg_migrar(PDO $db): void
                 email       TEXT,
                 ciudad      TEXT,
                 notas       TEXT,
-                pago_ref    TEXT,
-                pago_id     TEXT,
                 creado      TEXT NOT NULL,
                 actualizado TEXT NOT NULL
             )
@@ -250,6 +286,12 @@ function gg_migrar(PDO $db): void
                 envio       INTEGER NOT NULL DEFAULT 0,
                 total       INTEGER NOT NULL DEFAULT 0,
                 notas       TEXT,
+                -- Pago en línea: la referencia que viaja a la pasarela, el id que
+                -- ella devuelve y cuándo se avisó de este pedido por correo.
+                pago_ref    TEXT,
+                pago_id     TEXT,
+                avisado     TEXT,
+                direccion   TEXT,
                 creado      TEXT NOT NULL,
                 actualizado TEXT NOT NULL
             )
@@ -332,7 +374,11 @@ function gg_migrar(PDO $db): void
         $db->exec('CREATE INDEX IF NOT EXISTS auditoria_creado ON auditoria (creado)');
         $db->exec('CREATE INDEX IF NOT EXISTS auditoria_entidad ON auditoria (entidad)');
 
-        gg_meta_set($db, 'esquema', '1');
+        $db->exec('CREATE INDEX IF NOT EXISTS pedidos_pago_ref ON pedidos (pago_ref)');
+
+        // Se instala directamente en la versión de hoy: las tablas de arriba ya
+        // incluyen todo lo que los escalones añaden a una base antigua.
+        gg_meta_set($db, 'esquema', (string) GG_ESQUEMA);
         gg_meta_set($db, 'creado', gg_ahora());
         $db->commit();
     } catch (Throwable $e) {

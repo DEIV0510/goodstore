@@ -163,6 +163,87 @@ function gg_pago_mensaje(string $estado): string
     };
 }
 
+/**
+ * Guarda (o actualiza) al cliente y devuelve su ficha.
+ *
+ * El WhatsApp es la clave: es el único dato que en Colombia identifica a una
+ * persona de verdad en una tienda pequeña, y la tabla lo tiene como UNIQUE. Si
+ * ya compró antes, se actualiza lo que haya cambiado en vez de crear un
+ * duplicado — y NO se pisa con vacío lo que ya estaba.
+ */
+function gg_pago_cliente(array $datos): ?array
+{
+    $whatsapp = preg_replace('/\D/', '', gg_texto($datos, 'whatsapp', 30)) ?? '';
+    // Los colombianos lo escriben de mil formas: +57, 57, con espacios…
+    if (strlen($whatsapp) > 10 && str_starts_with($whatsapp, '57')) {
+        $whatsapp = substr($whatsapp, 2);
+    }
+    if (strlen($whatsapp) !== 10) {
+        throw new GgError('Escribe tu WhatsApp a 10 dígitos, para poder coordinar el envío.', 400);
+    }
+
+    $nombre = gg_texto($datos, 'nombre', 120);
+    if ($nombre === '') {
+        throw new GgError('Escribe tu nombre.', 400);
+    }
+
+    $email = gg_texto($datos, 'email', 160);
+    if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        throw new GgError('Ese correo no parece válido. Déjalo vacío si prefieres.', 400);
+    }
+    $ciudad = gg_texto($datos, 'ciudad', 80);
+    $ahora = gg_ahora();
+
+    $ficha = gg_fila('SELECT * FROM clientes WHERE whatsapp = ?', [$whatsapp]);
+
+    if ($ficha) {
+        gg_actualizar('clientes', $ficha['id'], [
+            'nombre'      => $nombre,
+            // Un campo vacío ahora no borra lo que el cliente dio otra vez.
+            'email'       => $email !== '' ? $email : $ficha['email'],
+            'ciudad'      => $ciudad !== '' ? $ciudad : $ficha['ciudad'],
+            'actualizado' => $ahora,
+        ]);
+        return gg_fila('SELECT * FROM clientes WHERE id = ?', [$ficha['id']]);
+    }
+
+    $id = gg_id();
+    gg_insertar('clientes', [
+        'id'          => $id,
+        'nombre'      => $nombre,
+        'whatsapp'    => $whatsapp,
+        'email'       => $email !== '' ? $email : null,
+        'ciudad'      => $ciudad !== '' ? $ciudad : null,
+        'creado'      => $ahora,
+        'actualizado' => $ahora,
+    ]);
+    return gg_fila('SELECT * FROM clientes WHERE id = ?', [$id]);
+}
+
+/**
+ * Manda los avisos y anota que ya se mandaron.
+ *
+ * Se traga cualquier fallo: el pedido ya está guardado y, si es el caso, el
+ * dinero ya se cobró. Que el correo no salga es un problema, pero no es motivo
+ * para devolverle un error a quien acaba de comprar.
+ */
+function gg_pago_avisar(array $pedido, array $lineas, ?array $cliente, string $evento): void
+{
+    try {
+        gg_correo_al_negocio($pedido, $lineas, $cliente, $evento);
+        gg_correo_al_cliente($pedido, $lineas, $cliente, $evento);
+        gg_actualizar('pedidos', $pedido['id'], ['avisado' => gg_ahora()]);
+    } catch (Throwable $e) {
+        error_log('[GOOD GAME] Aviso de pedido no enviado: ' . $e->getMessage());
+    }
+}
+
+/** Las líneas de un pedido, para los correos. */
+function gg_pago_lineas(string $pedidoId): array
+{
+    return gg_filas('SELECT * FROM pedido_lineas WHERE pedido_id = ?', [$pedidoId]);
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/pago/preparar
 // ─────────────────────────────────────────────────────────────────────────────
@@ -170,12 +251,13 @@ function gg_pago_mensaje(string $estado): string
 if ($accion === 'preparar' && $metodo === 'POST') {
     $cfg = gg_pago_config();
 
-    if (!$cfg['activo'] || $cfg['modo'] !== 'checkout') {
+    if (!$cfg['activo']) {
         throw new GgError('El pago en línea no está disponible ahora mismo.', 409);
     }
-    if ($cfg['llave'] === '' || $cfg['integridad'] === '') {
-        // Le pasa al negocio, no al comprador, pero el comprador es quien lo ve:
-        // por eso el mensaje no habla de llaves ni de configuración.
+    // En modo checkout hacen falta las dos llaves. Le pasa al negocio, no al
+    // comprador, pero el comprador es quien lo ve: por eso el mensaje no habla
+    // de llaves ni de configuración.
+    if ($cfg['modo'] === 'checkout' && ($cfg['llave'] === '' || $cfg['integridad'] === '')) {
         throw new GgError(
             'El pago en línea todavía no está listo. Escríbenos por WhatsApp y lo cerramos por ahí.',
             409
@@ -251,6 +333,11 @@ if ($accion === 'preparar' && $metodo === 'POST') {
         throw new GgError('El total del carrito no es válido.', 400);
     }
 
+    // ── Quién compra y a dónde se le manda ───────────────────────────────────
+    $datosCliente = is_array($cuerpo['cliente'] ?? null) ? $cuerpo['cliente'] : [];
+    $cliente = gg_pago_cliente($datosCliente);
+    $direccion = gg_texto($datosCliente, 'direccion', 200);
+
     // ── Se guarda el pedido antes de mandar a nadie a pagar ──────────────────
     // Si el cliente paga y se le cierra el navegador, el pedido ya existe y la
     // referencia lo encuentra. Al revés no habría forma de saber qué compró.
@@ -265,13 +352,15 @@ if ($accion === 'preparar' && $metodo === 'POST') {
         gg_insertar('pedidos', [
             'id'          => $pedidoId,
             'codigo'      => $codigo,
+            'cliente_id'  => $cliente['id'] ?? null,
             'estado'      => 'pendiente',
             'pago'        => $cfg['proveedor'],
             'canal'       => 'web',
             'subtotal'    => $subtotal,
             'envio'       => 0,
             'total'       => $subtotal,
-            'notas'       => 'Pedido creado por la tienda al iniciar un pago en línea.',
+            'notas'       => 'Pedido creado por la tienda al iniciar el pago en línea.',
+            'direccion'   => $direccion !== '' ? $direccion : null,
             'pago_ref'    => $referencia,
             'creado'      => $ahora,
             'actualizado' => $ahora,
@@ -287,23 +376,63 @@ if ($accion === 'preparar' && $metodo === 'POST') {
         throw $e;
     }
 
+    // El aviso sale ya, sin esperar al pago: así el negocio sabe qué le están
+    // pidiendo aunque el cliente se arrepienta a mitad de la pasarela.
+    $pedidoGuardado = gg_fila('SELECT * FROM pedidos WHERE id = ?', [$pedidoId]);
+    gg_pago_avisar($pedidoGuardado, $lineas, $cliente, 'nuevo');
+
+    // ── Modo enlace ─────────────────────────────────────────────────────────
+    // No hay nada que firmar: el cliente escribe el total en la pasarela. Lo
+    // que cambia respecto a antes es que el pedido YA quedó registrado y con
+    // nombre, así que la referencia sirve para algo.
+    if ($cfg['modo'] !== 'checkout') {
+        gg_responder([
+            'modo'       => 'enlace',
+            'enlace'     => trim((string) (gg_opciones('ajustes')['payments']['link'] ?? '')),
+            'pedido'     => $codigo,
+            'referencia' => $codigo,
+            'total'      => $subtotal,
+        ], 201);
+    }
+
+    // ── Modo checkout ───────────────────────────────────────────────────────
     // Wompi trabaja en centavos. El catálogo está en pesos enteros.
     $centavos = $subtotal * 100;
 
+    $campos = [
+        'public-key'          => $cfg['llave'],
+        'currency'            => 'COP',
+        'amount-in-cents'     => (string) $centavos,
+        'reference'           => $referencia,
+        'signature:integrity' => gg_pago_firma($referencia, $centavos, 'COP', $cfg['integridad']),
+        'redirect-url'        => gg_url_sitio() . '/pago',
+    ];
+
+    // Se le pasan los datos a la pasarela para que el cliente no los reescriba.
+    // Van fuera de la firma: Wompi solo firma referencia, importe y moneda.
+    if ($cliente) {
+        $campos['customer-data:full-name'] = (string) $cliente['nombre'];
+        $campos['customer-data:phone-number'] = (string) $cliente['whatsapp'];
+        if (($cliente['email'] ?? '') !== '') {
+            $campos['customer-data:email'] = (string) $cliente['email'];
+        }
+        if ($direccion !== '') {
+            $campos['shipping-address:address-line-1'] = $direccion;
+            $campos['shipping-address:country'] = 'CO';
+            $campos['shipping-address:phone-number'] = (string) $cliente['whatsapp'];
+            $campos['shipping-address:city'] = (string) ($cliente['ciudad'] ?? '');
+            $campos['shipping-address:region'] = (string) ($cliente['ciudad'] ?? '');
+        }
+    }
+
     gg_responder([
+        'modo'   => 'checkout',
         'url'    => GG_WOMPI_CHECKOUT,
         'pedido' => $codigo,
         'total'  => $subtotal,
         // Estos son los campos del formulario, tal cual. La firma se calculó
         // aquí: el navegador no ve el secreto ni puede rehacerla.
-        'campos' => [
-            'public-key'        => $cfg['llave'],
-            'currency'          => 'COP',
-            'amount-in-cents'   => (string) $centavos,
-            'reference'         => $referencia,
-            'signature:integrity' => gg_pago_firma($referencia, $centavos, 'COP', $cfg['integridad']),
-            'redirect-url'      => gg_url_sitio() . '/pago',
-        ],
+        'campos' => $campos,
     ], 201);
 }
 
@@ -346,15 +475,34 @@ if ($accion === 'estado' && $metodo === 'GET') {
         // mano a despachar por un valor que no es.
         $cuadra = $centavos === ((int) $pedido['total']) * 100;
         $nuevoEstado = ($estado === 'APPROVED' && $cuadra) ? 'confirmado' : $pedido['estado'];
+        $cambia = $nuevoEstado !== $pedido['estado'] || ($pedido['pago_id'] ?? '') !== $id;
 
         // Solo se escribe si algo cambió: volver a cargar la página de retorno
         // no debe ensuciar el historial ni tocar la fecha del pedido.
-        if ($nuevoEstado !== $pedido['estado'] || ($pedido['pago_id'] ?? '') !== $id) {
-            gg_actualizar('pedidos', $pedido['id'], [
+        if ($cambia) {
+            $cols = [
                 'estado'      => $nuevoEstado,
                 'pago_id'     => $id,
                 'actualizado' => gg_ahora(),
-            ]);
+            ];
+
+            // La pasarela sabe a dónde enviar aunque el cliente no lo hubiera
+            // escrito en la tienda. Solo se rellena lo que falte: lo que el
+            // cliente escribió aquí manda sobre lo que puso allá.
+            $envio = $t['shipping_address'] ?? null;
+            if (is_array($envio) && trim((string) ($pedido['direccion'] ?? '')) === '') {
+                $calle = trim(
+                    (string) ($envio['address_line_1'] ?? '') . ' ' .
+                    (string) ($envio['address_line_2'] ?? '')
+                );
+                $ciudadEnvio = trim((string) ($envio['city'] ?? ''));
+                $completa = trim($calle . ($ciudadEnvio !== '' ? ', ' . $ciudadEnvio : ''));
+                if ($completa !== '') {
+                    $cols['direccion'] = mb_substr($completa, 0, 200);
+                }
+            }
+
+            gg_actualizar('pedidos', $pedido['id'], $cols);
             gg_auditar(
                 'actualizar',
                 'pedidos',
@@ -362,6 +510,17 @@ if ($accion === 'estado' && $metodo === 'GET') {
                 (string) $pedido['codigo'],
                 ['pago' => ['antes' => $pedido['estado'], 'ahora' => $nuevoEstado . ' · ' . $estado]]
             );
+
+            // ── El aviso de «ya pagó» ───────────────────────────────────────
+            // Solo cuando el pedido pasa a confirmado de verdad, y una sola vez:
+            // recargar la página de retorno no puede volver a sonar el correo.
+            if ($nuevoEstado === 'confirmado' && $pedido['estado'] !== 'confirmado') {
+                $frescos = gg_fila('SELECT * FROM pedidos WHERE id = ?', [$pedido['id']]);
+                $suCliente = $frescos['cliente_id'] !== null
+                    ? gg_fila('SELECT * FROM clientes WHERE id = ?', [$frescos['cliente_id']])
+                    : null;
+                gg_pago_avisar($frescos, gg_pago_lineas($pedido['id']), $suCliente, 'pagado');
+            }
         }
 
         if ($estado === 'APPROVED' && !$cuadra) {
@@ -381,6 +540,57 @@ if ($accion === 'estado' && $metodo === 'GET') {
         'mensaje' => gg_pago_mensaje($estado),
         'pedido'  => $pedido['codigo'] ?? null,
         'total'   => intdiv($centavos, 100),
+    ]);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/pago/probar-correo
+//
+// Manda un correo de prueba a la dirección de avisos. Existe porque el envío
+// desde un hosting compartido falla de formas que no se ven: la dirección mal
+// escrita, el correo en spam, mail() apagado. Vale más descubrirlo pulsando un
+// botón que con la primera venta de verdad.
+//
+// Solo para quien ya entra a los ajustes, y así no se convierte en una forma de
+// que un desconocido mande correos desde este servidor.
+// ─────────────────────────────────────────────────────────────────────────────
+
+if ($accion === 'probar-correo' && $metodo === 'POST') {
+    gg_exigir_rol('super_admin');
+
+    $para = trim((string) (gg_opciones('ajustes')['payments']['orderEmail'] ?? ''));
+    if ($para === '') {
+        throw new GgError('Escribe primero la dirección a la que quieres los avisos.', 400);
+    }
+
+    $ok = gg_correo_enviar(
+        $para,
+        'Prueba de avisos · GOOD GAME',
+        gg_correo_plantilla(
+            'El aviso funciona',
+            'Si estás leyendo esto, los correos de pedido te van a llegar a esta dirección.',
+            '<p style="margin:0;font-size:13.5px;line-height:1.6;color:#565a7a;">'
+            . 'Cuando alguien compre, aquí verás qué pidió, quién es y a dónde enviarlo.</p>',
+            '<a href="' . gg_url_sitio() . '/admin/ajustes" style="display:inline-block;padding:10px 18px;'
+            . 'background:#070A78;color:#ffffff;text-decoration:none;border-radius:9px;font-size:13.5px;'
+            . 'font-weight:700;">Volver a los ajustes</a>'
+        ),
+        "El aviso funciona.\n\nSi estás leyendo esto, los correos de pedido te van a llegar\n"
+        . "a esta dirección.\n\nGOOD GAME · " . gg_url_sitio() . "\n"
+    );
+
+    if (!$ok) {
+        throw new GgError(
+            'El servidor no pudo enviar el correo. Puede que este hosting tenga el envío ' .
+            'desactivado: revísalo en hPanel → Correos.',
+            502
+        );
+    }
+
+    gg_responder([
+        'ok'      => true,
+        'para'    => $para,
+        'mensaje' => 'Correo enviado. Si no llega en un par de minutos, mira en la carpeta de spam.',
     ]);
 }
 

@@ -490,6 +490,10 @@ if ($recurso === 'ajustes') {
                 // Solo dice SI hay secreto guardado, nunca cuál. Es lo que
                 // necesita el panel para pintar «configurado» sin enseñarlo.
                 'hasIntegrity' => gg_ajustes_guardar_secreto($crudo, $base),
+                // A dónde llega el aviso de cada pedido. Vacío = no se avisa, y
+                // no es un error: significa que el negocio aún no lo decidió.
+                'orderEmail'   => gg_ajustes_correo($crudo, 'orderEmail', $base),
+                'emailCustomer' => gg_ajustes_interruptor($crudo, 'emailCustomer', $base, true),
             ],
         };
 

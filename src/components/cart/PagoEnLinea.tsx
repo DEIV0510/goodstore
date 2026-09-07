@@ -1,107 +1,40 @@
 import { Check, Copy, ExternalLink, MessageCircle, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
+import DatosDelCliente from '@/components/cart/DatosDelCliente'
 import { site } from '@/data/site'
 import { mensajeDeError } from '@/lib/api'
 import { cop } from '@/lib/format'
-import { copiar, importeParaPegar, irALaPasarela, prepararPago } from '@/lib/pago'
+import {
+  copiar,
+  guardarDatos,
+  importeParaPegar,
+  irALaPasarela,
+  prepararPago,
+  type DatosCliente,
+  type PedidoPreparado,
+} from '@/lib/pago'
 import { cartMessage } from '@/lib/whatsapp'
 import type { CartEntry } from '@/types'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Pasos para pagar en línea.
+// Cerrar la compra sin hablar con nadie.
 //
-// El enlace de cobro es de monto abierto: la pasarela pide el importe y NO
-// acepta que se le pase hecho. Además solo le entrega al negocio un pago y unos
-// datos de envío, sin saber qué juegos son. Así que este panel resuelve las dos
-// cosas que faltan:
+// Un solo recorrido, en dos pasos:
 //
-//   · que el cliente no teclee mal el total  → se lo copia al portapapeles;
-//   · que el negocio sepa qué enviar         → referencia + pedido por WhatsApp.
-//
-// El orden de los pasos no es casual: primero el pedido y luego el pago. Si
-// alguien paga y se va sin escribir, al negocio le queda un ingreso suelto que
-// no sabe a quién corresponde.
+//   1. Datos      — quién es y a dónde enviarlo. Aquí se REGISTRA el pedido y
+//                   el negocio recibe su aviso por correo, pase lo que pase
+//                   después: si el cliente se arrepiente en la pasarela, al
+//                   menos ya se sabe qué quería y cómo contactarlo.
+//   2. Pago       — según cómo cobre el negocio:
+//                     · checkout — a la pasarela, con el importe firmado;
+//                     · enlace   — de monto abierto, así que hay que copiarle
+//                                  el total al portapapeles para que no lo
+//                                  teclee mal.
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface Props {
   entries: CartEntry[]
   total: number
-  referencia: string
-}
-
-/**
- * Checkout Web: un solo botón.
- *
- * El total ya viaja calculado y firmado por el servidor, así que aquí no hay
- * nada que copiar ni que apuntar. La lista de juegos sí hace falta que llegue
- * al negocio, y para eso el pedido queda registrado en el panel en el momento
- * en que se pulsa: la pasarela no manda esa información.
- */
-function PagoDirecto({ entries, total }: { entries: CartEntry[]; total: number }) {
-  const [enviando, setEnviando] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  async function pagar() {
-    setEnviando(true)
-    setError(null)
-    try {
-      const f = await prepararPago(entries.map((e) => ({ slug: e.product.slug, qty: e.qty })))
-      // A partir de aquí el navegador se va a la pasarela; el estado de carga
-      // se queda puesto a propósito, para que nadie pulse dos veces.
-      irALaPasarela(f)
-    } catch (e) {
-      setError(mensajeDeError(e))
-      setEnviando(false)
-    }
-  }
-
-  return (
-    <div className="px-4 py-6">
-      <div className="rounded-xl border border-white/10 bg-white/[.04] px-4 py-4 text-center">
-        <p className="text-2xs font-bold uppercase tracking-[.18em] text-white/50">
-          Total a pagar
-        </p>
-        <p className="tabular mt-1 font-display text-3xl font-black text-gold-500">
-          {cop(total)}
-        </p>
-      </div>
-
-      <button
-        type="button"
-        onClick={() => void pagar()}
-        disabled={enviando}
-        className="btn-primary mt-4 w-full"
-      >
-        <ExternalLink className="h-4 w-4" aria-hidden="true" />
-        {enviando ? 'Abriendo el pago seguro…' : `Pagar con ${site.pago.proveedor}`}
-      </button>
-
-      {error && (
-        <p
-          role="alert"
-          className="mt-3 rounded-lg border border-alert-500/30 bg-alert-500/10 px-3 py-2.5 text-[12.5px] leading-relaxed text-alert-400"
-        >
-          {error}
-        </p>
-      )}
-
-      <p className="mt-4 flex items-start gap-1.5 text-[12.5px] leading-relaxed text-white/55">
-        <ShieldCheck className="mt-px h-3.5 w-3.5 shrink-0 text-white/40" aria-hidden="true" />
-        El valor y la referencia viajan ya puestos: no tienes que escribir nada. El pago se
-        procesa en la plataforma de {site.pago.proveedor} y GOOD GAME no ve ni guarda los
-        datos de tu tarjeta o tu cuenta.
-      </p>
-
-      {site.pago.nota && (
-        <p className="mt-2 text-[12.5px] leading-relaxed text-white/55">{site.pago.nota}</p>
-      )}
-
-      <p className="mt-6 rounded-lg border border-white/10 bg-white/[.03] px-3 py-2.5 text-[12.5px] leading-relaxed text-white/55">
-        ¿Prefieres coordinar por chat? Vuelve atrás y usa «Pedir por WhatsApp»: te
-        confirmamos disponibilidad y envío antes de que pagues nada.
-      </p>
-    </div>
-  )
 }
 
 /** Un paso, con su número, su marca de hecho y su contenido. */
@@ -141,16 +74,99 @@ function Paso({
   )
 }
 
-export default function PagoEnLinea({ entries, total, referencia }: Props) {
-  // Con el Checkout Web no hay pasos que dar: el importe viaja resuelto.
-  if (site.pago.modo === 'checkout') {
-    return <PagoDirecto entries={entries} total={total} />
+export default function PagoEnLinea({ entries, total }: Props) {
+  const [enviando, setEnviando] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [pedido, setPedido] = useState<PedidoPreparado | null>(null)
+
+  /**
+   * Registra el pedido con los datos del cliente.
+   *
+   * A partir de aquí el negocio ya sabe qué le están pidiendo y a quién, aunque
+   * el cliente no llegue a pagar: por eso se hace ANTES de mandarlo a la
+   * pasarela y no después.
+   */
+  async function continuar(datos: DatosCliente) {
+    setEnviando(true)
+    setError(null)
+    try {
+      const r = await prepararPago(
+        entries.map((e) => ({ slug: e.product.slug, qty: e.qty })),
+        datos
+      )
+      guardarDatos(datos)
+
+      if (r.modo === 'checkout') {
+        // El navegador se va a la pasarela; el estado de carga se queda puesto
+        // a propósito para que nadie pulse dos veces.
+        setPedido(r)
+        irALaPasarela(r)
+        return
+      }
+      setPedido(r)
+    } catch (e) {
+      setError(mensajeDeError(e))
+    } finally {
+      setEnviando(false)
+    }
   }
-  return <PagoPorEnlace entries={entries} total={total} referencia={referencia} />
+
+  // ── 1. Los datos ─────────────────────────────────────────────────────────
+  if (!pedido) {
+    return (
+      <DatosDelCliente
+        total={total}
+        enviando={enviando}
+        errorServidor={error}
+        onContinuar={(d) => void continuar(d)}
+      />
+    )
+  }
+
+  // ── 2a. Checkout Web: ya se está yendo a la pasarela ─────────────────────
+  if (pedido.modo === 'checkout') {
+    return <YendoAPagar pedido={pedido.pedido} total={total} />
+  }
+
+  // ── 2b. Enlace de cobro: los pasos, ya con el pedido registrado ──────────
+  return (
+    <PagoPorEnlace
+      entries={entries}
+      total={total}
+      referencia={pedido.referencia}
+      enlace={pedido.enlace}
+    />
+  )
+}
+
+/** Pantalla de paso mientras el navegador salta a la pasarela. */
+function YendoAPagar({ pedido, total }: { pedido: string; total: number }) {
+  return (
+    <div className="px-4 py-10 text-center">
+      <p className="text-2xs font-bold uppercase tracking-[.18em] text-white/50">
+        Tu pedido {pedido}
+      </p>
+      <p className="tabular mt-2 font-display text-3xl font-black text-gold-500">
+        {cop(total)}
+      </p>
+      <p className="mt-4 text-sm leading-relaxed text-white/60">
+        Te estamos llevando al pago seguro de {site.pago.proveedor}…
+      </p>
+      <p className="mt-3 text-[12.5px] leading-relaxed text-white/45">
+        Si no pasa nada en unos segundos, revisa que el navegador no esté bloqueando
+        la redirección. Tu pedido ya quedó registrado.
+      </p>
+    </div>
+  )
 }
 
 /** Los tres pasos del enlace de cobro de monto abierto. */
-function PagoPorEnlace({ entries, total, referencia }: Props) {
+function PagoPorEnlace({
+  entries,
+  total,
+  referencia,
+  enlace,
+}: Props & { referencia: string; enlace: string }) {
   const [copiado, setCopiado] = useState(false)
   const [falloCopia, setFalloCopia] = useState(false)
   const [pedidoEnviado, setPedidoEnviado] = useState(false)
@@ -176,8 +192,8 @@ function PagoPorEnlace({ entries, total, referencia }: Props) {
           {referencia}
         </p>
         <p className="mt-1 text-[12.5px] leading-relaxed text-white/60">
-          Con este código emparejamos tu pago con tu pedido. Va incluido en el mensaje
-          de WhatsApp.
+          Ya lo tenemos registrado con tus datos. Con este código reconocemos tu pago
+          en cuanto entre.
         </p>
       </div>
 
@@ -185,8 +201,8 @@ function PagoPorEnlace({ entries, total, referencia }: Props) {
         {/* ── 1. El pedido ────────────────────────────────────────────────── */}
         <Paso
           n={1}
-          titulo="Envíanos tu pedido"
-          descripcion={`La pasarela solo nos avisa del pago, no de qué juegos pediste. Este mensaje es lo que nos dice qué enviarte.`}
+          titulo="Avísanos que vas a pagar"
+          descripcion="Tu pedido ya nos llegó con tus datos. Este mensaje nos deja la referencia a mano para reconocer tu pago en cuanto entre."
           hecho={pedidoEnviado}
         >
           <a
@@ -241,7 +257,7 @@ function PagoPorEnlace({ entries, total, referencia }: Props) {
           hecho={pagoAbierto}
         >
           <a
-            href={site.pago.enlace}
+            href={enlace || site.pago.enlace}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setPagoAbierto(true)}

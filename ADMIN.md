@@ -144,15 +144,18 @@ Wompi/Nequi a nombre de «Good game david correa».
 ### Cómo llega el dinero, en concreto
 
 1. El cliente arma el carrito y pulsa **Pagar en línea**.
-2. La tienda le da una **referencia** (`GG-7F3K`) y le pide que te mande el
-   pedido por WhatsApp. Ese mensaje lleva la referencia y la lista de juegos.
-3. Le copia el **total exacto** al portapapeles.
-4. Lo lleva a la pasarela, donde pega el valor, elige medio de pago y escribe
-   su dirección de envío.
+2. Escribe **sus datos**: nombre, WhatsApp, ciudad y dirección.
+3. En ese momento el pedido **queda registrado** en Pedidos y **a ti te llega
+   un correo** con qué pidió, quién es y a dónde enviarlo.
+4. Luego paga: con Checkout Web el importe le llega puesto; con enlace de cobro
+   la tienda le copia el total al portapapeles.
 
-Tú recibes **dos cosas por separado**: el pedido por WhatsApp (con la
-referencia) y el pago en la pasarela (con el importe y la dirección). La
-referencia es lo que los une.
+Lo importante del orden: **el aviso sale antes de pagar**. Si el cliente se
+arrepiente en la pasarela, tú ya sabes qué quería y tienes su WhatsApp para
+escribirle. Antes eso se perdía.
+
+Con Checkout Web, cuando el pago se aprueba te llega un **segundo correo**
+(«Pago aprobado») y el pedido pasa solo a *confirmado*.
 
 > ⚠️ **Por qué el cliente escribe el total y no viaja solo.**
 > Un enlace de cobro no acepta que se le pase el importe: se probó contra el
@@ -175,6 +178,33 @@ Pega el enlace nuevo en **General → Pagos** y cambia el nombre que ve el
 cliente. Solo se admiten enlaces `https://`; el panel te muestra el dominio al
 que apunta para que compruebes que es el correcto antes de guardar. Queda
 registrado en el **Historial**, con el enlace anterior y el nuevo.
+
+### Los avisos por correo
+
+Se configuran en **General → Pagos y avisos**. Escribe ahí tu correo y pulsa
+**«Enviar un correo de prueba»** antes de la primera venta: si algo falla,
+mejor descubrirlo con un botón que con un cliente esperando.
+
+Recibes:
+
+| Cuándo | Qué dice |
+|---|---|
+| El cliente cierra el pedido | Qué pidió, quién es, su WhatsApp y a dónde enviarlo |
+| El pago se aprueba (Checkout Web) | Lo mismo, marcado como **APROBADO** |
+
+El correo trae un botón para **escribirle al cliente por WhatsApp** y otro para
+**abrir el pedido en el panel**. Y si respondes al correo, la respuesta le llega
+a él directamente.
+
+> **Usa un correo de tu dominio** (`pedidos@goodgamecol.shop`). Tu plan de
+> Hostinger incluye uno. Sale y entra por el mismo proveedor, así que no cae en
+> spam; a un Gmail puede llegarle a la carpeta de promociones.
+
+Si dejas el campo vacío no se avisa a nadie, y no es un error: significa que
+todavía no dijiste a dónde los quieres.
+
+**Al cliente** también se le manda su comprobante, si dejó correo y tienes el
+interruptor encendido. Es opcional.
 
 ---
 
