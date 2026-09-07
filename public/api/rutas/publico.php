@@ -52,12 +52,31 @@ $banners = array_map(
     )
 );
 
+// ── Ajustes, quitando lo que es del negocio y no del público ────────────────
+//
+// Esta respuesta la lee cualquier visitante. La sección de pagos mezcla cosas
+// que la tienda sí necesita (si el pago está activo, el enlace de cobro, cómo
+// se llama el medio, la llave pública —que es pública por diseño—) con cosas
+// que son del negocio y de nadie más.
+const GG_PUBLICO_FUERA = [
+    // El correo al que llegan los pedidos. Publicarlo es regalar una dirección
+    // para spam, y al navegador no le sirve para nada.
+    'orderEmail',
+];
+
+$ajustes = gg_opciones('ajustes');
+if (is_array($ajustes['payments'] ?? null)) {
+    foreach (GG_PUBLICO_FUERA as $clave) {
+        unset($ajustes['payments'][$clave]);
+    }
+}
+
 gg_responder([
     'productos'  => $productos,
     'categorias' => $categorias,
     'preguntas'  => $preguntas,
     'banners'    => $banners,
     'contenido'  => gg_opciones('contenido'),
-    'ajustes'    => gg_opciones('ajustes'),
+    'ajustes'    => $ajustes,
     'whatsapp'   => gg_opciones('whatsapp'),
 ]);
