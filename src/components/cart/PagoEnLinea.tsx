@@ -1,4 +1,11 @@
-import { Check, Copy, ExternalLink, MessageCircle, ShieldCheck } from 'lucide-react'
+import {
+  Check,
+  CheckCircle2,
+  Copy,
+  ExternalLink,
+  MessageCircle,
+  ShieldCheck,
+} from 'lucide-react'
 import { useState } from 'react'
 import DatosDelCliente from '@/components/cart/DatosDelCliente'
 import { site } from '@/data/site'
@@ -152,9 +159,13 @@ function YendoAPagar({ pedido, total }: { pedido: string; total: number }) {
       <p className="mt-4 text-sm leading-relaxed text-white/60">
         Te estamos llevando al pago seguro de {site.pago.proveedor}…
       </p>
-      <p className="mt-3 text-[12.5px] leading-relaxed text-white/45">
+      <p className="mt-3 text-[12.5px] leading-relaxed text-white/55">
+        Tu pedido ya quedó registrado con tus datos. <strong>No hace falta que nos
+        escribas</strong>: te contactamos nosotros para confirmarte el envío.
+      </p>
+      <p className="mt-2 text-[12.5px] leading-relaxed text-white/45">
         Si no pasa nada en unos segundos, revisa que el navegador no esté bloqueando
-        la redirección. Tu pedido ya quedó registrado.
+        la redirección.
       </p>
     </div>
   )
@@ -169,7 +180,6 @@ function PagoPorEnlace({
 }: Props & { referencia: string; enlace: string }) {
   const [copiado, setCopiado] = useState(false)
   const [falloCopia, setFalloCopia] = useState(false)
-  const [pedidoEnviado, setPedidoEnviado] = useState(false)
   const [pagoAbierto, setPagoAbierto] = useState(false)
 
   const importe = importeParaPegar(total)
@@ -183,43 +193,35 @@ function PagoPorEnlace({
 
   return (
     <div className="px-4 py-5">
-      {/* ── Referencia del pedido ─────────────────────────────────────────── */}
-      <div className="rounded-xl border border-gold-500/30 bg-gold-500/[.07] px-4 py-3">
-        <p className="text-2xs font-bold uppercase tracking-[.18em] text-gold-500">
-          Referencia de tu pedido
+      {/* ── El pedido ya está hecho ───────────────────────────────────────────
+          Esto es lo primero que tiene que leer el cliente: que no le falta
+          avisar a nadie. Antes había aquí un paso pidiéndole que escribiera por
+          WhatsApp, y sobraba: el pedido ya le llegó al negocio con sus datos en
+          el momento de rellenar el formulario. Pedirle además que escriba
+          convierte una compra en una conversación. */}
+      <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/[.08] px-4 py-3.5">
+        <p className="flex items-center gap-2 font-display text-[15px] font-extrabold text-white">
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" aria-hidden="true" />
+          Tu pedido ya quedó registrado
         </p>
-        <p className="tabular mt-1 select-all font-display text-xl font-black text-white">
+        <p className="tabular mt-2 select-all font-display text-xl font-black text-gold-500">
           {referencia}
         </p>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-white/60">
-          Ya lo tenemos registrado con tus datos. Con este código reconocemos tu pago
-          en cuanto entre.
+        <p className="mt-1.5 text-[12.5px] leading-relaxed text-white/70">
+          Ya tenemos tus datos y sabemos qué pediste. <strong>No hace falta que nos
+          escribas</strong>: en cuanto entre el pago te contactamos nosotros por
+          WhatsApp para confirmarte el envío.
         </p>
       </div>
 
-      <ol className="mt-6 space-y-7">
-        {/* ── 1. El pedido ────────────────────────────────────────────────── */}
+      <p className="mt-5 text-[13px] leading-relaxed text-white/60">
+        Solo falta pagar. Son dos pasos:
+      </p>
+
+      <ol className="mt-4 space-y-7">
+        {/* ── 1. El total ─────────────────────────────────────────────────── */}
         <Paso
           n={1}
-          titulo="Avísanos que vas a pagar"
-          descripcion="Tu pedido ya nos llegó con tus datos. Este mensaje nos deja la referencia a mano para reconocer tu pago en cuanto entre."
-          hecho={pedidoEnviado}
-        >
-          <a
-            href={cartMessage(entries, referencia)}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setPedidoEnviado(true)}
-            className="btn-wa w-full"
-          >
-            <MessageCircle className="h-4 w-4" aria-hidden="true" />
-            Enviar por WhatsApp
-          </a>
-        </Paso>
-
-        {/* ── 2. El total ─────────────────────────────────────────────────── */}
-        <Paso
-          n={2}
           titulo="Copia el total exacto"
           descripcion={`En ${site.pago.proveedor} tendrás que escribir cuánto vas a pagar. Cópialo de aquí y pégalo: así no hay forma de equivocarse.`}
           hecho={copiado}
@@ -249,11 +251,11 @@ function PagoPorEnlace({
           </p>
         </Paso>
 
-        {/* ── 3. El pago ──────────────────────────────────────────────────── */}
+        {/* ── 2. El pago ──────────────────────────────────────────────────── */}
         <Paso
-          n={3}
+          n={2}
           titulo={`Paga con ${site.pago.proveedor}`}
-          descripcion="Se abre en una pestaña nueva. Ahí eliges el medio de pago y escribes tus datos de envío."
+          descripcion="Se abre en una pestaña nueva. Pega ahí el valor y listo: con eso terminas."
           hecho={pagoAbierto}
         >
           <a
@@ -281,10 +283,24 @@ function PagoPorEnlace({
         </Paso>
       </ol>
 
-      <p className="mt-7 rounded-lg border border-white/10 bg-white/[.03] px-3 py-2.5 text-[12.5px] leading-relaxed text-white/55">
-        ¿Prefieres coordinar por chat? Vuelve atrás y usa «Pedir por WhatsApp»: te
-        confirmamos disponibilidad y envío antes de que pagues nada.
-      </p>
+      {/* Salida de emergencia, no un paso. Va al final, en pequeño y sin número:
+          quien quiera preguntar algo puede, pero nadie debe sentir que le falta
+          escribir para que su pedido cuente. */}
+      <div className="mt-8 border-t border-white/10 pt-4">
+        <p className="text-[12.5px] leading-relaxed text-white/50">
+          ¿Alguna duda antes de pagar? Escríbenos y te respondemos; tu pedido ya está
+          guardado con la referencia de arriba.
+        </p>
+        <a
+          href={cartMessage(entries, referencia)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-ghost mt-2 w-full text-xs text-white/60"
+        >
+          <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
+          Escribirnos por WhatsApp
+        </a>
+      </div>
     </div>
   )
 }

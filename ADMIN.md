@@ -150,6 +150,11 @@ Wompi/Nequi a nombre de «Good game david correa».
 4. Luego paga: con Checkout Web el importe le llega puesto; con enlace de cobro
    la tienda le copia el total al portapapeles.
 
+**El cliente NO tiene que escribirte para nada.** La pantalla se lo dice con
+todas las letras: «tu pedido ya quedó registrado, no hace falta que nos
+escribas». Quien quiera preguntar algo tiene un enlace de WhatsApp al final,
+pequeño y opcional. Eres tú quien lo contacta para confirmarle el envío.
+
 Lo importante del orden: **el aviso sale antes de pagar**. Si el cliente se
 arrepiente en la pasarela, tú ya sabes qué quería y tienes su WhatsApp para
 escribirle. Antes eso se perdía.

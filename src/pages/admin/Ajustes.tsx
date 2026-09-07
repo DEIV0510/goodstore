@@ -1138,8 +1138,25 @@ export default function Ajustes() {
                 value={ajustes.payments.orderEmail}
                 onChange={(e) => editarPagos({ orderEmail: e.target.value })}
                 error={errores['payments.orderEmail']}
-                ayuda="Mejor uno de tu propio dominio: sale y entra por el mismo servidor y no cae en spam. Vacío = no se avisa."
+                ayuda="Mejor uno de tu propio dominio: sale y entra por el mismo servidor y no cae en spam."
               />
+
+              {/* Sin correo, la tienda registra los pedidos pero el negocio no
+                  se entera hasta que entra al panel a mirar — que es justo lo
+                  que esto venía a evitar. Vale la pena decirlo fuerte. */}
+              {!ajustes.payments.orderEmail.trim() && (
+                <p
+                  role="status"
+                  className="mt-3 flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3.5 text-[12.5px] leading-relaxed text-amber-900"
+                >
+                  <AlertTriangle className="mt-px h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span>
+                    <strong>Sin correo no te avisamos de nada.</strong> Los pedidos se
+                    guardan igual en Pedidos, pero tendrías que entrar al panel a
+                    mirarlos. Escribe aquí tu dirección para enterarte al momento.
+                  </span>
+                </p>
+              )}
             </div>
 
             <div className="mt-3 flex flex-wrap items-center gap-3">
