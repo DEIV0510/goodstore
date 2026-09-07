@@ -41,6 +41,20 @@ const GG_PAGO_MAX_LINEAS = 60;
 /** Y una cantidad por línea que un negocio de barrio no va a despachar jamás. */
 const GG_PAGO_MAX_CANTIDAD = 20;
 
+/**
+ * Cómo cobra la tienda mientras nadie haya tocado Ajustes → Pagos.
+ *
+ * Tienen que ser LOS MISMOS valores que trae la tienda en
+ * `src/services/ajustes.ts`. Si no, pasa exactamente lo que pasó al publicar:
+ * el carrito enseñaba el botón de pagar —porque su valor por omisión decía que
+ * sí— y el servidor respondía «no está disponible», porque el suyo decía que
+ * no. Nadie podía comprar y no había ningún error a la vista.
+ */
+const GG_PAGO_ACTIVO_OMISION = true;
+const GG_PAGO_MODO_OMISION = 'enlace';
+const GG_PAGO_PROVEEDOR_OMISION = 'Nequi';
+const GG_PAGO_ENLACE_OMISION = 'https://checkout.nequi.wompi.co/l/xT7STl';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Ayudas
 // ─────────────────────────────────────────────────────────────────────────────
@@ -48,18 +62,26 @@ const GG_PAGO_MAX_CANTIDAD = 20;
 /**
  * Configuración de la pasarela: lo público de «ajustes» más el secreto, que
  * vive aparte para que no pueda salir por una ruta de lectura.
+ *
+ * Cuando la sección nunca se ha guardado se usan los valores por omisión, los
+ * mismos que la tienda: así el sitio cobra desde el minuto uno sin que nadie
+ * tenga que entrar al panel a confirmar lo que ya venía puesto.
  */
 function gg_pago_config(): array
 {
-    $p = gg_opciones('ajustes')['payments'] ?? [];
+    $guardado = gg_opciones('ajustes');
+    $p = is_array($guardado['payments'] ?? null) ? $guardado['payments'] : [];
     $secretos = gg_opciones('secretos');
 
     return [
-        'activo'    => gg_bool($p['enabled'] ?? false),
-        'modo'      => ($p['mode'] ?? 'enlace') === 'checkout' ? 'checkout' : 'enlace',
+        'activo'    => array_key_exists('enabled', $p)
+            ? gg_bool($p['enabled'])
+            : GG_PAGO_ACTIVO_OMISION,
+        'modo'      => ($p['mode'] ?? GG_PAGO_MODO_OMISION) === 'checkout' ? 'checkout' : 'enlace',
+        'enlace'    => trim((string) ($p['link'] ?? '')) ?: GG_PAGO_ENLACE_OMISION,
         'llave'     => trim((string) ($p['publicKey'] ?? '')),
         'integridad'=> trim((string) ($secretos['wompiIntegridad'] ?? '')),
-        'proveedor' => trim((string) ($p['provider'] ?? '')) ?: 'Wompi',
+        'proveedor' => trim((string) ($p['provider'] ?? '')) ?: GG_PAGO_PROVEEDOR_OMISION,
     ];
 }
 
@@ -388,7 +410,7 @@ if ($accion === 'preparar' && $metodo === 'POST') {
     if ($cfg['modo'] !== 'checkout') {
         gg_responder([
             'modo'       => 'enlace',
-            'enlace'     => trim((string) (gg_opciones('ajustes')['payments']['link'] ?? '')),
+            'enlace'     => $cfg['enlace'],
             'pedido'     => $codigo,
             'referencia' => $codigo,
             'total'      => $subtotal,

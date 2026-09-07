@@ -26,6 +26,7 @@ Abre <http://localhost:5254>.
 | `npm run qa` | Control de calidad automatizado en navegador real (ver §9) |
 | `php tools/prueba-firma-wompi.php` | Coteja la firma de Wompi con el ejemplo de su documentación |
 | `php tools/prueba-esquema.php` | Comprueba que instalar desde cero y migrar dejan el mismo esquema |
+| `node tools/prueba-omisiones.mjs` | Comprueba que tienda y servidor parten de los mismos valores de pago |
 | `npm run brand` | Regenera logotipos e íconos desde `_source/logos/` |
 | `node tools/hoja-fotos.mjs` | Hojas de contacto para revisar que cada portada es la correcta |
 | `npm run boot` | Reinyecta la pantalla de carga en `index.html` |
