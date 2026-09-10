@@ -1138,7 +1138,7 @@ export default function Ajustes() {
                 value={ajustes.payments.orderEmail}
                 onChange={(e) => editarPagos({ orderEmail: e.target.value })}
                 error={errores['payments.orderEmail']}
-                ayuda="Mejor uno de tu propio dominio: sale y entra por el mismo servidor y no cae en spam."
+                ayuda="Manda un correo de prueba y mira también en spam: es la única forma de saber dónde cae."
               />
 
               {/* Sin correo, la tienda registra los pedidos pero el negocio no
