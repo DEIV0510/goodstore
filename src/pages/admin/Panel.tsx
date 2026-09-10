@@ -25,6 +25,7 @@ import { Cargando, Cifra, Encabezado, ErrorEstado, Etiqueta } from '@/components
 import { platformShort } from '@/data/taxonomy'
 import { useAuth } from '@/hooks/useAuth'
 import { cop, pluralize } from '@/lib/format'
+import { obtenerAjustes } from '@/services/ajustes'
 import { puedeVerNegocio } from '@/services/autenticacion'
 import {
   cargarPanel,
@@ -79,6 +80,12 @@ export default function Panel() {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Si no hay dirección de avisos, el negocio no se entera de sus propias
+  // ventas. El aviso ya existía dentro de Ajustes, pero ahí solo lo ve quien
+  // entra a Ajustes, y a esa pantalla no entra nadie hasta que algo falla. Aquí
+  // lo ve al abrir el panel.
+  const [sinCorreoDeAvisos, setSinCorreoDeAvisos] = useState(false)
+
   const cargar = useCallback(async () => {
     setCargando(true)
     setError(null)
@@ -86,6 +93,15 @@ export default function Panel() {
       const vigente = leerUmbralStockBajo()
       setUmbral(vigente)
       setDatos(await cargarPanel(vigente))
+
+      // Aparte y sin romper nada: un editor no puede leer los ajustes y aquí
+      // devolvería 403. El panel tiene que seguir abriendo igual.
+      try {
+        const ajustes = await obtenerAjustes()
+        setSinCorreoDeAvisos(ajustes.payments.orderEmail.trim() === '')
+      } catch {
+        setSinCorreoDeAvisos(false)
+      }
     } catch (e) {
       setError(
         e instanceof Error ? e.message : 'No se pudieron cargar los datos del panel'
@@ -175,6 +191,35 @@ export default function Panel() {
           Agregar producto
         </Link>
       </Encabezado>
+
+      {/* ── Nadie te está avisando de tus ventas ────────────────────────────
+          Va por encima del stock bajo porque es peor: un producto agotado se
+          nota mirando la tienda; una venta de la que nadie te avisa, no.    */}
+      {verNegocio && sinCorreoDeAvisos && (
+        <div
+          role="status"
+          className="adm-card mb-5 flex flex-col gap-3 border-amber-300 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="flex items-start gap-3">
+            <AlertTriangle
+              className="mt-0.5 h-5 w-5 shrink-0 text-amber-600"
+              aria-hidden="true"
+            />
+            <div className="min-w-0">
+              <p className="font-display text-[14px] font-bold text-amber-900">
+                No te están llegando los avisos de tus ventas
+              </p>
+              <p className="mt-0.5 text-[12.5px] leading-relaxed text-amber-800">
+                Falta decir a qué correo. Los pedidos se guardan igual y no se
+                pierde ninguno, pero nadie te avisa cuando entra uno.
+              </p>
+            </div>
+          </div>
+          <Link to="/admin/ajustes" className="adm-btn-suave shrink-0 self-start sm:self-auto">
+            Poner mi correo
+          </Link>
+        </div>
+      )}
 
       {/* ── Lo urgente, arriba del todo ─────────────────────────────────────
           Solo aparece cuando de verdad hay algo por reponer: un aviso que sale

@@ -201,9 +201,42 @@ El correo trae un botón para **escribirle al cliente por WhatsApp** y otro para
 **abrir el pedido en el panel**. Y si respondes al correo, la respuesta le llega
 a él directamente.
 
-> **Usa un correo de tu dominio** (`pedidos@goodgamecol.shop`). Tu plan de
-> Hostinger incluye uno. Sale y entra por el mismo proveedor, así que no cae en
-> spam; a un Gmail puede llegarle a la carpeta de promociones.
+### Antes de fiarte del correo: dos minutos de DNS
+
+Esto se comprobó el 2026-09-10 y hay que arreglarlo una sola vez.
+
+`goodgamecol.shop` **no tiene publicado ningún registro de correo**: ni SPF, ni
+DKIM, ni DMARC, ni MX. Se verificó desde cuatro sitios distintos. Significa dos
+cosas:
+
+- El dominio **no puede recibir** correo. Un buzón `pedidos@goodgamecol.shop`
+  hoy no existe, así que no lo pongas como destino: no llegaría a ninguna parte.
+  Un Gmail está bien como destino.
+- Los avisos salen **sin firma**. Google los va a ver como correo que dice venir
+  de tu dominio sin que tu dominio lo respalde. Lo más probable es que caigan en
+  **spam**. No los rechazan —para eso haría falta un DMARC que no existe—, pero
+  no llegar a la bandeja de entrada es casi lo mismo.
+
+**El arreglo**, en hPanel → *Dominios* → `goodgamecol.shop` → *Zona DNS* →
+*Añadir registro*:
+
+| Campo | Valor |
+|---|---|
+| Tipo | `TXT` |
+| Nombre | `@` |
+| Valor | `v=spf1 include:_spf.mail.hostinger.com ~all` |
+
+Tarda entre 10 y 30 minutos en publicarse. Después vuelve a mandarte el correo
+de prueba.
+
+**Y comprueba de verdad dónde cayó.** En Gmail, abre el correo de prueba (mira
+también en Spam), pulsa los tres puntos → **«Mostrar original»**. Ahí sale una
+línea `Authentication-Results` con `spf=` y `dkim=`. Eso te dice si la firma
+pasó, y deja de ser una suposición.
+
+> Si más adelante quieres el correo del dominio funcionando de verdad
+> (`pedidos@goodgamecol.shop`), hay que crear la cuenta de correo en Hostinger:
+> al crearla, ella misma publica los MX, el SPF y el DKIM que faltan.
 
 Si dejas el campo vacío no se avisa a nadie, y no es un error: significa que
 todavía no dijiste a dónde los quieres.
@@ -299,12 +332,34 @@ sale en ese momento ya lo lleva, y el cliente no tiene que pedírtelo.
 Si lo pasas a *enviado* sin guía, el correo sale igual y le dice que te escriba
 para pedirla. Puedes añadirla después, pero ese correo ya salió.
 
+### Ojo: «pendiente» no quiere decir «no pagó»
+
+Mientras cobres con el **enlace de Nequi** —el modo de hoy—, el cliente paga en
+otra pestaña y no vuelve al sitio. La tienda no tiene forma de enterarse. Por
+eso:
+
+- el pedido se queda en **pendiente** aunque el cliente ya haya pagado;
+- el correo que te llega dice «Pedido nuevo… todavía no está pagado», y dice la
+  verdad **en el momento en que sale**, no después.
+
+O sea: un pedido pagado y un carrito abandonado te llegan igual. Hoy la única
+forma de distinguirlos es mirar tu Nequi. Con una venta al día se lleva bien;
+con diez, se pierde una.
+
+Esto se cierra solo con **Checkout Web** (§5-bis): ahí el sitio le pregunta a
+Wompi si el pago entró, el pedido pasa a *confirmado* él solo, se descuenta el
+stock y te llega el correo de «Pago aprobado». Son las dos llaves que están
+pendientes.
+
 ### Qué NO se manda solo
 
 - Los avisos al cliente solo salen si **dejó correo** al comprar y tienes
   encendido el interruptor de **General → Pagos y avisos**.
 - Si el correo falla, el pedido **igual cambia de estado**. No se pierde la
   venta por un problema del servidor de correo; el fallo queda en el registro.
+- Y ahora se ve: si el aviso de un pedido no salió, su ficha lo dice con un
+  recuadro ámbar, y si no has puesto tu correo el panel de inicio te lo avisa
+  nada más entrar. Un correo que no sale no se nota; por eso se pinta.
 - No se manda nada por WhatsApp automáticamente. Ese mensaje lo escribes tú,
   con el botón que trae el correo del pedido.
 
