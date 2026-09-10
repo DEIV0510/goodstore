@@ -62,6 +62,11 @@ export const AJUSTES_POR_OMISION: Settings = {
     // Vacío a propósito: no se inventa una dirección de nadie.
     orderEmail: '',
     emailCustomer: true,
+    smtpEnabled: false,
+    smtpHost: 'smtp.hostinger.com',
+    smtpPort: 465,
+    smtpUser: '',
+    hasSmtpPassword: false,
   },
 }
 

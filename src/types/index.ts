@@ -337,6 +337,22 @@ export interface PaymentSettings {
   orderEmail: string
   /** Si al cliente se le manda su comprobante cuando deja correo. */
   emailCustomer: boolean
+
+  // ── Por dónde sale el correo ───────────────────────────────────────────────
+  //
+  // Con mail() del hosting el aviso acaba en spam: el sobre sale con el dominio
+  // de Hostinger y DMARC no alinea. Por el SMTP del buzón del dominio sí, y va
+  // firmado. Apagado, se sigue usando mail().
+  smtpEnabled: boolean
+  smtpHost: string
+  /** 465 (cifrado desde el saludo) o 587 (sube a TLS con STARTTLS). */
+  smtpPort: number
+  /** El buzón completo. Es también el usuario con el que se entra. */
+  smtpUser: string
+  /** Si hay contraseña guardada. NUNCA la contraseña: esa no vuelve del servidor. */
+  hasSmtpPassword: boolean
+  /** Solo de ida. Al cargar la pantalla siempre llega vacío. */
+  smtpPassword?: string
 }
 
 /** Lo que la tienda sabe de un pago al volver de la pasarela. */

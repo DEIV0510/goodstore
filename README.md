@@ -29,6 +29,7 @@ Abre <http://localhost:5254>.
 | `node tools/prueba-omisiones.mjs` | Comprueba que tienda y servidor parten de los mismos valores de pago |
 | `php tools/prueba-fuga-publica.php` | Comprueba que /api/publico no filtra datos del negocio |
 | `php tools/prueba-stock.php` | Comprueba que el inventario se descuenta solo, y una sola vez |
+| `php tools/prueba-smtp.php` | Comprueba el cliente SMTP: cabeceras, puntos escapados y CRLF |
 | `npm run brand` | Regenera logotipos e íconos desde `_source/logos/` |
 | `node tools/hoja-fotos.mjs` | Hojas de contacto para revisar que cada portada es la correcta |
 | `npm run boot` | Reinyecta la pantalla de carga en `index.html` |

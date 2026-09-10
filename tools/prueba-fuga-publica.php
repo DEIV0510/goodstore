@@ -22,6 +22,11 @@ declare(strict_types=1);
 
 $privados = [
     'orderEmail' => 'NO-DEBE-SALIR-correo@ejemplo.test',
+    // La salida de correo entera. El usuario del SMTP es la mitad de unas
+    // credenciales: publicarlo es decirle a cualquiera contra qué buzón probar
+    // contraseñas.
+    'smtpHost'   => 'NO-DEBE-SALIR-smtp.ejemplo.test',
+    'smtpUser'   => 'NO-DEBE-SALIR-buzon@ejemplo.test',
 ];
 $publicos = [
     'enabled'   => true,
@@ -31,6 +36,7 @@ $publicos = [
     'publicKey' => 'pub_test_DEBE-SALIR-1234567890',
 ];
 $secreto = 'test_integrity_NO-DEBE-SALIR-123456';
+$claveSmtp = 'NO-DEBE-SALIR-clave-del-buzon';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Paso 2 (el hijo): monta una base de mentira y deja que la ruta responda.
@@ -48,6 +54,7 @@ if (($argv[1] ?? '') === '--servir') {
     // El secreto vive en otro grupo; se guarda para comprobar que ese grupo
     // tampoco asoma por ningún lado.
     gg_guardar_opcion('secretos', 'wompiIntegridad', $secreto);
+    gg_guardar_opcion('secretos', 'smtpClave', $claveSmtp);
 
     $ruta = ['publico'];
     require __DIR__ . '/../public/api/rutas/publico.php';
@@ -84,6 +91,11 @@ foreach ($privados as $clave => $valor) {
 $comprobar(
     !str_contains($respuesta, 'test_integrity_') && !str_contains($respuesta, 'wompiIntegridad'),
     'el secreto de integridad NO sale'
+);
+
+$comprobar(
+    !str_contains($respuesta, $claveSmtp) && !str_contains($respuesta, 'smtpClave'),
+    'la contraseña del correo NO sale'
 );
 
 // Y que lo que SÍ necesita la tienda siga saliendo: una prueba que solo quite

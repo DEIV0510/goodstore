@@ -62,6 +62,15 @@ const GG_PUBLICO_FUERA = [
     // El correo al que llegan los pedidos. Publicarlo es regalar una dirección
     // para spam, y al navegador no le sirve para nada.
     'orderEmail',
+    // Y la salida de correo entera: el servidor, el puerto y sobre todo el
+    // usuario son la mitad de unas credenciales. La contraseña ni siquiera vive
+    // en este grupo, pero publicar el usuario ya es servirle medio trabajo a
+    // quien quiera probar contraseñas contra ese buzón.
+    'smtpEnabled',
+    'smtpHost',
+    'smtpPort',
+    'smtpUser',
+    'hasSmtpPassword',
 ];
 
 $ajustes = gg_opciones('ajustes');

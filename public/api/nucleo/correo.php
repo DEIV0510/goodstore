@@ -76,16 +76,13 @@ function gg_correo_enviar(
     string $texto,
     string $responderA = ''
 ): bool {
-    if (!function_exists('mail')) {
-        error_log('[GOOD GAME] El hosting no tiene mail() disponible.');
-        return false;
-    }
     if (!filter_var($para, FILTER_VALIDATE_EMAIL)) {
         error_log('[GOOD GAME] Dirección de aviso inválida: ' . $para);
         return false;
     }
 
     $de = gg_correo_remitente();
+    $asuntoCodificado = gg_correo_mime($asunto);
     $limite = 'gg-' . bin2hex(random_bytes(12));
 
     $cabeceras = [
@@ -112,11 +109,31 @@ function gg_correo_enviar(
         . $html . "\r\n\r\n"
         . "--$limite--";
 
+    // ── Primero, por SMTP autenticado si lo hay ──────────────────────────
+    //
+    // Es el único camino por el que el correo llega a la bandeja de entrada:
+    // el sobre lleva el dominio propio y el servidor lo firma con DKIM, así
+    // que DMARC alinea. Ver la explicación larga en nucleo/smtp.php.
+    if (function_exists('gg_smtp_config') && gg_smtp_config()['activo']) {
+        $ok = gg_smtp_enviar($de, $para, $asuntoCodificado, $cabeceras, $cuerpo);
+        if ($ok) {
+            return true;
+        }
+        // Si el SMTP falla no se da por perdido el aviso: se intenta por
+        // mail(), que llega peor pero llega.
+        error_log('[GOOD GAME] SMTP falló; reintentando con mail().');
+    }
+
+    if (!function_exists('mail')) {
+        error_log('[GOOD GAME] El hosting no tiene mail() disponible.');
+        return false;
+    }
+
     // El quinto parámetro fija el remitente del sobre. Algunos hostings lo
     // prohíben y mail() falla entero, así que si no cuela se reintenta sin él.
-    $ok = @mail($para, gg_correo_mime($asunto), $cuerpo, implode("\r\n", $cabeceras), '-f' . $de);
+    $ok = @mail($para, $asuntoCodificado, $cuerpo, implode("\r\n", $cabeceras), '-f' . $de);
     if (!$ok) {
-        $ok = @mail($para, gg_correo_mime($asunto), $cuerpo, implode("\r\n", $cabeceras));
+        $ok = @mail($para, $asuntoCodificado, $cuerpo, implode("\r\n", $cabeceras));
     }
     if (!$ok) {
         error_log('[GOOD GAME] No se pudo enviar el aviso a ' . $para);

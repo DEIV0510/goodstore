@@ -217,7 +217,7 @@ cosas:
   **spam**. No los rechazan —para eso haría falta un DMARC que no existe—, pero
   no llegar a la bandeja de entrada es casi lo mismo.
 
-**El arreglo**, en hPanel → *Dominios* → `goodgamecol.shop` → *Zona DNS* →
+**Paso 1, el SPF**, en hPanel → *Dominios* → `goodgamecol.shop` → *Zona DNS* →
 *Añadir registro*:
 
 | Campo | Valor |
@@ -226,8 +226,36 @@ cosas:
 | Nombre | `@` |
 | Valor | `v=spf1 include:_spf.mail.hostinger.com ~all` |
 
-Tarda entre 10 y 30 minutos en publicarse. Después vuelve a mandarte el correo
-de prueba.
+**Ya está puesto** (2026-09-10) y se comprobó que funciona: el correo de prueba
+llegó con **SPF: PASS**.
+
+**Paso 2, y es el que hace que llegue a la bandeja de entrada.** Con el SPF
+puesto, el correo seguía cayendo en spam, y la cabecera decía por qué:
+
+    SPF:   PASS
+    DMARC: FAIL      ← «a través de srv366.main-hosting.eu»
+
+No es contradictorio. La función `mail()` de PHP saca el correo por el relé de
+Hostinger, que pone el remitente del sobre en un dominio suyo. SPF pasa para ESE
+dominio, no para el tuyo, y DMARC exige que sea el mismo que aparece en el
+«De:». Por ese camino no tiene arreglo: Hostinger tampoco firma con DKIM lo que
+sale por ahí.
+
+La solución es mandar el correo por el **buzón del dominio**:
+
+1. En hPanel → **Correos** → *Claim your free email*, crea una cuenta —por
+   ejemplo `no-responder@goodgamecol.shop`—. La contraseña la eliges tú.
+   Al crearla, Hostinger publica solos los registros que faltan, DKIM incluido.
+2. En **/admin → General → Pagos y avisos**, enciende
+   **«Enviar por el correo del dominio»** y rellena: servidor
+   `smtp.hostinger.com`, puerto `465`, el buzón y su contraseña.
+3. Guarda y manda otro correo de prueba.
+
+La contraseña se guarda en el servidor y **no vuelve nunca** a la pantalla, igual
+que el secreto de Wompi. Si el SMTP falla por lo que sea, el aviso se reintenta
+por el camino viejo: llega peor, pero llega.
+
+Con eso, en «Mostrar original» tiene que aparecer **DMARC: PASS**.
 
 **Y comprueba de verdad dónde cayó.** En Gmail, abre el correo de prueba (mira
 también en Spam), pulsa los tres puntos → **«Mostrar original»**. Ahí sale una

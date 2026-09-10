@@ -317,9 +317,12 @@ export default function Ajustes() {
 
     setErrores({})
     await guardarBloque('payments', 'Pagos en línea')
-    // El secreto no vuelve del servidor: se limpia del formulario para que la
-    // pantalla no dé a entender que sigue ahí escrito.
-    setAjustes((a) => ({ ...a, payments: { ...a.payments, integritySecret: '' } }))
+    // Ni el secreto ni la contraseña del buzón vuelven del servidor: se limpian
+    // del formulario para que la pantalla no dé a entender que siguen escritas.
+    setAjustes((a) => ({
+      ...a,
+      payments: { ...a.payments, integritySecret: '', smtpPassword: '' },
+    }))
   }
 
   /**
@@ -1181,6 +1184,84 @@ export default function Ajustes() {
                 label="Mandarle el comprobante al cliente"
                 descripcion="Solo si dejó su correo. Le llega el detalle de lo que compró."
               />
+            </div>
+
+            {/* ── Por dónde sale el correo ──────────────────────────────────
+                Esto es lo que decide si el aviso llega a la bandeja de entrada
+                o a spam, y no es una opinión: se leyó la cabecera de un correo
+                entregado y decía SPF pass, DMARC fail. */}
+            <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <Interruptor
+                activo={ajustes.payments.smtpEnabled}
+                onChange={(v) => editarPagos({ smtpEnabled: v })}
+                label="Enviar por el correo del dominio (recomendado)"
+                descripcion="Apagado, el aviso sale por el servidor del hosting y Google suele mandarlo a spam."
+              />
+
+              {ajustes.payments.smtpEnabled && (
+                <>
+                  <p className="mt-3 text-[12.5px] leading-relaxed text-slate-600">
+                    Necesitas una cuenta de correo del dominio. En hPanel →{' '}
+                    <strong>Correos</strong> puedes crear una gratis; ahí eliges tú la
+                    contraseña y la pegas aquí. Nosotros no la vemos: se guarda en el
+                    servidor y esta casilla vuelve siempre vacía.
+                  </p>
+
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <Entrada
+                      label="Servidor de salida"
+                      value={ajustes.payments.smtpHost}
+                      onChange={(e) => editarPagos({ smtpHost: e.target.value })}
+                      error={errores['payments.smtpHost']}
+                      ayuda="En Hostinger es smtp.hostinger.com."
+                    />
+                    <Entrada
+                      label="Puerto"
+                      type="number"
+                      value={String(ajustes.payments.smtpPort)}
+                      onChange={(e) => editarPagos({ smtpPort: Number(e.target.value) })}
+                      error={errores['payments.smtpPort']}
+                      ayuda="465, o 587 si el hosting lo pide."
+                    />
+                  </div>
+
+                  <div className="mt-3">
+                    <Entrada
+                      label="Buzón"
+                      type="email"
+                      value={ajustes.payments.smtpUser}
+                      onChange={(e) => editarPagos({ smtpUser: e.target.value })}
+                      error={errores['payments.smtpUser']}
+                      ayuda="La cuenta que creaste. Ej.: no-responder@goodgamecol.shop"
+                    />
+                  </div>
+
+                  <div className="mt-3">
+                    <Entrada
+                      label="Contraseña del buzón"
+                      type="password"
+                      value={ajustes.payments.smtpPassword ?? ''}
+                      onChange={(e) => editarPagos({ smtpPassword: e.target.value })}
+                      error={errores['payments.smtpPassword']}
+                      placeholder={
+                        ajustes.payments.hasSmtpPassword
+                          ? 'Contraseña guardada · déjalo vacío para conservarla'
+                          : ''
+                      }
+                      ayuda={
+                        ajustes.payments.hasSmtpPassword
+                          ? 'Escribe «borrar» para quitarla.'
+                          : 'Se guarda en el servidor y no vuelve nunca a esta pantalla.'
+                      }
+                    />
+                  </div>
+
+                  <p className="mt-3 text-[12.5px] text-slate-500">
+                    Después de guardar, manda un correo de prueba: si sale por aquí, en
+                    Gmail («Mostrar original») verás DMARC en <strong>PASS</strong>.
+                  </p>
+                </>
+              )}
             </div>
           </div>
 

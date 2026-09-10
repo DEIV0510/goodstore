@@ -297,6 +297,52 @@ function gg_ajustes_correo(array $datos, string $clave, array $previo): string
     return $v;
 }
 
+/**
+ * Puerto de salida del correo. Solo se admiten los dos que usa el correo real:
+ * 465 (cifrado desde el saludo) y 587 (empieza en claro y sube con STARTTLS).
+ * Cualquier otro número es casi siempre un error de tecleo, y un puerto mal
+ * puesto no da error: simplemente no sale el correo.
+ */
+function gg_ajustes_puerto(array $datos, string $clave, array $previo): int
+{
+    if (!array_key_exists($clave, $datos)) {
+        return (int) ($previo[$clave] ?? 465);
+    }
+    $v = (int) $datos[$clave];
+    if (!in_array($v, [465, 587], true)) {
+        throw new GgError('El puerto del correo debe ser 465 o 587.');
+    }
+    return $v;
+}
+
+/**
+ * Guarda la contraseña del SMTP en el grupo de secretos y devuelve solo SI hay
+ * una guardada. Igual que el secreto de Wompi: solo de ida, nunca de vuelta.
+ *
+ * Mandar el campo vacío conserva la que hubiera; para quitarla hay que mandar
+ * la palabra «borrar», que es difícil de teclear por accidente.
+ */
+function gg_ajustes_guardar_smtp(array $datos, array $previo): bool
+{
+    $habia = trim((string) (gg_opciones('secretos')['smtpClave'] ?? '')) !== '';
+
+    if (!array_key_exists('smtpPassword', $datos)) {
+        return $habia;
+    }
+
+    $v = (string) $datos['smtpPassword'];
+    if (trim($v) === '') {
+        return $habia;
+    }
+    if (strtolower(trim($v)) === 'borrar') {
+        gg_guardar_opcion('secretos', 'smtpClave', '');
+        return false;
+    }
+
+    gg_guardar_opcion('secretos', 'smtpClave', $v);
+    return true;
+}
+
 /** Código de moneda ISO (COP, USD…). Vacío deja a la tienda con su formato por omisión. */
 function gg_ajustes_moneda(array $datos, string $clave, array $previo): string
 {
@@ -494,6 +540,17 @@ if ($recurso === 'ajustes') {
                 // no es un error: significa que el negocio aún no lo decidió.
                 'orderEmail'   => gg_ajustes_correo($crudo, 'orderEmail', $base),
                 'emailCustomer' => gg_ajustes_interruptor($crudo, 'emailCustomer', $base, true),
+                // ── Salida del correo ────────────────────────────────────────
+                // Con mail() del hosting el correo acaba en spam: el sobre sale
+                // con el dominio de Hostinger y DMARC no alinea (comprobado en
+                // una cabecera real: SPF pass, DMARC fail). Por el SMTP del
+                // buzón del dominio sí alinea y va firmado. La contraseña se
+                // guarda aparte, como el secreto de Wompi.
+                'smtpEnabled'  => gg_ajustes_interruptor($crudo, 'smtpEnabled', $base, false),
+                'smtpHost'     => gg_ajustes_texto($crudo, 'smtpHost', 120, $base),
+                'smtpPort'     => gg_ajustes_puerto($crudo, 'smtpPort', $base),
+                'smtpUser'     => gg_ajustes_correo($crudo, 'smtpUser', $base),
+                'hasSmtpPassword' => gg_ajustes_guardar_smtp($crudo, $base),
             ],
         };
 
