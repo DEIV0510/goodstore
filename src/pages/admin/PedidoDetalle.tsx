@@ -397,6 +397,27 @@ export default function PedidoDetalle() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
+          {/* ── El aviso no salió ─────────────────────────────────────────────
+              Un correo que no sale no se nota: no hay error, no hay pantalla
+              roja, simplemente no llega. Y si no se pinta aquí, el negocio pasa
+              semanas creyendo que le avisan de cada venta. */}
+          {pedido.notified === false && (
+            <div className="flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4">
+              <Mail className="mt-0.5 h-4.5 w-4.5 shrink-0 text-amber-700" aria-hidden="true" />
+              <div className="text-[13px] leading-relaxed text-amber-900">
+                <p className="font-semibold">De este pedido no salió el aviso por correo.</p>
+                <p className="mt-1 text-amber-800">
+                  El pedido está guardado y no se perdió nada, pero nadie recibió el
+                  correo. Suele ser que falta escribir la dirección en{' '}
+                  <Link to="/admin/ajustes" className="font-semibold underline">
+                    Ajustes → Pagos y avisos
+                  </Link>
+                  . Ahí mismo hay un botón para mandarte un correo de prueba.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* ── Estado ────────────────────────────────────────────────────── */}
           <section className="adm-card-pad">
             <h2 className="adm-titulo text-[15px]">Estado del pedido</h2>

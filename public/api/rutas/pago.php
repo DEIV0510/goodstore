@@ -252,9 +252,21 @@ function gg_pago_cliente(array $datos): ?array
 function gg_pago_avisar(array $pedido, array $lineas, ?array $cliente, string $evento): void
 {
     try {
-        gg_correo_al_negocio($pedido, $lineas, $cliente, $evento);
+        // Solo se sella «avisado» si el aviso AL NEGOCIO salió de verdad. Antes
+        // se sellaba siempre, así que un correo que nunca se envió —porque
+        // faltaba la dirección, o porque el hosting lo rechazó— quedaba
+        // archivado como enviado. Ese campo es lo único que le dice al panel si
+        // el negocio se enteró de la venta: si miente, miente en lo único que
+        // importa.
+        $salio = gg_correo_al_negocio($pedido, $lineas, $cliente, $evento);
         gg_correo_al_cliente($pedido, $lineas, $cliente, $evento);
-        gg_actualizar('pedidos', $pedido['id'], ['avisado' => gg_ahora()]);
+
+        gg_actualizar('pedidos', $pedido['id'], ['avisado' => $salio ? gg_ahora() : null]);
+
+        if (!$salio) {
+            error_log('[GOOD GAME] Pedido ' . ($pedido['codigo'] ?? '?')
+                . ' registrado, pero el aviso al negocio NO salió.');
+        }
     } catch (Throwable $e) {
         error_log('[GOOD GAME] Aviso de pedido no enviado: ' . $e->getMessage());
     }

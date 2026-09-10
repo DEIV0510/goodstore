@@ -163,7 +163,7 @@ function gg_pedido_avisar_cliente(array $pedido, string $estadoNuevo): bool
 {
     try {
         $ajustes = gg_opciones('ajustes')['payments'] ?? [];
-        if (!gg_bool($ajustes['emailCustomer'] ?? false)) {
+        if (!gg_bool($ajustes['emailCustomer'] ?? GG_AVISAR_CLIENTE_OMISION)) {
             return false;
         }
 

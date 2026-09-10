@@ -13,10 +13,14 @@
 import fs from 'node:fs'
 
 const TIENDA = 'src/services/ajustes.ts'
-const SERVIDOR = 'public/api/rutas/pago.php'
+
+// Las constantes del servidor no viven todas en el mismo archivo: las del cobro
+// están junto a la ruta que cobra, y la de los avisos junto al código que
+// escribe los correos. Se leen los dos y se busca en el montón.
+const SERVIDORES = ['public/api/rutas/pago.php', 'public/api/nucleo/correo.php']
 
 const ts = fs.readFileSync(TIENDA, 'utf8')
-const php = fs.readFileSync(SERVIDOR, 'utf8')
+const php = SERVIDORES.map((f) => fs.readFileSync(f, 'utf8')).join(String.fromCharCode(10))
 
 /** El bloque `payments: { … }` de los valores por omisión de la tienda. */
 const bloque = ts.match(/payments:\s*\{([\s\S]*?)\n\s{2}\},/)
@@ -42,6 +46,11 @@ const pares = [
   ['mode', 'GG_PAGO_MODO_OMISION'],
   ['provider', 'GG_PAGO_PROVEEDOR_OMISION'],
   ['link', 'GG_PAGO_ENLACE_OMISION'],
+  // El que faltaba, y costó: la tienda pintaba el interruptor de «avisar al
+  // cliente» encendido mientras el servidor leía «?? false». Con la sección de
+  // ajustes sin guardar —que es como sale de fábrica— el cliente no recibía
+  // NINGÚN correo y nadie lo veía, porque la pantalla decía que sí.
+  ['emailCustomer', 'GG_AVISAR_CLIENTE_OMISION'],
 ]
 
 let fallos = 0

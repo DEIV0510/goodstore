@@ -41,6 +41,15 @@ function gg_correo_remitente(): string
     return 'no-responder@' . ($esDominio ? $host : 'goodgamecol.shop');
 }
 
+/**
+ * Si al cliente se le avisa cuando no se ha guardado nunca la sección de
+ * ajustes. Tiene que valer lo mismo que `emailCustomer` en
+ * src/services/ajustes.ts y que el tercer argumento del interruptor en
+ * rutas/ajustes.php: si se separan, la pantalla enseña el interruptor
+ * encendido y el servidor no manda nada. Lo vigila tools/prueba-omisiones.mjs.
+ */
+const GG_AVISAR_CLIENTE_OMISION = true;
+
 /** Escapa para HTML. Todo lo que viene del cliente pasa por aquí. */
 function gg_e(?string $t): string
 {
@@ -276,7 +285,7 @@ function gg_correo_al_negocio(array $pedido, array $lineas, ?array $cliente, str
 function gg_correo_al_cliente(array $pedido, array $lineas, ?array $cliente, string $evento): bool
 {
     $ajustes = gg_opciones('ajustes')['payments'] ?? [];
-    if (!gg_bool($ajustes['emailCustomer'] ?? false)) {
+    if (!gg_bool($ajustes['emailCustomer'] ?? GG_AVISAR_CLIENTE_OMISION)) {
         return false;
     }
     $para = trim((string) ($cliente['email'] ?? ''));

@@ -132,6 +132,10 @@ function gg_salida_pedido(array $f, array $lineas = [], ?array $cliente = null):
         'paymentRef'    => $f['pago_ref'] ?? null,
         /** Si el stock de este pedido ya se descontó del inventario. */
         'stockApplied'  => (int) ($f['stock_aplicado'] ?? 0) === 1,
+        /** Si el aviso por correo al negocio salió. null = base sin migrar. */
+        'notified'      => array_key_exists('avisado', $f)
+            ? ($f['avisado'] !== null && $f['avisado'] !== '')
+            : null,
         'createdAt'     => $f['creado'],
         'updatedAt'     => $f['actualizado'],
         'items'         => array_map(static fn($l) => [

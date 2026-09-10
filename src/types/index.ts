@@ -185,6 +185,11 @@ export interface Order {
   paymentRef: string | null
   /** Si el stock de este pedido ya se descontó del inventario. */
   stockApplied: boolean
+  /**
+   * Si el aviso por correo al negocio salió de verdad. null cuando la base
+   * todavía no ha migrado y no hay forma de saberlo.
+   */
+  notified: boolean | null
   items: OrderItem[]
   createdAt: string
   updatedAt: string
