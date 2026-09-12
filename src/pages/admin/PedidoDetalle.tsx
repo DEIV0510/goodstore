@@ -2,6 +2,9 @@ import {
   ArrowLeft,
   Check,
   ClipboardList,
+  Copy,
+  CreditCard,
+  Hash,
   Loader2,
   Mail,
   MapPin,
@@ -29,6 +32,7 @@ import {
 import { platformShort } from '@/data/taxonomy'
 import { useAuth } from '@/hooks/useAuth'
 import { cop } from '@/lib/format'
+import { copiar } from '@/lib/pago'
 import { normalizarWhatsapp } from '@/services/ajustes'
 import { puedeBorrar } from '@/services/autenticacion'
 import {
@@ -299,6 +303,21 @@ export default function PedidoDetalle() {
       avisos.error(err)
     } finally {
       setGuardandoGuia(false)
+    }
+  }
+
+  /**
+   * Copia la referencia del pago.
+   *
+   * Es el único dato que cruza un movimiento de Nequi con un pedido: en el
+   * panel de la pasarela no sale qué juegos son, solo el dinero y esto.
+   */
+  async function copiarReferencia(ref: string) {
+    const copiada = await copiar(ref)
+    if (copiada) {
+      avisos.exito('Referencia copiada. Búscala en tu Nequi para cuadrar el pago.')
+    } else {
+      avisos.error('No se pudo copiar. Selecciónala y cópiala a mano.')
     }
   }
 
@@ -621,6 +640,93 @@ export default function PedidoDetalle() {
 
         {/* ── Columna lateral ───────────────────────────────────────────────── */}
         <div className="space-y-4">
+          {/* ── Pago ────────────────────────────────────────────────────────
+              Va lo primero porque es lo primero que hay que hacer con un
+              pedido nuevo: comprobar si el dinero entró. */}
+          <section className="adm-card-pad">
+            <h2 className="adm-titulo text-[15px]">Pago</h2>
+
+            <dl className="mt-3 space-y-3 text-[13.5px]">
+              <div>
+                <dt className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wide text-slate-400">
+                  <CreditCard className="h-3.5 w-3.5" aria-hidden="true" />
+                  Medio
+                </dt>
+                <dd className="mt-0.5 font-semibold text-slate-900">
+                  {pedido.paymentMethod || (
+                    <span className="font-normal text-slate-400">Sin registrar</span>
+                  )}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wide text-slate-400">
+                  <Hash className="h-3.5 w-3.5" aria-hidden="true" />
+                  Referencia
+                </dt>
+                <dd className="mt-1">
+                  {pedido.paymentRef ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <code className="adm-num rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[13px] font-bold text-slate-900">
+                        {pedido.paymentRef}
+                      </code>
+                      <button
+                        type="button"
+                        onClick={() => void copiarReferencia(pedido.paymentRef!)}
+                        // En el móvil se toca con el dedo: 44 px de alto, como
+                        // los botones de estado. En el escritorio vuelve al
+                        // tamaño pequeño para no desequilibrar la tarjeta.
+                        className="adm-btn-suave adm-btn-sm min-h-[44px] sm:min-h-[34px]"
+                      >
+                        <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                        Copiar
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-[13px] text-slate-400">
+                      Este pedido se registró a mano, sin pasar por la pasarela.
+                    </span>
+                  )}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-[12px] font-semibold uppercase tracking-wide text-slate-400">
+                  Aviso por correo
+                </dt>
+                <dd className="mt-0.5 text-slate-700">
+                  {pedido.notified === null ? (
+                    <span className="text-slate-400">No se registró</span>
+                  ) : pedido.notified ? (
+                    <span className="font-semibold text-emerald-700">Enviado</span>
+                  ) : (
+                    <span className="font-semibold text-amber-700">No salió</span>
+                  )}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-[12px] font-semibold uppercase tracking-wide text-slate-400">
+                  Última actualización
+                </dt>
+                <dd className="mt-0.5 text-slate-700">{fechaLarga(pedido.updatedAt)}</dd>
+              </div>
+            </dl>
+
+            {/* La tienda no puede saber si el cliente pagó: el enlace de cobro
+                se abre fuera del sitio y no vuelve. Decirlo aquí evita que
+                «pendiente» se lea como «no pagó». */}
+            {pedido.status === 'pendiente' && pedido.paymentRef && (
+              <p className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-[12.5px] leading-relaxed text-slate-600">
+                <strong className="text-slate-800">«Pendiente» no quiere decir que no
+                pagó.</strong>{' '}
+                El cliente paga en la app, fuera de la tienda, y el sitio no se entera.
+                Busca esta referencia en tu Nequi: si el dinero está, pasa el pedido a{' '}
+                <strong>Confirmado</strong> y se descuenta el stock solo.
+              </p>
+            )}
+          </section>
+
           <section className="adm-card-pad">
             <h2 className="adm-titulo text-[15px]">Cliente</h2>
 

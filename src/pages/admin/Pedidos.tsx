@@ -371,13 +371,28 @@ export default function Pedidos() {
         clave: 'codigo',
         titulo: 'Código',
         orden: (p) => p.code,
+        // Bajo el código va la referencia de la pasarela: es lo que hay que
+        // buscar en Nequi para saber si ese pedido está pagado, y tenerla en
+        // la lista ahorra entrar uno por uno.
         celda: (p) => (
-          <Link
-            to={`/admin/pedidos/${p.id}`}
-            className="font-mono text-[12.5px] font-bold text-blue-700 hover:underline"
-          >
-            {p.code}
-          </Link>
+          <div className="min-w-0">
+            <Link
+              to={`/admin/pedidos/${p.id}`}
+              className="font-mono text-[12.5px] font-bold text-blue-700 hover:underline"
+            >
+              {p.code}
+            </Link>
+            {p.paymentRef && (
+              <span className="adm-num block truncate text-[11.5px] text-slate-400">
+                {p.paymentRef}
+              </span>
+            )}
+            {p.notified === false && (
+              <span className="mt-0.5 block text-[11.5px] font-semibold text-amber-700">
+                Sin aviso por correo
+              </span>
+            )}
+          </div>
         ),
       },
       {
@@ -490,16 +505,31 @@ export default function Pedidos() {
     (p: Order) => (
       <div className="flex flex-col gap-2">
         <div className="flex items-start justify-between gap-3">
-          <Link
-            to={`/admin/pedidos/${p.id}`}
-            className="font-mono text-[13px] font-bold text-blue-700"
-          >
-            {p.code}
-          </Link>
+          <div className="min-w-0">
+            <Link
+              to={`/admin/pedidos/${p.id}`}
+              className="font-mono text-[13px] font-bold text-blue-700"
+            >
+              {p.code}
+            </Link>
+            {/* La referencia también en el móvil: es lo que se busca en Nequi,
+                y el teléfono es donde se mira el Nequi. */}
+            {p.paymentRef && (
+              <span className="adm-num block truncate text-[11.5px] text-slate-400">
+                {p.paymentRef}
+              </span>
+            )}
+          </div>
           <span className="shrink-0">
             <Etiqueta tono={tonoEstado(p.status)}>{etiquetaEstado(p.status)}</Etiqueta>
           </span>
         </div>
+
+        {p.notified === false && (
+          <p className="text-[12px] font-semibold text-amber-700">
+            Sin aviso por correo
+          </p>
+        )}
 
         <div className="min-w-0">
           <p className="truncate text-[14px] font-bold text-slate-900">
