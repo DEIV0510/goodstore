@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <main
         id="contenido"
         tabIndex={-1}
-        className="flex-1 pt-[var(--gg-header)] focus:outline-none"
+        className="flex-1 pt-[var(--gg-arriba)] focus:outline-none"
       >
         {children}
       </main>

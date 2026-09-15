@@ -10,6 +10,7 @@ import { useState } from 'react'
 import DatosDelCliente from '@/components/cart/DatosDelCliente'
 import { site } from '@/data/site'
 import { mensajeDeError } from '@/lib/api'
+import { hayTarifasEnvio } from '@/lib/envio'
 import { cop } from '@/lib/format'
 import {
   copiar,
@@ -156,6 +157,9 @@ function YendoAPagar({ pedido, total }: { pedido: string; total: number }) {
       <p className="tabular mt-2 font-display text-3xl font-black text-gold-500">
         {cop(total)}
       </p>
+      {hayTarifasEnvio() && (
+        <p className="mt-1 text-[12px] text-white/55">Sin envío: ese lo cuadramos aparte.</p>
+      )}
       <p className="mt-4 text-sm leading-relaxed text-white/60">
         Te estamos llevando al pago seguro de {site.pago.proveedor}…
       </p>
@@ -247,7 +251,11 @@ function PagoPorEnlace({
           <p className="mt-2 text-[12.5px] text-white/50" aria-live="polite">
             {falloCopia
               ? 'Tu navegador no dejó copiar. Selecciona el número y cópialo a mano.'
-              : `Son ${cop(total)}. Se escribe sin puntos ni signo de pesos.`}
+              : `Son ${cop(total)}. Se escribe sin puntos ni signo de pesos.${
+                  hayTarifasEnvio()
+                    ? ' Es solo el valor de los juegos: el envío te lo cobramos aparte.'
+                    : ''
+                }`}
           </p>
         </Paso>
 

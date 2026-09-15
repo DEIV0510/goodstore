@@ -8,6 +8,13 @@
 @layer base {
   :root {
     --gg-header: 68px;
+    /* Alto de la barra de envíos que va encima de la navegación. La barra
+       publica su alto real al pintarse (dos líneas en un móvil estrecho, 0 si
+       no hay tarifas); este valor solo evita el salto del primer pintado. */
+    --gg-barra: 32px;
+    /* Todo lo que tapa la cabecera fija: navegación + barra de envíos. Es lo
+       que tiene que apartarse el contenido, no solo --gg-header. */
+    --gg-arriba: calc(var(--gg-header) + var(--gg-barra));
   }
 
   @media (min-width: 1024px) {
@@ -22,7 +29,7 @@
 
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: calc(var(--gg-header) + 16px);
+    scroll-padding-top: calc(var(--gg-arriba) + 16px);
   }
 
   @media (prefers-reduced-motion: reduce) {

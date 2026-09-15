@@ -217,7 +217,7 @@ export default function Catalog() {
         <div className="lg:grid lg:grid-cols-[264px,minmax(0,1fr)] lg:gap-8">
           {/* Filtros (escritorio) */}
           <aside className="hidden lg:block">
-            <div className="sticky top-[calc(var(--gg-header)+20px)] max-h-[calc(100dvh-var(--gg-header)-40px)] overflow-y-auto rounded-card border border-white/10 bg-ink-700/45 p-4">
+            <div className="sticky top-[calc(var(--gg-arriba)+20px)] max-h-[calc(100dvh-var(--gg-arriba)-40px)] overflow-y-auto rounded-card border border-white/10 bg-ink-700/45 p-4">
               {panel}
             </div>
           </aside>

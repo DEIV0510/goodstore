@@ -393,6 +393,46 @@ pendientes.
 
 ---
 
+## 5-quáter. Tarifas de envío
+
+El envío **no va sumado al precio de cada juego**: quien lleva dos o tres
+pagaría el envío dos o tres veces. Se cobra aparte.
+
+Las tarifas se publican en cuatro sitios, con la misma frase en todos:
+
+| Dónde | Qué ve el cliente |
+|---|---|
+| Barra fina encima del menú, en todo el sitio | «Envío $15.000 en el Valle de Aburrá · $18.500 al resto del país · Puede variar en casos puntuales» (en el móvil, una versión más corta) |
+| Carrito, junto al total | El total pasa a llamarse **«Total sin envío»** y debajo van las tarifas |
+| Formulario y pasos del pago en línea | «Envío aparte» y, al copiar el total, que es solo el valor de los juegos |
+| Ficha de cada juego | Las tarifas, en la lista de ventajas bajo el precio |
+
+**Son informativas.** El cobro en línea sigue siendo solo el de los juegos: el
+envío lo cuadras tú con el cliente al coordinar la entrega. En la ficha del
+pedido puedes anotar lo que cobraste en **«Envío cobrado»**.
+
+### Cambiarlas
+
+En **General → Envíos**:
+
+- **Domicilio en el Valle de Aburrá** — hoy $15.000. Cubre Medellín, Itagüí,
+  Envigado, Bello y el resto del área metropolitana.
+- **Envío al resto del país** — hoy $18.500.
+
+Puedes escribirlas con o sin punto de miles: «18.500» y «18500» se guardan
+igual. **«Envío gratis desde»** no se publica en la tienda: es solo para tu
+referencia, como las zonas, la transportadora y las notas.
+
+Deja una casilla vacía y ese precio deja de publicarse. Si dejas las dos
+vacías, la barra desaparece y la ficha vuelve a decir solo «Envíos a toda
+Colombia».
+
+> En casos puntuales el valor del envío puede variar. La tienda lo avisa en el
+> carrito, el pago y la ficha de cada juego (y en la barra, en pantallas
+> grandes); si pasa, díselo al cliente cuando le confirmes el pedido.
+
+---
+
 ## 6. Reglas del negocio que el panel respeta
 
 Vienen del brief del cliente y están escritas en el código, no solo aquí:

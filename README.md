@@ -175,6 +175,8 @@ ninguna imagen de banco: **todas las portadas son fotos reales del inventario.**
 | Aviso por correo de cada pedido, al negocio y al cliente | ✅ configurable en /admin |
 | Inventario descontado solo al confirmar y devuelto al cancelar | ✅ una sola vez, nunca en negativo |
 | Aviso al cliente en cada cambio de estado, con número de guía | ✅ desde la ficha del pedido |
+| Referencia de pago en la ficha y en la lista de pedidos | ✅ con botón de copiar |
+| Tarifas de envío publicadas: barra superior, carrito, pago y ficha | ✅ editables en /admin, informativas (no se suman al cobro) |
 | Favoritos con página propia | ✅ |
 | Sección y formulario de videojuegos usados | ✅ envía por WhatsApp |
 | Botón flotante de WhatsApp + volver arriba | ✅ |

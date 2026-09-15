@@ -504,10 +504,14 @@ if ($recurso === 'ajustes') {
             ],
             'shipping' => [
                 'coverage' => gg_ajustes_lista($crudo, 'coverage', $base),
-                // null = sin definir. La tienda no muestra una tarifa que el
-                // negocio no ha confirmado; dice que se cuadra por WhatsApp.
+                // null = sin definir: la tienda no publica una tarifa que el
+                // negocio no ha confirmado.
                 'freeFrom' => gg_ajustes_entero($crudo, 'freeFrom', $base, 1000000000),
-                'flatRate' => gg_ajustes_entero($crudo, 'flatRate', $base, 1000000000),
+                // Las dos tarifas que publica la tienda (barra de arriba,
+                // carrito, pago y ficha). Informativas: el cobro en línea no
+                // las suma; el envío se cuadra aparte con el cliente.
+                'metroRate'    => gg_ajustes_entero($crudo, 'metroRate', $base, 1000000000),
+                'nationalRate' => gg_ajustes_entero($crudo, 'nationalRate', $base, 1000000000),
                 'carrier'  => gg_ajustes_texto($crudo, 'carrier', 120, $base),
                 'notes'    => gg_ajustes_texto($crudo, 'notes', 600, $base),
             ],

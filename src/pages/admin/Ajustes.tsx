@@ -92,14 +92,19 @@ const REDES: { clave: keyof Settings['socials']; etiqueta: string; ejemplo: stri
 const LARGO_META = 160
 
 /**
- * Convierte lo escrito en un campo numérico opcional. Un input `number` puede
- * entregar cadenas que no son un número ('1e', '--'): eso no es una tarifa, y
- * una tarifa que no existe se guarda como null, nunca como 0.
+ * Convierte lo escrito en un campo de pesos opcional.
+ *
+ * En Colombia los miles se separan con punto: «18.500». Un input `number` con
+ * la página en español lee ese punto como decimal, y la tarifa se guardaba como
+ * $19. Por eso estos campos son de texto y aquí se quitan puntos, comas y
+ * espacios antes de convertir: son pesos enteros, no hay decimales que
+ * conservar. Lo que no sea un número se guarda como null —«sin definir»—,
+ * nunca como 0.
  */
 function numeroOpcional(valor: string): number | null {
-  if (valor.trim() === '') return null
-  const n = Number(valor)
-  return Number.isFinite(n) && n >= 0 ? Math.round(n) : null
+  const limpio = valor.replace(/[.,\s]/g, '')
+  if (limpio === '' || !/^\d+$/.test(limpio)) return null
+  return Number(limpio)
 }
 
 export default function Ajustes() {
@@ -684,18 +689,21 @@ export default function Ajustes() {
             )}
           </div>
 
-          {/* Ninguna página pública lee todavía este bloque: la cobertura que se
-              anuncia sale del «Texto de envíos» de la pestaña Empresa. Decirlo
-              aquí evita que se den por publicadas unas tarifas que no lo están. */}
+          {/* Qué de este bloque ve el cliente y qué no. Las dos tarifas SÍ se
+              publican; lo demás (zonas, envío gratis, transportadora, notas) es
+              solo referencia del negocio. Sin decirlo, el dueño no sabe qué de
+              lo que escribe aquí sale en la tienda. */}
           <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 p-3">
             <AlertTriangle
               className="mt-px h-4 w-4 shrink-0 text-amber-600"
               aria-hidden="true"
             />
             <p className="text-[12.5px] leading-relaxed text-amber-900">
-              Estos datos se guardan para tu referencia. Lo que la tienda anuncia hoy
-              sobre envíos es el <strong>«Texto de envíos»</strong> de la pestaña
-              Empresa; el costo se sigue confirmando por WhatsApp.
+              Las dos <strong>tarifas</strong> se publican en la barra de arriba, el
+              carrito, el pago y la ficha de cada juego, pero <strong>no se suman al
+              cobro en línea</strong>: el envío lo cuadras aparte con el cliente. Las
+              zonas, el envío gratis, la transportadora y las notas son solo para tu
+              referencia.
             </p>
           </div>
 
@@ -763,38 +771,53 @@ export default function Ajustes() {
           </div>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            {/* Las dos tarifas que se publican en la tienda. Campos de texto y no
+                `number`: en español el navegador lee «18.500» como 18,5 y se
+                guardaban $19. numeroOpcional() quita los separadores de miles. */}
             <Entrada
-              label="Envío gratis desde"
-              type="number"
+              label="Domicilio en el Valle de Aburrá"
+              type="text"
               inputMode="numeric"
-              min={0}
-              step={1000}
-              placeholder="Sin definir"
-              value={ajustes.shipping.freeFrom ?? ''}
+              placeholder="Sin definir · ej. 15.000"
+              value={ajustes.shipping.metroRate ?? ''}
               onChange={(e) =>
-                editarEnvios({ freeFrom: numeroOpcional(e.target.value) })
+                editarEnvios({ metroRate: numeroOpcional(e.target.value) })
               }
-              ayuda={`Déjalo vacío si aún no lo has definido: no se inventa una tarifa que no exista.${
-                ajustes.shipping.freeFrom !== null
-                  ? ` Equivale a ${cop(ajustes.shipping.freeFrom)}.`
+              ayuda={`Medellín, Itagüí, Envigado, Bello y el resto del Valle de Aburrá. Vacío = no se publica.${
+                ajustes.shipping.metroRate !== null
+                  ? ` Equivale a ${cop(ajustes.shipping.metroRate)}.`
                   : ''
               }`}
               className="adm-num"
             />
             <Entrada
-              label="Tarifa plana"
-              type="number"
+              label="Envío al resto del país"
+              type="text"
               inputMode="numeric"
-              min={0}
-              step={1000}
-              placeholder="Sin definir"
-              value={ajustes.shipping.flatRate ?? ''}
+              placeholder="Sin definir · ej. 18.500"
+              value={ajustes.shipping.nationalRate ?? ''}
               onChange={(e) =>
-                editarEnvios({ flatRate: numeroOpcional(e.target.value) })
+                editarEnvios({ nationalRate: numeroOpcional(e.target.value) })
               }
-              ayuda={`Déjalo vacío si aún no lo has definido: no se inventa una tarifa que no exista.${
-                ajustes.shipping.flatRate !== null
-                  ? ` Equivale a ${cop(ajustes.shipping.flatRate)}.`
+              ayuda={`Sale en la barra de arriba, en el carrito y en cada juego. No se suma al cobro en línea. Vacío = no se publica.${
+                ajustes.shipping.nationalRate !== null
+                  ? ` Equivale a ${cop(ajustes.shipping.nationalRate)}.`
+                  : ''
+              }`}
+              className="adm-num"
+            />
+            <Entrada
+              label="Envío gratis desde"
+              type="text"
+              inputMode="numeric"
+              placeholder="Sin definir"
+              value={ajustes.shipping.freeFrom ?? ''}
+              onChange={(e) =>
+                editarEnvios({ freeFrom: numeroOpcional(e.target.value) })
+              }
+              ayuda={`Solo para tu referencia: la tienda no lo publica.${
+                ajustes.shipping.freeFrom !== null
+                  ? ` Equivale a ${cop(ajustes.shipping.freeFrom)}.`
                   : ''
               }`}
               className="adm-num"

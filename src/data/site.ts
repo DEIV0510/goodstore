@@ -1,3 +1,4 @@
+import { TARIFAS_ENVIO_POR_OMISION } from '@/data/envio'
 import type { Settings, WhatsappSettings } from '@/types'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -57,6 +58,16 @@ const POR_OMISION = {
     proveedor: 'Nequi',
     enlace: 'https://checkout.nequi.wompi.co/l/xT7STl',
     nota: '',
+  },
+
+  /**
+   * Tarifas de envío que la tienda publica: barra de arriba, carrito, pago y
+   * ficha de cada juego. Son INFORMATIVAS: el cobro en línea no las suma, el
+   * envío se cuadra aparte al coordinar la entrega. null = no se publica.
+   */
+  envio: {
+    area: TARIFAS_ENVIO_POR_OMISION.area as number | null,
+    nacional: TARIFAS_ENVIO_POR_OMISION.nacional as number | null,
   },
 
   url: 'https://goodgamecol.shop',
@@ -144,6 +155,13 @@ export function configurarSitio(ajustes: Settings, whatsapp: WhatsappSettings): 
       proveedor: ajustes.payments.provider.trim() || POR_OMISION.pago.proveedor,
       enlace: ajustes.payments.link.trim(),
       nota: ajustes.payments.note.trim(),
+    },
+
+    // «Envío gratis desde» se queda en el panel y no se publica: el negocio no
+    // lo pidió, y sería una promesa hecha en su nombre.
+    envio: {
+      area: ajustes.shipping.metroRate,
+      nacional: ajustes.shipping.nationalRate,
     },
   })
 

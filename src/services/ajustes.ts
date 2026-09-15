@@ -1,3 +1,4 @@
+import { TARIFAS_ENVIO_POR_OMISION } from '@/data/envio'
 import { api } from '@/lib/api'
 import type { Settings, WhatsappSettings } from '@/types'
 
@@ -32,11 +33,14 @@ export const AJUSTES_POR_OMISION: Settings = {
   socials: { instagram: '', facebook: '', tiktok: '', youtube: '' },
   shipping: {
     coverage: ['Medellín', 'Antioquia', 'Toda Colombia'],
-    // Sin tarifas: el negocio todavía no las definió y no se inventan.
+    // Las tarifas las dio el negocio el 2026-09-15 y viven en data/envio.ts,
+    // que también lee la tienda: una sola copia para que no se separen.
     freeFrom: null,
-    flatRate: null,
+    metroRate: TARIFAS_ENVIO_POR_OMISION.area,
+    nationalRate: TARIFAS_ENVIO_POR_OMISION.nacional,
     carrier: '',
-    notes: 'El costo del envío se confirma por WhatsApp según la ciudad.',
+    notes:
+      'El envío se cobra aparte del precio de los juegos. En casos puntuales el valor puede variar.',
   },
   seo: {
     title: 'GOOD GAME | Videojuegos, Consolas y Accesorios',

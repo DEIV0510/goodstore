@@ -2,6 +2,7 @@ import { Heart, Menu, MessageCircle, Search, ShoppingCart, X } from 'lucide-reac
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import Logo from '@/components/brand/Logo'
+import BarraEnvios from './BarraEnvios'
 import SearchOverlay from './SearchOverlay'
 import { NAV } from './navigation'
 import { MESSAGES, site, waLink } from '@/data/site'
@@ -67,6 +68,7 @@ export default function Header() {
             : 'border-b border-transparent bg-gradient-to-b from-ink-900/55 via-ink-900/20 to-transparent'
         }`}
       >
+        <BarraEnvios />
         <div className="gg-container flex h-[var(--gg-header)] items-center gap-2">
           <Link
             to="/"

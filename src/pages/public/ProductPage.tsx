@@ -20,6 +20,7 @@ import { useCatalogo } from '@/hooks/useCatalogo'
 import { registrarVista } from '@/services/catalogo'
 import { conditionLabel, genreLabel, platformLabel, regionLabel } from '@/data/taxonomy'
 import { site } from '@/data/site'
+import { hayTarifasEnvio, tarifasEnvioTexto } from '@/lib/envio'
 import { cop } from '@/lib/format'
 import { productMessage } from '@/lib/whatsapp'
 import { useSeo } from '@/lib/seo'
@@ -373,7 +374,15 @@ export default function ProductPage() {
 
             <ul className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-2xs text-white/55">
               {[
-                { icon: Truck, text: 'Envíos a toda Colombia' },
+                {
+                  icon: Truck,
+                  // Con tarifas publicadas se dice la cifra: «envíos a toda
+                  // Colombia» sin precio deja el costo en el aire, que es justo
+                  // lo que el negocio pidió evitar.
+                  text: hayTarifasEnvio()
+                    ? `Envío: ${tarifasEnvioTexto()} (puede variar)`
+                    : 'Envíos a toda Colombia',
+                },
                 { icon: RefreshCw, text: 'Recibimos usados como parte de pago' },
                 { icon: ShieldCheck, text: 'Confirmamos todo antes de enviar' },
               ].map(({ icon: Icon, text }) => (

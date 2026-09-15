@@ -5,6 +5,7 @@ import {
   Plus,
   ShoppingCart,
   Trash2,
+  Truck,
   MessageCircle,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -14,6 +15,7 @@ import Drawer from '@/components/ui/Drawer'
 import ProductImage from '@/components/ui/ProductImage'
 import { PlatformBadge } from '@/components/ui/Badges'
 import { site } from '@/data/site'
+import { hayTarifasEnvio, tarifasEnvioTexto } from '@/lib/envio'
 import { cop, pluralize } from '@/lib/format'
 import { cartMessage } from '@/lib/whatsapp'
 import { useStore } from '@/store/StoreContext'
@@ -103,13 +105,36 @@ export default function CartDrawer() {
                   {cartTotal > 0 ? cop(cartTotal) : '—'}
                 </dd>
               </div>
+              {hayTarifasEnvio() && (
+                <div className="flex items-center justify-between">
+                  <dt className="text-white/60">Envío</dt>
+                  <dd className="text-[13px] font-semibold text-white/70">Se paga aparte</dd>
+                </div>
+              )}
               <div className="flex items-center justify-between border-t border-white/10 pt-1.5">
-                <dt className="font-bold text-white">Total aproximado</dt>
+                <dt className="font-bold text-white">
+                  {hayTarifasEnvio() ? 'Total sin envío' : 'Total aproximado'}
+                </dt>
                 <dd className="tabular font-display text-xl font-black text-gold-500">
                   {cartTotal > 0 ? cop(cartTotal) : 'A confirmar'}
                 </dd>
               </div>
             </dl>
+
+            {/* El envío no va en el precio de cada juego a propósito —quien
+                lleva dos pagaría dos envíos—, así que es aquí, al lado del
+                total, donde hay que decir cuánto cuesta. Si no, el cliente se
+                entera cuando ya pagó. */}
+            {hayTarifasEnvio() && (
+              <p className="flex gap-2 rounded-lg border border-white/10 bg-white/[.04] px-3 py-2 text-[12px] leading-relaxed text-white/65">
+                <Truck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gold-500" aria-hidden="true" />
+                <span>
+                  <strong className="font-semibold text-white/85">{tarifasEnvioTexto()}.</strong>{' '}
+                  Va aparte del precio de los juegos y lo cuadramos contigo al coordinar la
+                  entrega. En casos puntuales puede variar.
+                </span>
+              </p>
+            )}
 
             {cartHasPending && (
               <p className="rounded-lg border border-gold-500/25 bg-gold-500/[.07] px-3 py-2 text-2xs leading-relaxed text-gold-300">

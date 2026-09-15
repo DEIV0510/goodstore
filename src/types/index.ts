@@ -265,7 +265,10 @@ export interface SocialLinks {
 export interface ShippingSettings {
   coverage: string[]
   freeFrom: number | null
-  flatRate: number | null
+  /** Domicilio en el Valle de Aburrá. null = no se publica. */
+  metroRate: number | null
+  /** Envío al resto del país. null = no se publica. */
+  nationalRate: number | null
   carrier: string
   notes: string
 }

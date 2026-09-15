@@ -1,5 +1,6 @@
 import { ArrowRight, ShieldCheck } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
+import { hayTarifasEnvio, tarifasEnvioTexto } from '@/lib/envio'
 import { cop } from '@/lib/format'
 import { DATOS_VACIOS, datosGuardados, type DatosCliente } from '@/lib/pago'
 
@@ -118,11 +119,16 @@ export default function DatosDelCliente({
     <form onSubmit={enviar} noValidate className="px-4 py-5">
       <div className="rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-center">
         <p className="text-2xs font-bold uppercase tracking-[.18em] text-white/50">
-          Total de tu pedido
+          {hayTarifasEnvio() ? 'Total sin envío' : 'Total de tu pedido'}
         </p>
         <p className="tabular mt-1 font-display text-2xl font-black text-gold-500">
           {cop(total)}
         </p>
+        {hayTarifasEnvio() && (
+          <p className="mt-1.5 text-[12px] leading-relaxed text-white/60">
+            Envío aparte: {tarifasEnvioTexto()}. Puede variar en casos puntuales.
+          </p>
+        )}
       </div>
 
       <p className="mt-5 text-[13px] leading-relaxed text-white/60">
