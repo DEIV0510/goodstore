@@ -34,6 +34,9 @@ const navegador = await puppeteer.launch({
 let fallos = 0
 try {
   const pagina = await navegador.newPage()
+  // Solo lectura: se puede pasar contra la tienda en vivo sin escribir nada.
+  await pagina.setRequestInterception(true)
+  pagina.on('request', (r) => (r.method() === 'GET' ? r.continue() : r.abort()))
 
   for (const ruta of RUTAS) {
     for (const ancho of ANCHOS) {
