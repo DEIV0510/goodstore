@@ -14,6 +14,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import ProductCard from '@/components/catalog/ProductCard'
+import PageLoader from '@/components/ui/PageLoader'
 import ProductImage from '@/components/ui/ProductImage'
 import { ConditionBadge, PlatformBadge, RegionBadge, StockBadge, isAvailable } from '@/components/ui/Badges'
 import { useCatalogo } from '@/hooks/useCatalogo'
@@ -28,7 +29,7 @@ import { useStore } from '@/store/StoreContext'
 
 export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>()
-  const { productos: products, porSlug } = useCatalogo()
+  const { productos: products, porSlug, cargando } = useCatalogo()
   const product = useMemo(() => (slug ? porSlug(slug) : undefined), [slug, porSlug])
   const [qty, setQty] = useState(1)
   const [activeImage, setActiveImage] = useState(0)
@@ -54,7 +55,9 @@ export default function ProductPage() {
   useSeo({
     title: product
       ? `${product.name} — ${platformLabel(product.platform)} | GOOD GAME`
-      : 'Producto no encontrado | GOOD GAME',
+      : cargando
+        ? site.name
+        : 'Producto no encontrado | GOOD GAME',
     description: product
       ? `${product.description || `${product.name} para ${platformLabel(product.platform)}, ${product.condition}.`} Disponible en GOOD GAME con envíos a Medellín y toda Colombia.`
       : 'Este producto no está disponible en GOOD GAME.',
@@ -85,7 +88,15 @@ export default function ProductPage() {
       : undefined,
   })
 
-  if (!product) return <Navigate to="/404" replace />
+  // Sin producto todavía NO quiere decir que no exista. En una visita directa
+  // —un enlace de WhatsApp, un resultado de Google, cualquiera de las fichas
+  // del sitemap— la página se pinta antes de que llegue el catálogo, y el
+  // índice está vacío. Antes se mandaba a 404 en ese instante, así que toda
+  // ficha abierta desde fuera de la tienda acababa en «Game Over» aunque el
+  // juego existiera; navegando desde el catálogo no se notaba porque el
+  // catálogo ya estaba cargado. Solo es 404 cuando el catálogo ya llegó y el
+  // juego no está.
+  if (!product) return cargando ? <PageLoader /> : <Navigate to="/404" replace />
 
   const available = isAvailable(product)
   const fav = isFavorite(product.slug)
